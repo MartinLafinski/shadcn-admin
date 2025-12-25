@@ -7,10 +7,11 @@ export const Route = createFileRoute('/clerk/(auth)')({
   component: ClerkAuthLayout,
 })
 
+// eslint-disable-next-line react-refresh/only-export-components
 function ClerkAuthLayout() {
   return (
     <div className='relative container grid h-svh flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0'>
-      <div className='bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-e'>
+      <div className='relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-e'>
         <div className='absolute inset-0 bg-slate-500' />
         <Link
           to='/'

@@ -45,16 +45,17 @@ export const tasksColumns: ColumnDef<Task>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Title' />
     ),
-    meta: { className: 'ps-1', tdClassName: 'ps-4' },
+    meta: {
+      className: 'ps-1 max-w-0 w-2/3',
+      tdClassName: 'ps-4',
+    },
     cell: ({ row }) => {
       const label = labels.find((label) => label.value === row.original.label)
 
       return (
         <div className='flex space-x-2'>
           {label && <Badge variant='outline'>{label.label}</Badge>}
-          <span className='max-w-32 truncate font-medium sm:max-w-72 md:max-w-[31rem]'>
-            {row.getValue('title')}
-          </span>
+          <span className='truncate font-medium'>{row.getValue('title')}</span>
         </div>
       )
     },
@@ -77,7 +78,7 @@ export const tasksColumns: ColumnDef<Task>[] = [
       return (
         <div className='flex w-[100px] items-center gap-2'>
           {status.icon && (
-            <status.icon className='text-muted-foreground size-4' />
+            <status.icon className='size-4 text-muted-foreground' />
           )}
           <span>{status.label}</span>
         </div>
@@ -105,7 +106,7 @@ export const tasksColumns: ColumnDef<Task>[] = [
       return (
         <div className='flex items-center gap-2'>
           {priority.icon && (
-            <priority.icon className='text-muted-foreground size-4' />
+            <priority.icon className='size-4 text-muted-foreground' />
           )}
           <span>{priority.label}</span>
         </div>

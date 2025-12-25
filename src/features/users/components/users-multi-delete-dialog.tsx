@@ -38,6 +38,7 @@ export function UsersMultiDeleteDialog<TData>({
     toast.promise(sleep(2000), {
       loading: 'Deleting users...',
       success: () => {
+        setValue('')
         table.resetRowSelection()
         return `Deleted ${selectedRows.length} ${
           selectedRows.length > 1 ? 'users' : 'user'
@@ -56,7 +57,7 @@ export function UsersMultiDeleteDialog<TData>({
       title={
         <span className='text-destructive'>
           <AlertTriangle
-            className='stroke-destructive me-1 inline-block'
+            className='me-1 inline-block stroke-destructive'
             size={18}
           />{' '}
           Delete {selectedRows.length}{' '}
