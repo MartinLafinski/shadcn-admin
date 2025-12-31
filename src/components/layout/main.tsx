@@ -6,6 +6,7 @@ type MainProps = React.HTMLAttributes<HTMLElement> & {
   ref?: React.Ref<HTMLElement>
 }
 
+// '@7xl/content:mx-auto @7xl/content:w-full @7xl/content:max-w-7xl',
 export function Main({ fixed, className, fluid, ...props }: MainProps) {
   return (
     <main
@@ -18,7 +19,7 @@ export function Main({ fixed, className, fluid, ...props }: MainProps) {
 
         // If layout is not fluid, set the max-width
         !fluid &&
-          '@7xl/content:mx-auto @7xl/content:w-full @7xl/content:max-w-7xl',
+          '@7xl/content:mx-auto @7xl/content:w-full',
         className
       )}
       {...props}

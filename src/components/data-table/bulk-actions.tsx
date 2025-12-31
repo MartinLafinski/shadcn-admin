@@ -18,49 +18,59 @@ type DataTableBulkActionsProps<TData> = {
 }
 
 /**
- * A modular toolbar for displaying bulk actions when table rows are selected.
+ * 数据表格批量操作工具栏组件
+ * 当表格行被选中时显示批量操作工具栏，提供选中行的计数和批量操作按钮
  *
- * @template TData The type of data in the table.
- * @param {object} props The component props.
- * @param {Table<TData>} props.table The react-table instance.
- * @param {string} props.entityName The name of the entity being acted upon (e.g., "task", "user").
- * @param {React.ReactNode} props.children The action buttons to be rendered inside the toolbar.
- * @returns {React.ReactNode | null} The rendered component or null if no rows are selected.
+ * @template TData 表格数据类型
+ * @param {object} props 组件属性
+ * @param {Table<TData>} props.table react-table 实例
+ * @param {string} props.entityName 实体名称（例如："任务", "用户"），用于显示文本
+ * @param {React.ReactNode} props.children 工具栏中要渲染的批量操作按钮
+ * @returns {React.ReactNode | null} 渲染的组件，如果没有选中行则返回 null
  */
 export function DataTableBulkActions<TData>({
   table,
   entityName,
   children,
 }: DataTableBulkActionsProps<TData>): React.ReactNode | null {
+  // 获取当前过滤后被选中的行
   const selectedRows = table.getFilteredSelectedRowModel().rows
+  // 计算选中行的数量
   const selectedCount = selectedRows.length
+  // 工具栏 DOM 引用，用于键盘导航
   const toolbarRef = useRef<HTMLDivElement>(null)
+  // 用于屏幕阅读器的通知状态
   const [announcement, setAnnouncement] = useState('')
 
-  // Announce selection changes to screen readers
+  // 当选中行变化时，向屏幕阅读器发送通知
   useEffect(() => {
     if (selectedCount > 0) {
-      const message = `${selectedCount} ${entityName}${selectedCount > 1 ? 's' : ''} selected. Bulk actions toolbar is available.`
+      // 构建通知消息
+      const message = `${selectedCount} 条 ${entityName} 已选取. 批量操作工具栏可用.`
 
-      // Use queueMicrotask to defer state update and avoid cascading renders
+      // 使用 queueMicrotask 延迟更新状态以避免级联渲染
       queueMicrotask(() => {
         setAnnouncement(message)
       })
 
-      // Clear announcement after a delay
+      // 3秒后清除通知，避免屏幕阅读器持续读出
       const timer = setTimeout(() => setAnnouncement(''), 3000)
       return () => clearTimeout(timer)
     }
   }, [selectedCount, entityName])
 
+  // 清除表格行选中状态
   const handleClearSelection = () => {
     table.resetRowSelection()
   }
 
+  // 处理键盘事件，实现工具栏内导航和快捷键功能
   const handleKeyDown = (event: React.KeyboardEvent) => {
+    // 获取工具栏内的所有按钮元素
     const buttons = toolbarRef.current?.querySelectorAll('button')
     if (!buttons) return
 
+    // 找到当前获得焦点的按钮索引
     const currentIndex = Array.from(buttons).findIndex(
       (button) => button === document.activeElement
     )
@@ -68,12 +78,14 @@ export function DataTableBulkActions<TData>({
     switch (event.key) {
       case 'ArrowRight': {
         event.preventDefault()
+        // 移动到下一个按钮，循环到开头
         const nextIndex = (currentIndex + 1) % buttons.length
         buttons[nextIndex]?.focus()
         break
       }
       case 'ArrowLeft': {
         event.preventDefault()
+        // 移动到上一个按钮，循环到末尾
         const prevIndex =
           currentIndex === 0 ? buttons.length - 1 : currentIndex - 1
         buttons[prevIndex]?.focus()
@@ -81,19 +93,21 @@ export function DataTableBulkActions<TData>({
       }
       case 'Home':
         event.preventDefault()
+        // 移动到第一个按钮
         buttons[0]?.focus()
         break
       case 'End':
         event.preventDefault()
+        // 移动到最后一个按钮
         buttons[buttons.length - 1]?.focus()
         break
       case 'Escape': {
-        // Check if the Escape key came from a dropdown trigger or content
-        // We can't check dropdown state because Radix UI closes it before our handler runs
+        // 检查 Escape 键是否来自下拉菜单，避免误清除选择
+        // 由于 Radix UI 在我们的处理程序运行之前就关闭了下拉菜单，我们无法检查下拉状态
         const target = event.target as HTMLElement
         const activeElement = document.activeElement as HTMLElement
 
-        // Check if the event target or currently focused element is a dropdown trigger
+        // 检查事件目标或当前聚焦元素是否是下拉菜单触发器
         const isFromDropdownTrigger =
           target?.getAttribute('data-slot') === 'dropdown-menu-trigger' ||
           activeElement?.getAttribute('data-slot') ===
@@ -101,17 +115,17 @@ export function DataTableBulkActions<TData>({
           target?.closest('[data-slot="dropdown-menu-trigger"]') ||
           activeElement?.closest('[data-slot="dropdown-menu-trigger"]')
 
-        // Check if the focused element is inside dropdown content (which is portaled)
+        // 检查聚焦元素是否在下拉菜单内容内部（内容是传送的）
         const isFromDropdownContent =
           activeElement?.closest('[data-slot="dropdown-menu-content"]') ||
           target?.closest('[data-slot="dropdown-menu-content"]')
 
         if (isFromDropdownTrigger || isFromDropdownContent) {
-          // Escape was meant for the dropdown - don't clear selection
+          // Escape 是用于关闭下拉菜单的 - 不清除选择
           return
         }
 
-        // Escape was meant for the toolbar - clear selection
+        // Escape 是用于工具栏的 - 清除选择
         event.preventDefault()
         handleClearSelection()
         break
@@ -119,13 +133,14 @@ export function DataTableBulkActions<TData>({
     }
   }
 
+  // 如果没有选中任何行，则不渲染工具栏
   if (selectedCount === 0) {
     return null
   }
 
   return (
     <>
-      {/* Live region for screen reader announcements */}
+      {/* 为屏幕阅读器提供实时通知的区域 */}
       <div
         aria-live='polite'
         aria-atomic='true'
@@ -138,7 +153,7 @@ export function DataTableBulkActions<TData>({
       <div
         ref={toolbarRef}
         role='toolbar'
-        aria-label={`Bulk actions for ${selectedCount} selected ${entityName}${selectedCount > 1 ? 's' : ''}`}
+        aria-label={`批量操作选取了 ${selectedCount} 条 ${entityName}${selectedCount > 1 ? 's' : ''}`}
         aria-describedby='bulk-actions-description'
         tabIndex={-1}
         onKeyDown={handleKeyDown}
@@ -156,6 +171,7 @@ export function DataTableBulkActions<TData>({
             'flex items-center gap-x-2'
           )}
         >
+          {/* 清除选择按钮 */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -163,24 +179,26 @@ export function DataTableBulkActions<TData>({
                 size='icon'
                 onClick={handleClearSelection}
                 className='size-6 rounded-full'
-                aria-label='Clear selection'
-                title='Clear selection (Escape)'
+                aria-label='清空选择'
+                title='清空选择 (Escape)'
               >
                 <X />
-                <span className='sr-only'>Clear selection</span>
+                <span className='sr-only'>清空选择</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Clear selection (Escape)</p>
+              <p>清除选择 (Escape)</p>
             </TooltipContent>
           </Tooltip>
 
+          {/* 分隔线 */}
           <Separator
             className='h-5'
             orientation='vertical'
             aria-hidden='true'
           />
 
+          {/* 选中项计数显示 */}
           <div
             className='flex items-center gap-x-1 text-sm'
             id='bulk-actions-description'
@@ -188,23 +206,24 @@ export function DataTableBulkActions<TData>({
             <Badge
               variant='default'
               className='min-w-8 rounded-lg'
-              aria-label={`${selectedCount} selected`}
+              aria-label={`${selectedCount} 条已选取`}
             >
               {selectedCount}
-            </Badge>{' '}
+            </Badge>
             <span className='hidden sm:inline'>
-              {entityName}
-              {selectedCount > 1 ? 's' : ''}
-            </span>{' '}
-            selected
+              条{entityName}
+            </span>
+            已选取
           </div>
 
+          {/* 分隔线 */}
           <Separator
             className='h-5'
             orientation='vertical'
             aria-hidden='true'
           />
 
+          {/* 批量操作按钮（由父组件传入） */}
           {children}
         </div>
       </div>

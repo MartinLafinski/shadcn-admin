@@ -33,9 +33,9 @@ export const sidebarData: SidebarData = {
   },
   teams: [
     {
-      name: 'Shadcn Admin',
+      name: 'Smart Spider',
       logo: Command,
-      plan: 'Vite + ShadcnUI',
+      plan: '智蛛语料采集管理',
     },
     {
       name: 'Acme Inc',
@@ -56,6 +56,16 @@ export const sidebarData: SidebarData = {
           title: 'Dashboard',
           url: '/',
           icon: LayoutDashboard,
+        },
+        {
+          title: '网站',
+          url: '/websites',
+          icon: ListTodo,
+        },
+        {
+          title: '敏感词',
+          url: '/blackwords',
+          icon: ListTodo,
         },
         {
           title: 'Tasks',

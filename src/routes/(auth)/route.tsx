@@ -17,7 +17,7 @@ function ClerkAuthLayout() {
           className='relative z-20 flex items-center text-lg font-medium'
         >
           <Logo className='me-2' />
-          Shadcn Admin
+          智蛛语料
         </Link>
 
         <ClerkFullLogo className='relative m-auto size-96' />
@@ -25,10 +25,9 @@ function ClerkAuthLayout() {
         <div className='relative z-20 mt-auto'>
           <blockquote className='space-y-2'>
             <p className='text-lg'>
-              &ldquo; Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Sint, magni debitis inventore asperiores velit! &rdquo;
+              请选择您的账号进行登录操盘
             </p>
-            <footer className='text-sm'>John Doe</footer>
+            <footer className='text-sm'>只能以第三方账号登录</footer>
           </blockquote>
         </div>
       </div>
@@ -41,13 +40,13 @@ function ClerkAuthLayout() {
             }}
             contentProps={{ side: 'top', align: 'end', className: 'w-auto' }}
           >
-            Welcome to the example Clerk auth page. <br />
-            Back to{' '}
+            欢迎登录智蛛系统 <br />
+            返回{' '}
             <Link
               to='/'
               className='underline decoration-dashed underline-offset-2'
             >
-              Dashboard
+              控制台
             </Link>{' '}
             ?
           </LearnMore>
