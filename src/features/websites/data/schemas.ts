@@ -23,7 +23,11 @@ export const WebsiteItemSchema = z.object({
     // 网站显示名称
     website_name: z.string(),
     // 网站URL标识符（通常用于路由）
-    website_slug: z.string(),
+    website_slug: z.string()
+      .trim()
+      .min(2, '网站标识长度不小于2')
+      .max(32, '网站标识长度不大于32')
+      .regex(/^[a-zA-Z0-9\-_]{2,32}$/, '网站标识应该是字母、数字、连字符或下划线，长度在2到32之间'),
     // 网站访问URL（可选字段）
     website_url: z.url().optional().nullable(),
     // 网站配置对象，存储任意键值对配置信息
@@ -133,8 +137,7 @@ export type WebsiteBatchSwitchData = z.infer<typeof WebsiteBatchSwitchSchema>
 // =====================================================================================================================
 // 网站批量导出Schema
 // =====================================================================================================================
-// region Website Batch Switch Schema
-
+// region Website Batch Export Schema
 
 
 /**
@@ -194,9 +197,9 @@ export const WebsiteCreateSchema = z.object({
     // 网站访问URL（可选字段）
     website_url: z.url("请输入正确的网址").optional().nullable(),
     // 网站配置对象，存储任意键值对配置信息
-    website_config: z.record(z.string(), z.any()),
+    website_config: z.record(z.string(), z.any()).optional(),
     // 网站说明文档内容
-    website_readme: z.string(),
+    website_readme: z.string().optional(),
 })
 
 export type WebsiteCreateData = z.infer<typeof WebsiteCreateSchema>
@@ -236,14 +239,35 @@ export type WebsiteUpdateData = z.infer<typeof WebsiteUpdateSchema>
 // 网站配置Schema
 // =====================================================================================================================
 // region Website Config Schema
+/**
+ * 网站配置信息的 Zod 验证模式
+ * 用于验证网站配置更新请求的数据结构
+ * 包含网站的配置信息和说明文档内容
+ * 
+ * 使用场景：
+ * - 网站配置页面的表单验证
+ * - 更新网站配置信息的API请求参数验证
+ * - 网站设置功能的数据验证
+ */
 export const WebsiteConfigSchema = z.object({
-
     // 网站配置对象，存储任意键值对配置信息
-    website_config: z.record(z.string(), z.any()),
+    // 用于存储网站的特定配置参数，如主题设置、功能开关等
+    website_config: z.record(z.string(), z.any()).optional(),
     // 网站说明文档内容
-    website_readme: z.string(),
+    // 用于存储网站的说明文档或描述信息，通常用于展示网站的用途和使用方法
+    website_readme: z.string().optional(),
 })
 
+/**
+ * WebsiteConfig 类型定义
+ * 从 WebsiteConfigSchema 推断出的 TypeScript 类型
+ * 用于网站配置信息数据的类型标注，确保类型安全
+ * 
+ * 该类型通常用于：
+ * - 网站配置相关API响应数据类型
+ * - 配置编辑组件的props类型
+ * - 配置表单的初始值和验证结果类型
+ */
 export type WebsiteConfigData = z.infer<typeof WebsiteConfigSchema>
 // endregion
 
@@ -252,14 +276,37 @@ export type WebsiteConfigData = z.infer<typeof WebsiteConfigSchema>
 // 网站集合Schema
 // =====================================================================================================================
 // region Website Collection Schema
+/**
+ * 网站列表集合的 Zod 验证模式
+ * 用于验证包含多个网站信息及分页数据的复合数据结构
+ * 适用于网站列表查询API响应数据的验证，包含网站数据数组和分页信息
+ * 
+ * 使用场景：
+ * - 网站列表页面的数据获取API响应
+ * - 分页查询多个网站的场景
+ * - 网站管理后台的列表展示功能
+ * - 批量获取网站信息的数据结构验证
+ */
 export const WebsitesSchema = z.object({
-
-    // 网站列表
+    // 网站数据列表
+    // 包含多个网站的详细信息，每个元素都是符合WebsiteSchema格式的完整网站对象
     websites: z.array(WebsiteSchema),
-    // 分页信息
+    // 分页信息对象
+    // 包含当前页码、总条数、页大小等分页相关的元数据，用于前端分页组件展示
     pagination: PaginationInfoSchema,
 })
 
+/**
+ * Websites 类型定义
+ * 从 WebsitesSchema 推断出的 TypeScript 类型
+ * 用于网站列表集合数据的类型标注，确保类型安全
+ * 
+ * 该类型通常用于：
+ * - 网站列表API响应数据类型
+ * - 网站列表组件的props类型定义
+ * - 列表数据状态管理的类型约束
+ * - 分页数据处理函数的参数类型
+ */
 export type WebsitesData = z.infer<typeof WebsitesSchema>
 // endregion
 

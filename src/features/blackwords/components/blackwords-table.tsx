@@ -1,18 +1,18 @@
 // 引入依赖
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { usePrevious } from '@/hooks/use-previous'
 // 样式工具函数
 import { cn } from "@/lib/utils.ts"
 // 表格相关
 import {
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  // getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  SortingState,
+  ColumnFiltersState,
+  VisibilityState,
 } from '@tanstack/react-table'
 // 表格控件
 import {
@@ -23,86 +23,114 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-// 自定义分页和工具控件
-import {
-  DataTablePagination,
-  DataTableToolbar,
-} from '@/components/data-table'
-// 可用性标签
-import { enableLabels } from "@/features/blackwords/data/labels"
-// 批量操作控件
-import { BlackwordsBulkActions } from './actions/blackwords-bulk-actions'
-// 敏感词表格数据列
-import { blackwordsColumns } from './blackwords-columns'
-// 敏感词数据结构
-import { type BlackwordData } from '@/features/blackwords/data/schemas'
-// 分页数据结构
-import { type PaginationInfoData } from '@/config/pagination'
 // 敏感词数据同步
 import { useBlackwords } from './blackwords-provider'
+// 自定义分页和工具控件
+import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
+// 可用性标签
+import { enableLabels } from '@/features/blackwords/data/labels'
+// 批量操作控件
+import { BlackwordsBulkActions } from './actions/blackwords-bulk-actions'
+// 敏感词数据结构
+import { BlackwordData } from '@/features/blackwords/data/schemas'
+// 分页数据结构
+import { PaginationInfoData } from '@/config/pagination'
+// 敏感词数据同步
+import { blackwordsColumns } from './blackwords-columns'
 
 /**
- * 敏感词数据表格组件
+ * 敏感词表格组件属性接口
  * 
- * 此组件用于展示敏感词列表数据，支持排序、过滤、搜索和分页功能
- * 主要功能包括：
- * - 显示敏感词基本信息（名称、标识、集合等）
- * - 支持按敏感词名称/标识搜索
- * - 支持按启用状态过滤
- * - 支持列排序和分页
- * - 响应式设计，适配移动端
+ * 该接口定义了敏感词表格组件所需的所有属性，包括：
+ * - 敏感词列表数据
+ * - 分页信息
+ * - 加载状态
+ * - 数据获取状态
+ * 
+ * @interface BlackwordsTableProps
  */
-interface DataTableProps {
+interface BlackwordsTableProps {
   /**
    * 敏感词数据列表
-   * 类型为 BlackwordData 数组，包含敏感词的基本信息
+   * 
+   * 包含所有需要展示的敏感词数据，每项数据应符合 BlackwordData 结构
+   * 
+   * @type {BlackwordData[]}
+   * @default []
    */
-  data: BlackwordData[] | undefined
+  data?: BlackwordData[]
+  
   /**
-   * 分页信息
-   * 类型为 PaginationInfoData，包含分页信息（当前页、总页数、每页数量等）
+   * 分页信息数据
+   * 
+   * 包含当前页码、每页大小、总条数、总页数等分页相关信息
+   * 
+   * @type {PaginationInfoData}
+   * @default undefined
    */
   pager?: PaginationInfoData
+  
   /**
-   * 首次加载状态
-   * 当为 true 时显示"加载中..."（首次加载且无缓存数据）
+   * 数据加载状态
+   * 
+   * 指示是否正在从服务器获取初始数据，为 true 时会显示加载动画
+   * 
+   * @type {boolean}
+   * @default false
    */
   isLoading?: boolean
+  
   /**
-   * 数据获取状态
-   * 当为 true 时显示加载指示器（包括后台刷新、invalidateQueries等所有数据获取场景）
+   * 数据刷新状态
+   * 
+   * 指示是否正在刷新数据（例如：手动刷新、轮询更新等），为 true 时会在表格顶部显示刷新指示器
+   * 
+   * @type {boolean}
+   * @default false
    */
   isFetching?: boolean
 }
 
-/**
- * 敏感词数据表格组件
- * 
- * 使用 TanStack Table 实现的可交互数据表格
- * 包含工具栏（搜索和过滤）、表格主体和分页组件
- */
-export function BlackwordsTable({ data = [], pager = undefined, isLoading = false, isFetching = false }: DataTableProps) {
+export function BlackwordsTable({ data = [], pager = undefined, isLoading = false, isFetching = false }: BlackwordsTableProps) {
   // 表格状态管理
   // 从 context 获取搜索参数
   const { searchParams, setSearchParams } = useBlackwords()
-  // 分页状态
-  // const [pagination, setPagination] = useState({
-  //   pageIndex: (searchParams?.page ?? 1) - 1,
-  //   pageSize: searchParams?.size ?? 10,
-  // })
+
+  // 用 ref 标记是否是内部的分页操作
+  const isPaginationChangeRef = useRef(false)
+
+  // 使用 searchParams 作为分页状态的来源，而不是 pager
   const [pagination, setPagination] = useState({
-    pageIndex: (pager?.page ?? 1) - 1,
-    pageSize: pager?.size ?? 10,
+    pageIndex: (searchParams?.page ?? 1) - 1,
+    pageSize: searchParams?.size ?? 10,
   })
 
-  // 当分页信息变化时，更新表格状态
-  useEffect(() => {
-    setPagination({
-      pageIndex: (pager?.page ?? 1) - 1,
-      pageSize: pager?.size ?? 10,
-    })
-  }, [pager?.page, pager?.size])
+  // 保持上一次的 pager 值，避免在请求期间闪烁
+  const prevPager = usePrevious(pager)
+  const stablePager = pager ?? prevPager
 
+  // 【关键】添加一个 useEffect，仅监听 searchParams.page 的变化
+  // 当外部（如搜索按钮）强制修改 page 时，同步到 pagination state
+  useEffect(() => {
+    // 如果是内部分页操作触发的，跳过
+    if (isPaginationChangeRef.current) {
+      isPaginationChangeRef.current = false
+      return
+    }
+
+    const newPageIndex = (searchParams?.page ?? 1) - 1
+    // 只有当 page 真正变化时才更新（避免不必要的重渲染）
+    if (newPageIndex !== pagination.pageIndex) {
+      setPagination(prev => ({
+        ...prev,
+        pageIndex: newPageIndex,
+        pageSize: searchParams?.size ?? 10,
+      }))
+    }
+  }, [searchParams?.page, searchParams?.size]) // 只监听 page，不监听其他
+
+
+  
   // 排序状态：跟踪当前的排序列和排序方向
   const [sorting, setSorting] = useState<SortingState>([])
   // 列过滤状态：跟踪当前应用的过滤条件
@@ -114,7 +142,6 @@ export function BlackwordsTable({ data = [], pager = undefined, isLoading = fals
   // 全局过滤状态：用于跨多列的 OR 搜索
   const [globalFilter, setGlobalFilter] = useState('')
 
-
   // 创建 TanStack Table 实例
   // 通过配置各种模型和状态来实现数据表格的功能
   const table = useReactTable({
@@ -125,8 +152,8 @@ export function BlackwordsTable({ data = [], pager = undefined, isLoading = fals
     // 启用分页模型（分页功能）
     // getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true,
-    rowCount: pager?.total ?? 0,
-    pageCount: pager?.pages ?? 0,
+    rowCount: stablePager?.total ?? 0,
+    pageCount: stablePager?.pages ?? 0,
     // 启用排序模型（排序功能）
     getSortedRowModel: getSortedRowModel(),
     // 启用过滤模型（过滤功能）
@@ -150,14 +177,16 @@ export function BlackwordsTable({ data = [], pager = undefined, isLoading = fals
     onPaginationChange: (updater) => {
       const newPagination = typeof updater === 'function' ? updater(pagination) : updater
       setPagination(newPagination)
+
+      // 标记这是内部分页操作
+      isPaginationChangeRef.current = true
       
       // 更新 URL 参数
-      setSearchParams({
-        blackwords_keyword: searchParams.blackwords_keyword || undefined,
-        blackwords_enabled: searchParams.blackwords_enabled,
+      setSearchParams(prev => ({
+        ...prev,
         page: newPagination.pageIndex + 1,
         size: newPagination.pageSize,
-      })
+      }))
     }, // 分页状态变更时的回调
     
     // 将当前状态传递给表格实例
@@ -188,7 +217,7 @@ export function BlackwordsTable({ data = [], pager = undefined, isLoading = fals
       )}
 
       {/* 数据表格工具栏 */}
-      {/* 包含搜索框和过滤器，允许用户搜索敏感词名称/标识，以及按启用状态过滤 */}
+      {/* 包含搜索框和过滤器，允许用户搜索网站名称/标识/URL，以及按启用状态过滤 */}
       <DataTableToolbar
         table={table} // 传递表格实例给工具栏组件
         // 不指定 searchKey 则使用全局过滤（支持跨多列 OR 搜索）

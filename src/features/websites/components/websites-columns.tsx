@@ -48,7 +48,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
                 (table.getIsSomePageRowsSelected() && 'indeterminate')
             }
             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label='Select all'
+            aria-label='全选'
             className='translate-y-[2px]'
         />
     ),
@@ -56,7 +56,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
         <Checkbox
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label='Select row'
+            aria-label='行选择'
             className='translate-y-[2px]'
         />
     ),
@@ -82,7 +82,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     accessorKey: 'website_name',
     header: '网站名称',
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue('website_name')}</div>
+      <div className="font-semibold">{row.getValue('website_name')}</div>
     ),
   },
   /**

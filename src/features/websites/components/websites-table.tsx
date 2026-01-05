@@ -1,5 +1,6 @@
 // 引入依赖
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { usePrevious } from '@/hooks/use-previous'
 // 样式工具函数
 import { cn } from "@/lib/utils.ts"
 // 表格相关
@@ -82,23 +83,39 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
   // 表格状态管理
   // 从 context 获取搜索参数
   const { searchParams, setSearchParams } = useWebsites()
-  // 分页状态
-  // const [pagination, setPagination] = useState({
-  //   pageIndex: (searchParams?.page ?? 1) - 1,
-  //   pageSize: searchParams?.size ?? 10,
-  // })
+
+  // 用 ref 标记是否是内部的分页操作
+  const isPaginationChangeRef = useRef(false)
+
+  // 使用 searchParams 作为分页状态的来源，而不是 pager
   const [pagination, setPagination] = useState({
-    pageIndex: (pager?.page ?? 1) - 1,
-    pageSize: pager?.size ?? 10,
+    pageIndex: (searchParams?.page ?? 1) - 1,
+    pageSize: searchParams?.size ?? 10,
   })
 
-  // 当分页信息变化时，更新表格状态
+  // 保持上一次的 pager 值，避免在请求期间闪烁
+  const prevPager = usePrevious(pager)
+  const stablePager = pager ?? prevPager
+
+  // 【关键】添加一个 useEffect，仅监听 searchParams.page 的变化
+  // 当外部（如搜索按钮）强制修改 page 时，同步到 pagination state
   useEffect(() => {
-    setPagination({
-      pageIndex: (pager?.page ?? 1) - 1,
-      pageSize: pager?.size ?? 10,
-    })
-  }, [pager?.page, pager?.size])
+    // 如果是内部分页操作触发的，跳过
+    if (isPaginationChangeRef.current) {
+      isPaginationChangeRef.current = false
+      return
+    }
+
+    const newPageIndex = (searchParams?.page ?? 1) - 1
+    // 只有当 page 真正变化时才更新（避免不必要的重渲染）
+    if (newPageIndex !== pagination.pageIndex) {
+      setPagination(prev => ({
+        ...prev,
+        pageIndex: newPageIndex,
+        pageSize: searchParams?.size ?? 10,
+      }))
+    }
+  }, [searchParams?.page, searchParams?.size]) // 只监听 page，不监听其他
 
   // 排序状态：跟踪当前的排序列和排序方向
   const [sorting, setSorting] = useState<SortingState>([])
@@ -122,8 +139,8 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
     // 启用分页模型（分页功能）
     // getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true,
-    rowCount: pager?.total ?? 0,
-    pageCount: pager?.pages ?? 0,
+    rowCount: stablePager?.total ?? 0,
+    pageCount: stablePager?.pages ?? 0,
     // 启用排序模型（排序功能）
     getSortedRowModel: getSortedRowModel(),
     // 启用过滤模型（过滤功能）
@@ -147,14 +164,16 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
     onPaginationChange: (updater) => {
       const newPagination = typeof updater === 'function' ? updater(pagination) : updater
       setPagination(newPagination)
-      
+
+      // 标记这是内部分页操作
+      isPaginationChangeRef.current = true
+
       // 更新 URL 参数
-      setSearchParams({
-        website_keyword: searchParams.website_keyword || undefined,
-        website_enabled: searchParams.website_enabled,
+      setSearchParams(prev => ({
+        ...prev,
         page: newPagination.pageIndex + 1,
         size: newPagination.pageSize,
-      })
+      }))
     }, // 分页状态变更时的回调
     
     // 将当前状态传递给表格实例

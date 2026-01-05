@@ -58,7 +58,10 @@ export function DataTablePagination<TData>({
   // 获取总项目数
   const totalItemCount = table.getRowCount()
   // 生成页码数组，用于显示页码按钮（如 [1, 2, 3, '...', 10]）
-  const pageNumbers = getPageNumbers(currentPage, totalPages)
+  // const pageNumbers = getPageNumbers(currentPage, totalPages)
+  const pageNumbers = totalPages > 0 ? getPageNumbers(currentPage, totalPages) : []
+
+  // console.log(currentPage, totalPages, totalItemCount, pageNumbers)
 
   return (
     <div

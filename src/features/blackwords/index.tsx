@@ -22,6 +22,7 @@ import { BlackwordsProvider, useBlackwords } from './components/blackwords-provi
 import { UserButton } from '@clerk/clerk-react'
 // 敏感词独立操作按钮
 import { BlackwordsPrimaryActions } from "./components/actions/blackwords-primary-actions.tsx"
+
 /**
  * 敏感词管理页面内容组件
  * 
@@ -68,8 +69,8 @@ function BlackwordsContent() {
   const { data, isLoading, isFetching, isError } = useBlackwordsQuery(
     searchParams.blackwords_keyword,
     searchParams.blackwords_enabled,
-    searchParams.page,
-    searchParams.size
+    searchParams.page || 1,
+    searchParams.size || 10
   )
 
   // 错误状态处理：当数据获取失败时显示错误信息

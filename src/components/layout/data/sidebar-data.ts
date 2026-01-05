@@ -63,8 +63,23 @@ export const sidebarData: SidebarData = {
           icon: ListTodo,
         },
         {
+          title: '入口点',
+          url: '/entrypoints',
+          icon: ListTodo,
+        },
+        {
           title: '敏感词',
           url: '/blackwords',
+          icon: ListTodo,
+        },
+        {
+          title: '模板',
+          url: '/templates',
+          icon: ListTodo,
+        },
+        {
+          title: '友链',
+          url: '/links',
           icon: ListTodo,
         },
         {

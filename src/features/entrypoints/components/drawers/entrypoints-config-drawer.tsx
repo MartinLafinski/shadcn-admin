@@ -1,0 +1,239 @@
+// 引入依赖
+import { useState, useEffect } from 'react'
+// 导入表单库
+import { useForm } from 'react-hook-form'
+// 用于同步后台数据
+import { useQueryClient } from '@tanstack/react-query'
+// 数据验证库
+import { zodResolver } from '@hookform/resolvers/zod'
+// 显示提交数据
+import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
+// 按钮控件
+import { Button } from '@/components/ui/button.tsx'
+// 表单控件
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form.tsx'
+// 抽屉控件
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet.tsx'
+// 数据结构
+import { type EntrypointConfigData, type EntrypointItemData, EntrypointConfigSchema } from '../../data/schemas.ts'
+// 配置入口点API调用
+import { usePatchEntrypointMutation, useEntrypointQuery } from '../../api/entrypoints.ts'
+// JSON编辑器
+import { JsonEditor, githubDarkTheme, githubLightTheme } from 'json-edit-react'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
+// 操作结果提示框
+import { toast } from "sonner"
+
+/**
+ * 入口点配置和说明抽屉组件
+ * 用于配置和说明新入口点或编辑现有入口点信息
+ * 包含表单验证、JSON配置编辑器和Markdown编辑器等功能
+ */
+type EntrypointConfigDrawerProps = {
+  /** 控制抽屉是否打开 */
+  open: boolean
+  /** 当抽屉打开状态改变时的回调函数 */
+  onOpenChange: (open: boolean) => void
+  /** 当前正在编辑的入口点数据，如果为undefined则表示配置和说明新入口点 */
+  currentRow?: EntrypointItemData
+}
+
+/**
+ * 入口点配置和说明抽屉组件
+ * 提供配置和说明或编辑入口点的表单界面
+ *
+ * 功能特性：
+ * - 使用 react-hook-form 进行表单管理
+ * - 集成 Zod 验证 schema
+ * - 支持 JSON 配置编辑
+ * - 支持 Markdown 文档编辑
+ * - 主题适配（亮色/暗色模式）
+ * - 响应式设计
+ */
+export function EntrypointConfigDrawer(
+  {
+    open,
+    onOpenChange,
+    currentRow,
+  }: EntrypointConfigDrawerProps)
+{
+  const queryClient = useQueryClient()
+  // 添加查询钩子
+  const { data: latestEntrypoint, isLoading: isLatestDataLoading, refetch } = useEntrypointQuery(currentRow?.entrypoint_id || 0)
+
+  // 添加状态管理
+  const [, setShowConflictWarning] = useState(false)
+
+  // 检查数据一致性
+  useEffect(() => {
+    if (open && currentRow?.entrypoint_id) {
+      // 重新获取最新数据
+      refetch()
+    }
+  }, [open, currentRow?.entrypoint_id])
+
+  // 当最新数据获取完成且与当前行数据不同时，显示警告
+  useEffect(() => {
+    if (latestEntrypoint && currentRow && open && !isLatestDataLoading) {
+      const hasChanged = latestEntrypoint.updated_at !== currentRow.updated_at
+      if (hasChanged) {
+        setShowConflictWarning(true)
+        // 用最新数据更新表单
+        form.reset({
+          entrypoint_config: latestEntrypoint.entrypoint_config,
+          entrypoint_readme: latestEntrypoint.entrypoint_readme,
+        })
+        // 使入口点列表查询缓存失效，以更新表格中的数据
+        queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
+      }
+    }
+  }, [latestEntrypoint, currentRow, open, isLatestDataLoading, queryClient])
+
+  // 获取当前主题（用于JSON编辑器和MD编辑器主题适配）
+  const { resolvedTheme } = useTheme()
+
+  // 初始化配置和说明入口点的mutation
+  const configEntrypointMutation = usePatchEntrypointMutation()
+
+  // 初始化表单，设置验证规则和默认值
+  const form = useForm<EntrypointConfigData>({
+    resolver: zodResolver(EntrypointConfigSchema),
+    // 如果有currentRow则使用其值作为默认值，否则使用空值
+    defaultValues: currentRow ? {
+      // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
+      entrypoint_config: currentRow.entrypoint_config,
+      // 入口点说明文档 - 使用Markdown格式的说明文档内容
+      entrypoint_readme: currentRow.entrypoint_readme,
+    } : {
+      // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
+      entrypoint_config: {},
+      // 入口点说明文档 - 使用Markdown格式的说明文档内容
+      entrypoint_readme: '',
+    },
+  })
+
+  /**
+   * 表单提交处理函数
+   * 调用API配置和说明入口点数据
+   * @param data - 表单提交的数据
+   */
+  const onSubmit = async (data: EntrypointConfigData) => {
+    // 确保有 currentRow 和 entrypoint_id
+    if (!currentRow?.entrypoint_id) {
+        console.error('缺少入口点ID，无法配置和说明')
+        return
+    }
+
+    // 使用 mutation 调用 API 配置和说明入口点
+    await configEntrypointMutation.mutateAsync({
+        entrypointId: currentRow.entrypoint_id,
+        data
+    }).then((res) => {
+      toast.success(`入口点 ${res.entrypoint_name} 说明与配置编辑成功`) // 操作成功提示
+    }).catch((error) => {
+      console.error(`入口点 ${currentRow.entrypoint_name} 说明与配置编辑失败:`, error) // 记录错误日志
+      toast.error(`入口点 ${currentRow.entrypoint_name} 说明与配置编辑失败`) // 操作失败提示
+    })
+
+    // 关闭抽屉
+    onOpenChange(false)
+    // 重置表单到默认状态
+    form.reset()
+    // 显示提交的数据（用于调试）
+    showSubmittedData(data)
+  }
+
+  return (
+    <Sheet
+      open={open}
+      onOpenChange={(v) => {
+        onOpenChange(v)
+        // 关闭抽屉时重置表单，确保下次打开时表单是干净的
+        form.reset()
+      }}
+    >
+      <SheetContent className='flex flex-col min-w-1/3'>
+        <SheetHeader className='text-start'>
+          <SheetTitle>配置和说明入口点</SheetTitle>
+          <SheetDescription>
+            配置和说明入口点 (入口点ID:{currentRow?.entrypoint_id})
+          </SheetDescription>
+        </SheetHeader>
+        {/* 将表单与react-hook-form实例连接 */}
+        <Form {...form}>
+          <form
+            id='entrypoint-config-form'
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='flex-1 space-y-6 overflow-y-auto px-4'
+          >
+            {/* 入口点说明字段 - Markdown格式的文档内容 */}
+            <FormField
+              control={form.control}
+              name='entrypoint_readme'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>入口点说明</FormLabel>
+                  <FormControl data-color-mode={resolvedTheme}>
+                    {/* Markdown编辑器，适配主题颜色 */}
+                    <MDEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* 入口点配置字段 - JSON格式的配置信息 */}
+            <FormField
+              control={form.control}
+              name='entrypoint_config'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>入口点配置</FormLabel>
+                  <FormControl>
+                    {/* JSON编辑器，支持主题切换 */}
+                    <JsonEditor
+                      data={field.value}
+                      setData={field.onChange}
+                      rootFontSize={13}
+                      theme={resolvedTheme === 'light' ? githubLightTheme : githubDarkTheme}
+                      minWidth="100%" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+          </form>
+        </Form>
+        <SheetFooter className='gap-2'>
+          <SheetClose asChild>
+            <Button variant='outline'>关闭</Button>
+          </SheetClose>
+          <Button form='entrypoint-config-form' type='submit'>
+            配置入口点
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  )
+}

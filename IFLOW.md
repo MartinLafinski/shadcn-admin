@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-Shadcn Admin Dashboard 是一个使用 Shadcn UI 和 Vite 构建的管理面板 UI。该项目专注于响应性和可访问性，提供了一个功能丰富的管理界面模板，包含多个页面和自定义组件。项目版本为 2.2.1，使用 React 19 和 TypeScript 构建。
+Shadcn Admin Dashboard 是一个使用 Shadcn UI 和 Vite 构建的现代化管理面板 UI。该项目专注于响应性和可访问性，提供了一个功能丰富的管理界面模板，包含多个页面和自定义组件。项目版本为 2.2.1，使用 React 19 和 TypeScript 构建。
 
 ### 主要特性
 - 支持浅色/深色模式
@@ -19,6 +19,13 @@ Shadcn Admin Dashboard 是一个使用 Shadcn UI 和 Vite 构建的管理面板 
 - 智能日期时间组件
 - 分页配置管理
 - 网站管理功能
+- 黑词管理功能
+- 链接管理功能
+- 模板管理功能
+- 应用管理功能
+- 用户管理功能
+- 任务管理功能
+- 聊天功能
 
 ### 项目结构
 ```
@@ -56,7 +63,7 @@ shadcn-admin/
 **路由:** [TanStack Router](https://tanstack.com/router/latest)
 **类型检查:** [TypeScript](https://www.typescriptlang.org/)
 **代码检查/格式化:** [ESLint](https://eslint.org/) & [Prettier](https://prettier.io/)
-**图标:** [Lucide Icons](https://lucide.dev/icons/), [Tabler Icons](https://tabler.io/icons)
+**图标:** [Lucide Icons](https://lucide.dev/icons/)
 **认证:** [Clerk](https://go.clerk.com/GttUAaK)
 **状态管理:** [Zustand](https://zustand-demo.pmnd.rs/)
 **数据获取:** [TanStack Query](https://tanstack.com/query/latest)
@@ -97,6 +104,7 @@ pnpm run build
 - 使用文件系统路由约定
 - 支持路由参数和嵌套路由结构
 - 新增路由会自动在 `routeTree.gen.ts` 中生成
+- 认证相关路由位于 `src/routes/_authenticated/` 目录下
 
 ### 组件结构
 - 使用 Shadcn UI 组件作为基础
@@ -104,6 +112,7 @@ pnpm run build
 - 组件分为 UI 组件、布局组件、数据表格组件和智能组件
 - 自定义组件包括 data-table、layout、smart 等组件类型
 - 智能组件（如 datetime.tsx）提供增强功能
+- 数据表格组件支持分页、搜索、筛选、批量操作等功能
 
 ### 状态管理
 - 使用 Zustand 进行全局状态管理
@@ -129,11 +138,14 @@ pnpm run build
 包含主要功能模块:
 - `apps/` - 应用管理
 - `auth/` - 认证模块
+- `blackwords/` - 黑词管理 (新增功能)
 - `chats/` - 聊天功能
 - `dashboard/` - 仪表板
 - `errors/` - 错误页面
+- `links/` - 链接管理 (新增功能)
 - `settings/` - 设置页面 (包含账户、外观、显示、通知子页面)
 - `tasks/` - 任务管理
+- `templates/` - 模板管理 (新增功能)
 - `users/` - 用户管理
 - `websites/` - 网站管理 (新增功能)
 
@@ -143,7 +155,6 @@ pnpm run build
 - `layout/` - 布局组件 (包含侧边栏、头部等)
 - `data-table/` - 数据表格组件 (包含工具栏、分页、批量操作等)
 - `smart/` - 智能组件 (如 datetime 组件)
-- `data-table/` - 数据表格相关组件
 - 其他自定义组件 (命令菜单、配置抽屉等)
 
 ### `src/context/`
@@ -189,6 +200,28 @@ Zustand 状态管理:
 - 实现了分页、搜索、筛选等功能
 - 提供批量操作（切换状态、删除、导出等）
 
+### 黑词管理功能
+- 在 `src/features/blackwords` 目录下新增了黑词管理功能
+- 包含完整的 CRUD 操作 API 调用
+- 包含组件和数据模式定义 (使用 Zod 验证)
+- 在路由中添加了 `/blackwords` 路径
+- 提供批量操作（删除、导出等）
+- 包含对话框和抽屉组件用于创建、更新和配置
+
+### 链接管理功能
+- 在 `src/features/links` 目录下新增了链接管理功能
+- 包含完整的 CRUD 操作 API 调用
+- 包含组件和数据模式定义 (使用 Zod 验证)
+- 在路由中添加了 `/links` 路径
+- 实现了分页、搜索、筛选等功能
+
+### 模板管理功能
+- 在 `src/features/templates` 目录下新增了模板管理功能
+- 包含完整的 CRUD 操作 API 调用
+- 包含组件和数据模式定义 (使用 Zod 验证)
+- 在路由中添加了 `/templates` 路径
+- 提供批量操作（删除、导出等）
+
 ### 智能组件
 - 在 `src/components/smart/` 目录下新增了 `datetime.tsx` 组件
 - 提供智能日期时间显示，支持时区转换和格式化
@@ -225,12 +258,12 @@ Zustand 状态管理:
 ## 构建配置
 
 - 使用 Vite 作为构建工具，支持快速开发和热模块替换
-- 集成 Tailwind CSS 用于样式开发
-- 使用 TypeScript 编译器 (TSC) 进行类型检查
-- 配置路径别名 (`@/*` 指向 `./src/*`)
 - 集成 TanStack Router 插件进行自动路由生成
 - 集成 Tailwind CSS Vite 插件
-- 支持自动代码分割
+- 使用 TypeScript 编译器 (TSC) 进行类型检查
+- 配置路径别名 (`@/*` 指向 `./src/*`)
+- 支持代码分割和懒加载
+- 使用 SWC 进行更快的编译
 
 ## API 集成
 

@@ -17,6 +17,8 @@ import {
 import MDEditor from '@uiw/react-md-editor'
 // JSON 数据查看器控件
 import JsonView from '@uiw/react-json-view'
+import { githubLightTheme } from '@uiw/react-json-view/githubLight'
+import { githubDarkTheme } from '@uiw/react-json-view/githubDark'
 // 日/夜主题上下文
 import { useTheme } from '@/context/theme-provider.tsx'
 
@@ -125,7 +127,7 @@ export function WebsitesInfoDialog({ open, onOpenChange, readme, config, website
                     displayObjectSize={true}         // 显示对象大小
                     enableClipboard={true}           // 启用复制功能
                     shortenTextAfterLength={0}       // 不截断长文本
-                    style={{ backgroundColor: 'transparent' }}
+                    style={resolvedTheme === 'light' ? {...githubLightTheme, backgroundColor: 'transparent'} : {...githubDarkTheme, backgroundColor: 'transparent'}}
                   />
                 </div>
               </div>

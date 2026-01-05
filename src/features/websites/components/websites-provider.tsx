@@ -17,7 +17,7 @@ import { type WebsiteItemData } from '../data/schemas'
  * - 'configInfo': 网站配置信息对话框 - 用于查看网站配置详情
  * - 'config': 网站配置对话框 - 用于编辑网站的配置信息
  */
-type WebsitesDialogType = 'create' | 'update' | 'delete' | 'export' | 'configInfo' | 'config'
+type WebsitesDialogType = 'create' | 'update' | 'delete' | 'export' | 'configInfo' | 'config' | 'view'
 
 /**
  * 网站搜索参数类型定义

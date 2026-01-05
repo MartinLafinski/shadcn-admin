@@ -1,3 +1,5 @@
+// 引入依赖
+import React from 'react'
 // 处理表单
 import { useForm } from 'react-hook-form'
 // 数据验证
@@ -8,6 +10,8 @@ import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 import { Button } from '@/components/ui/button.tsx'
 // 输入框控件
 import { Input } from '@/components/ui/input.tsx'
+// 图标
+import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
 // 表单控件
 import {
   Form,
@@ -39,6 +43,11 @@ import MDEditor from '@uiw/react-md-editor'
 import { useTheme } from '@/context/theme-provider.tsx'
 // 操作结果提示框
 import {toast} from "sonner"
+// 代码编辑器
+import CodeMirror from '@uiw/react-codemirror'
+// 代码json插件
+import { json } from '@codemirror/lang-json'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
 
 
 /**
@@ -76,6 +85,9 @@ export function WebsiteCreateDrawer(
 {
   // 获取当前主题（用于JSON编辑器和MD编辑器主题适配）
   const { resolvedTheme } = useTheme()
+  
+  // 全屏状态管理
+  const [isFullscreen, setIsFullscreen] = React.useState(false)
   
   // 初始化创建网站的mutation
   const createWebsiteMutation = useCreateWebsiteMutation()
@@ -192,18 +204,47 @@ export function WebsiteCreateDrawer(
               control={form.control}
               name='website_config'
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>网站配置</FormLabel>
-                  <FormControl>
+                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background flex flex-col overflow-hidden' : ''}>
+                  <div className='flex items-center justify-between flex-shrink-0'>
+                    <FormLabel>网站配置</FormLabel>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => setIsFullscreen(!isFullscreen)}
+                      className='h-8 w-8 p-0'
+                    >
+                      {isFullscreen ? (
+                        <Minimize2Icon className='h-4 w-4' />
+                      ) : (
+                        <Maximize2Icon className='h-4 w-4' />
+                      )}
+                    </Button>
+                  </div>
+                  <FormControl className="dark:[&_textarea]:!text-white1 flex-1 min-h-0 overflow-y-auto">
                     {/* JSON编辑器，支持主题切换 */}
                     <JsonEditor
                       data={field.value}
                       setData={field.onChange}
                       rootFontSize={13}
                       theme={resolvedTheme === 'light' ? githubLightTheme : githubDarkTheme}
-                      minWidth="100%" />
+                      minWidth={isFullscreen ? '100%' : '100%'}
+                      maxWidth={isFullscreen ? '100%' : '100%'}
+                      TextEditor={
+                        (props) => {
+                         return (
+                           <CodeMirror
+                             {...props}
+                             theme={resolvedTheme === 'light' ? githubLight : githubDark}
+                             extensions={[json()]}
+                             height={isFullscreen ? '100%' : '300px'}
+                           />
+                         )
+                        }
+                      }
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className='flex-shrink-0' />
                 </FormItem>
               )}
             />

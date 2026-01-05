@@ -102,6 +102,11 @@ export function Search({
             placeholder="网站名称/标识/URL"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)} // 更新关键词状态
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch()
+              }
+            }}
           />
           
           {/* 状态筛选下拉菜单 - 用于筛选网站的启用状态 */}

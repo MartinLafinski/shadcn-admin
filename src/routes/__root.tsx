@@ -33,7 +33,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {import.meta.env.MODE === 'development' && (
           <>
             <ReactQueryDevtools buttonPosition='bottom-left' />
-            <TanStackRouterDevtools position='bottom-right' />
+            <TanStackRouterDevtools position='top-left' />
           </>
         )}
       </ClerkProvider>
