@@ -71,7 +71,7 @@ export const linksColumns: ColumnDef<LinkData>[] = [
     accessorKey: 'links_id',
     header: '友链ID',
     cell: ({ row }) => (
-        <div className="text-center">{row.getValue('links_id')}</div>
+        <div className="text-left">{row.getValue('links_id')}</div>
     ),
   },
   /**
@@ -82,7 +82,7 @@ export const linksColumns: ColumnDef<LinkData>[] = [
     accessorKey: 'links_name',
     header: '友链名称',
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue('links_name')}</div>
+      <div className="font-semibold">{row.getValue('links_name')}</div>
     ),
   },
   /**

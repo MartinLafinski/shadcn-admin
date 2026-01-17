@@ -37,6 +37,14 @@ import { BlackwordData } from '@/features/blackwords/data/schemas'
 import { PaginationInfoData } from '@/config/pagination'
 // 敏感词数据同步
 import { blackwordsColumns } from './blackwords-columns'
+// 路由
+import { getRouteApi } from "@tanstack/react-router"
+
+
+// 定义搜索参数记录类型
+type SearchRecord = Record<string, unknown>
+const route = getRouteApi('/_authenticated/blackwords/')
+const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_BLACKWORDS_PAGE_SIZE || 50)
 
 /**
  * 敏感词表格组件属性接口
@@ -95,6 +103,8 @@ export function BlackwordsTable({ data = [], pager = undefined, isLoading = fals
   // 表格状态管理
   // 从 context 获取搜索参数
   const { searchParams, setSearchParams } = useBlackwords()
+  // 获取导航
+  const navigate = route.useNavigate()
 
   // 用 ref 标记是否是内部的分页操作
   const isPaginationChangeRef = useRef(false)
@@ -102,7 +112,7 @@ export function BlackwordsTable({ data = [], pager = undefined, isLoading = fals
   // 使用 searchParams 作为分页状态的来源，而不是 pager
   const [pagination, setPagination] = useState({
     pageIndex: (searchParams?.page ?? 1) - 1,
-    pageSize: searchParams?.size ?? 10,
+    pageSize: searchParams?.size ?? DEFAULT_PAGE_SIZE,
   })
 
   // 保持上一次的 pager 值，避免在请求期间闪烁
@@ -120,11 +130,11 @@ export function BlackwordsTable({ data = [], pager = undefined, isLoading = fals
 
     const newPageIndex = (searchParams?.page ?? 1) - 1
     // 只有当 page 真正变化时才更新（避免不必要的重渲染）
-    if (newPageIndex !== pagination.pageIndex) {
+    if (newPageIndex !== pagination.pageIndex || newPageIndex === 0) {
       setPagination(prev => ({
         ...prev,
         pageIndex: newPageIndex,
-        pageSize: searchParams?.size ?? 10,
+        pageSize: searchParams?.size ?? DEFAULT_PAGE_SIZE,
       }))
     }
   }, [searchParams?.page, searchParams?.size]) // 只监听 page，不监听其他
@@ -187,6 +197,17 @@ export function BlackwordsTable({ data = [], pager = undefined, isLoading = fals
         page: newPagination.pageIndex + 1,
         size: newPagination.pageSize,
       }))
+
+      const nextPage = newPagination.pageIndex + 1
+
+      // 关键：调用 navigate 更新 URL
+      navigate({
+        search: (prev) => ({
+          ...(prev as SearchRecord),
+          ["page"]: nextPage <= 1 ? undefined : nextPage,  // 如果是默认页则从 URL 移除
+          ["size"]: newPagination.pageSize === DEFAULT_PAGE_SIZE ? undefined : newPagination.pageSize,
+        }),
+      })
     }, // 分页状态变更时的回调
     
     // 将当前状态传递给表格实例

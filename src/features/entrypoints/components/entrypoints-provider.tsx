@@ -1,9 +1,11 @@
 // 引入依赖
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 // 自定义对话框hook
 import useDialogState from '@/hooks/use-dialog-state'
 // 入口点数据结构
 import { type EntrypointItemData } from '../data/schemas'
+// 获取当前URL参数信息
+import { useSearch } from '@tanstack/react-router'
 
 /**
  * 入口点管理对话框类型枚举
@@ -17,7 +19,7 @@ import { type EntrypointItemData } from '../data/schemas'
  * - 'configInfo': 入口点配置信息对话框 - 用于查看入口点配置详情
  * - 'config': 入口点配置对话框 - 用于编辑入口点的配置信息
  */
-type EntrypointsDialogType = 'create' | 'update' | 'delete' | 'export' | 'configInfo' | 'config' | 'viewWebsite'
+type EntrypointsDialogType = 'create' | 'update' | 'delete' | 'export' | 'configInfo' | 'config' | 'viewWebsite' | 'viewEntrypoint'
 
 /**
  * 入口点搜索参数类型定义
@@ -62,18 +64,33 @@ const EntrypointsContext = React.createContext<EntrypointsContextType | null>(nu
  * 为子组件提供入口点管理所需的状态和方法
  *
  * @param children - 需要访问上下文的子组件
+ * @param initialSearchParams - 初始搜索参数，默认为{}
  */
 export function EntrypointsProvider({
-    children
+    children,
+    initialSearchParams = {}
 }: {
     children: React.ReactNode
+    initialSearchParams?: EntrypointSearchParams
 }) {
     // 使用自定义hook管理对话框打开状态，初始为null（关闭状态）
     const [open, setOpen] = useDialogState<EntrypointsDialogType>(null)
     // 管理当前操作的数据行，初始为null（未选中任何行）
     const [currentRow, setCurrentRow] = useState<EntrypointItemData | null>(null)
     // 管理搜索参数状态
-    const [searchParams, setSearchParams] = useState<EntrypointSearchParams>({})
+    const [searchParams, setSearchParams] = useState<EntrypointSearchParams>(initialSearchParams)
+
+    // 监听 URL 的 search 参数变化，同步到 state
+    const search = useSearch({ from: '/_authenticated/entrypoints/' })
+    useEffect(() => {
+        setSearchParams({
+            website_id: search.website_id,
+            entrypoint_keyword: search.entrypoint_keyword,
+            entrypoint_enabled: search.entrypoint_enabled,
+            page: search.page,
+            size: search.size,
+        })
+    }, [search.website_id, search.entrypoint_keyword, search.entrypoint_enabled, search.page, search.size])
 
     return (
         <EntrypointsContext value={{ open, setOpen, currentRow, setCurrentRow, searchParams, setSearchParams }}>

@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 // 显示提交数据
 import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 图标
-import { CheckIcon, ChevronsUpDownIcon } from "lucide-react"
+import { CheckIcon, ChevronsUpDownIcon, Maximize2Icon, Minimize2Icon } from "lucide-react"
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
 // 输入框控件
@@ -60,7 +60,10 @@ import CodeMirror from '@uiw/react-codemirror'
 // 代码json插件
 import { json } from '@codemirror/lang-json'
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+import { EditorView } from "@codemirror/view"
 
+
+const WEBSITE_SEARCH_SIZE: number = Number(import.meta.env.VITE_WEBSITE_SEARCH_SIZE || 50)
 
 /**
  * 入口点更新抽屉组件
@@ -98,6 +101,8 @@ export function EntrypointUpdateDrawer(
   const queryClient = useQueryClient()
   // 获取当前主题（用于JSON编辑器和MD编辑器主题适配）
   const { resolvedTheme } = useTheme()
+  // 全屏状态管理
+  const [isFullscreen, setIsFullscreen] = React.useState(false)
   // 网站搜索关键词状态
   const [websiteKeyword, setWebsiteKeyword] = React.useState<string>('')
   // 控制网站下拉框的打开状态
@@ -123,7 +128,7 @@ export function EntrypointUpdateDrawer(
         setShowConflictWarning(true)
         // 用最新数据更新表单
         form.reset({
-          website_id: latestEntrypoint.website_id,
+          website_id: latestEntrypoint.website_id ?? undefined,
           entrypoint_name: latestEntrypoint.entrypoint_name,
           entrypoint_slug: latestEntrypoint.entrypoint_slug,
           entrypoint_url: latestEntrypoint.entrypoint_url || undefined,
@@ -137,7 +142,7 @@ export function EntrypointUpdateDrawer(
   }, [latestEntrypoint, currentRow, open, isLatestDataLoading, queryClient])
 
 // 获取网站列表数据（支持搜索）
-  const { data: websitesData, isLoading: websitesLoading } = useWebsitesQuery(websiteKeyword, undefined, 1, 50)
+  const { data: websitesData, isLoading: websitesLoading } = useWebsitesQuery(websiteKeyword, undefined, 1, WEBSITE_SEARCH_SIZE)
   // 初始化更新入口点的mutation
   const updateEntrypointMutation = useUpdateEntrypointMutation()
 
@@ -147,7 +152,7 @@ export function EntrypointUpdateDrawer(
     // 如果有currentRow则使用其值作为默认值，否则使用空值
     defaultValues: currentRow ? {
       // 网站ID - 用于关联入口点到特定网站
-      website_id: currentRow.website_id,
+      website_id: currentRow.website_id ?? undefined,
       // 入口点显示名称 - 用于界面展示的可读名称
       entrypoint_name: currentRow.entrypoint_name,
       // 入口点URL标识符 - 用于路由和API请求的唯一标识符
@@ -357,30 +362,48 @@ export function EntrypointUpdateDrawer(
               control={form.control}
               name='entrypoint_config'
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>入口点配置</FormLabel>
-                  <FormControl>
+                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background flex flex-col overflow-hidden' : ''}>
+                  <div className='flex items-center justify-between flex-shrink-0'>
+                    <FormLabel>入口点配置</FormLabel>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => setIsFullscreen(!isFullscreen)}
+                      className='h-8 w-8 p-0'
+                    >
+                      {isFullscreen ? (
+                        <Minimize2Icon className='h-4 w-4' />
+                      ) : (
+                        <Maximize2Icon className='h-4 w-4' />
+                      )}
+                    </Button>
+                  </div>
+                  <FormControl className="flex-1 min-h-0 overflow-y-auto">
                     {/* JSON编辑器，支持主题切换 */}
                     <JsonEditor
                       data={field.value}
                       setData={field.onChange}
                       rootFontSize={13}
                       theme={resolvedTheme === 'light' ? githubLightTheme : githubDarkTheme}
-                      minWidth="100%"
+                      minWidth={isFullscreen ? '100%' : '100%'}
+                      maxWidth={isFullscreen ? '100%' : '100%'}
                       TextEditor={
                         (props) => {
                           return (
                             <CodeMirror
                               {...props}
                               theme={resolvedTheme === 'light' ? githubLight : githubDark}
-                              extensions={[json()]}
+                              extensions={[json(), EditorView.lineWrapping]}
+                              height={isFullscreen ? '100%' : 'auto'}
+                              minHeight='300px'
                             />
                           )
                         }
                       }
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className='flex-shrink-0' />
                 </FormItem>
               )}
             />

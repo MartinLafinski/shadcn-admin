@@ -1,9 +1,11 @@
 // 引入依赖
 import { type JSX } from "react"
+// 在文件顶部引入Link
+import { Link } from "@tanstack/react-router"
 // 表格
 import { type Row } from '@tanstack/react-table'
 // 图标
-import { Trash2, SquarePenIcon, CloudSyncIcon, FolderSyncIcon, Settings2Icon, EllipsisIcon } from 'lucide-react'
+import { Trash2, SquarePenIcon, DoorOpen, ListTodo, Settings2Icon, EllipsisIcon, ListVideo } from 'lucide-react'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
 // 下拉菜单控件
@@ -131,19 +133,44 @@ export function WebsitesRowActions<TData>(
                         <Settings2Icon size={16} />
                     </DropdownMenuShortcut>
                 </DropdownMenuItem>
-                {/* 同步入口点功能 - 目前禁用 */}
-                <DropdownMenuItem disabled>
-                    同步入口点
-                    <DropdownMenuShortcut>
-                        <CloudSyncIcon size={16} />
-                    </DropdownMenuShortcut>
+                {/* 查看入口点功能 */}
+                <DropdownMenuItem asChild>
+                    <Link
+                        to="/entrypoints"
+                        search={{ website_id: websiteItem.website_id }}
+                        target="_blank"
+                    >
+                        查看入口点
+                        <DropdownMenuShortcut>
+                            <DoorOpen size={16} />
+                        </DropdownMenuShortcut>
+                    </Link>
                 </DropdownMenuItem>
-                {/* 同步准任务功能 - 目前禁用 */}
-                <DropdownMenuItem disabled>
-                    同步准任务
-                    <DropdownMenuShortcut>
-                        <FolderSyncIcon size={16} />
-                    </DropdownMenuShortcut>
+                {/* 查看准任务功能 */}
+                <DropdownMenuItem asChild>
+                    <Link
+                      to="/pre-tasks"
+                      search={{ website_id: websiteItem.website_id }}
+                      target="_blank"
+                    >
+                        查看准任务
+                        <DropdownMenuShortcut>
+                            <ListTodo size={16} />
+                        </DropdownMenuShortcut>
+                    </Link>
+                </DropdownMenuItem>
+                {/* 查看作业任务功能 */}
+                <DropdownMenuItem asChild>
+                    <Link
+                      to="/jobs"
+                      search={{ website_id: websiteItem.website_id }}
+                      target="_blank"
+                    >
+                        查看作业任务
+                        <DropdownMenuShortcut>
+                            <ListVideo size={16} />
+                        </DropdownMenuShortcut>
+                    </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {/* 网站启用/禁用状态切换子菜单 */}

@@ -47,7 +47,9 @@ import {toast} from "sonner"
 import CodeMirror from '@uiw/react-codemirror'
 // 代码json插件
 import { json } from '@codemirror/lang-json'
+import { EditorView } from '@codemirror/view'
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+
 
 
 /**
@@ -236,8 +238,9 @@ export function WebsiteCreateDrawer(
                            <CodeMirror
                              {...props}
                              theme={resolvedTheme === 'light' ? githubLight : githubDark}
-                             extensions={[json()]}
-                             height={isFullscreen ? '100%' : '300px'}
+                             extensions={[json(), EditorView.lineWrapping]}
+                             height={isFullscreen ? '100%' : 'auto'}
+                             minHeight='300px'
                            />
                          )
                         }

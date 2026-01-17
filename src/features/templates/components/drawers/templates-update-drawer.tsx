@@ -1,5 +1,5 @@
 // 用于同步后台数据
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 // 表单处理
 import { useForm } from 'react-hook-form'
 // 用于同步后台数据
@@ -35,14 +35,20 @@ import {
 import { type TemplateUpdateData, type TemplateItemData, TemplateUpdateSchema } from '../../data/schemas.ts'
 // 更新模板API调用
 import { useUpdateTemplateMutation, useTemplateQuery } from '../../api/templates.ts'
-// JSON编辑器
-import { JsonEditor, githubDarkTheme, githubLightTheme } from 'json-edit-react'
 // Markdown编辑器
 import MDEditor from '@uiw/react-md-editor'
 // 日/夜主题
 import { useTheme } from '@/context/theme-provider.tsx'
 // 操作结果提示框
 import { toast } from "sonner"
+// 图标
+import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
+// CodeMirror 编辑器
+import CodeMirror from '@uiw/react-codemirror'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+import { html } from '@codemirror/lang-html'
+import { EditorView } from '@codemirror/view'
+
 
 
 /**
@@ -115,6 +121,9 @@ export function TemplateUpdateDrawer(
   // 获取当前主题（用于JSON编辑器和MD编辑器主题适配）
   const { resolvedTheme } = useTheme()
 
+  // 全屏状态管理
+  const [isFullscreen, setIsFullscreen] = React.useState(false)
+
   // 初始化更新模板的mutation
   const updateTemplateMutation = useUpdateTemplateMutation()
 
@@ -122,7 +131,12 @@ export function TemplateUpdateDrawer(
   const form = useForm<TemplateUpdateData>({
     resolver: zodResolver(TemplateUpdateSchema),
     // 如果有currentRow则使用其值作为默认值，否则使用空值
-    defaultValues: currentRow ?? {
+    defaultValues: currentRow ? {
+      template_name: currentRow.template_name,
+      template_slug: currentRow.template_slug,
+      template_content: currentRow.template_content || '',  // 将 null 转换为 ''
+      template_readme: currentRow.template_readme,
+    } : {
       // 模板显示名称 - 用于界面展示的可读名称
       template_name: '',
       // 模板URL标识符 - 用于路由和API请求的唯一标识符
@@ -217,18 +231,61 @@ export function TemplateUpdateDrawer(
                 </FormItem>
               )}
             />
-            {/* 模板内容字段 - Markdown格式的文档内容 */}
+            {/* 模板内容字段 - 文档内容 */}
             <FormField
               control={form.control}
               name='template_content'
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>模板内容</FormLabel>
+                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background' : ''}>
+                  <div className='flex items-center justify-between'>
+                    <FormLabel>模板内容</FormLabel>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => setIsFullscreen(!isFullscreen)}
+                      className='h-8 w-8 p-0'
+                    >
+                      {isFullscreen ? (
+                        <Minimize2Icon className='h-4 w-4' />
+                      ) : (
+                        <Maximize2Icon className='h-4 w-4' />
+                      )}
+                    </Button>
+                  </div>
                   <FormControl data-color-mode={resolvedTheme}>
-                    {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
+                    <CodeMirror
+                      extensions={[html(), EditorView.lineWrapping]}
                       value={field.value}
                       onChange={field.onChange}
+                      theme={resolvedTheme === 'light' ? githubLight : githubDark}
+                      placeholder='请输入模板内容...'
+                      width='w-full'
+                      height={isFullscreen ? 'calc(100vh - 60px)' : 'auto'}
+                      minHeight='300px'
+                      basicSetup={{
+                        lineNumbers: true,
+                        highlightActiveLineGutter: true,
+                        highlightSpecialChars: true,
+                        foldGutter: true,
+                        drawSelection: true,
+                        dropCursor: true,
+                        allowMultipleSelections: true,
+                        indentOnInput: true,
+                        syntaxHighlighting: true,
+                        bracketMatching: true,
+                        closeBrackets: true,
+                        autocompletion: true,
+                        rectangularSelection: true,
+                        crosshairCursor: true,
+                        highlightActiveLine: true,
+                        highlightSelectionMatches: true,
+                        closeBracketsKeymap: true,
+                        searchKeymap: true,
+                        foldKeymap: true,
+                        completionKeymap: true,
+                        lintKeymap: true,
+                      }}
                     />
                   </FormControl>
                   <FormMessage />

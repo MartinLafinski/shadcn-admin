@@ -1,7 +1,3 @@
-// 图标
-import { Info } from 'lucide-react'
-// 按钮控件
-import { Button } from '@/components/ui/button.tsx'
 // 滚动区域控件
 import { ScrollArea } from '@/components/ui/scroll-area.tsx'
 // 对话框控件
@@ -11,12 +7,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog.tsx'
 // Markdown 编辑器控件
 import MDEditor from '@uiw/react-md-editor'
-// JSON 数据查看器控件
-import JsonView from '@uiw/react-json-view'
 // 日/夜主题上下文
 import { useTheme } from '@/context/theme-provider.tsx'
 
@@ -72,18 +65,6 @@ export function TemplatesInfoDialog({ open, onOpenChange, readme, content, templ
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {/* 触发按钮：信息图标按钮，用于打开对话框 */}
-      <DialogTrigger asChild>
-        <Button 
-          variant='outline' 
-          size='icon' 
-          title='查看模板内容与说明' 
-          className='h-8 w-8'
-        >
-          <Info className='h-4 w-4' />
-        </Button>
-      </DialogTrigger>
-      
       {/* 对话框内容容器 */}
       <DialogContent className='sm:max-w-[80%] h-[80vh] flex flex-col p-0 overflow-hidden'>
         {/* 对话框头部：显示模板名称和描述信息 */}
@@ -98,29 +79,14 @@ export function TemplatesInfoDialog({ open, onOpenChange, readme, content, templ
         <div className='flex-1 min-h-0 overflow-hidden'>
           <ScrollArea className="h-full w-full" type={'always'}>
             <div className='space-y-6 px-6 pb-6'>
-              {/* 模板内容区域：展示 Markdown 格式的模板内容 */}
-              <div className='space-y-2'>
-                <h4 className='text-sm font-medium'>模板内容</h4>
-                {/* 使用 MDEditor.Markdown 渲染 Markdown 内容 */}
-                {/* data-color-mode 属性使 Markdown 渲染适配当前主题 */}
-                <div 
-                  className='rounded-md border p-4 bg-background' 
-                  data-color-mode={resolvedTheme}
-                >
-                  <MDEditor.Markdown
-                    source={content}
-                    style={{ backgroundColor: 'transparent' }}
-                  />
-                </div>
-              </div>
-              
+
               {/* 说明文档区域：展示 Markdown 格式的说明文档 */}
               <div className='space-y-2'>
                 <h4 className='text-sm font-medium'>说明文档</h4>
                 {/* 使用 MDEditor.Markdown 渲染 Markdown 内容 */}
                 {/* data-color-mode 属性使 Markdown 渲染适配当前主题 */}
-                <div 
-                  className='rounded-md border p-4 bg-background' 
+                <div
+                  className='rounded-md border p-4 bg-background'
                   data-color-mode={resolvedTheme}
                 >
                   <MDEditor.Markdown
@@ -129,6 +95,22 @@ export function TemplatesInfoDialog({ open, onOpenChange, readme, content, templ
                   />
                 </div>
               </div>
+
+              {/* 模板内容区域：展示 Markdown 格式的模板内容 */}
+              <div className='space-y-2'>
+                <h4 className='text-sm font-medium'>模板内容</h4>
+                {/* 使用 MDEditor.Markdown 渲染 Markdown 内容 */}
+                {/* data-color-mode 属性使 Markdown 渲染适配当前主题 */}
+                <div
+                  className='rounded-md border p-4 bg-background'
+                  data-color-mode={resolvedTheme}
+                >
+  <pre className='whitespace-pre-wrap break-words'>
+    {content}
+  </pre>
+                </div>
+              </div>
+
             </div>
           </ScrollArea>
         </div>

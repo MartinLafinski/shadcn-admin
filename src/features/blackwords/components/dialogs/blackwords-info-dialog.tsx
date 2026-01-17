@@ -1,7 +1,3 @@
-// 图标
-import { Info } from 'lucide-react'
-// 按钮控件
-import { Button } from '@/components/ui/button.tsx'
 // 滚动区域控件
 import { ScrollArea } from '@/components/ui/scroll-area.tsx'
 // 对话框控件
@@ -11,7 +7,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog.tsx'
 // Markdown 编辑器控件
 import MDEditor from '@uiw/react-md-editor'
@@ -72,18 +67,7 @@ export function BlackwordsInfoDialog({ open, onOpenChange, readme, collection, b
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {/* 触发按钮：信息图标按钮，用于打开对话框 */}
-      <DialogTrigger asChild>
-        <Button 
-          variant='outline' 
-          size='icon' 
-          title='查看配置与说明' 
-          className='h-8 w-8'
-        >
-          <Info className='h-4 w-4' />
-        </Button>
-      </DialogTrigger>
-      
+
       {/* 对话框内容容器 */}
       <DialogContent className='sm:max-w-[80%] h-[80vh] flex flex-col p-0 overflow-hidden'>
         {/* 对话框头部：显示敏感词名称和描述信息 */}

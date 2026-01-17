@@ -1,7 +1,5 @@
 // 图标
-import { Info } from 'lucide-react'
-// 按钮控件
-import { Button } from '@/components/ui/button.tsx'
+import { Check, X } from 'lucide-react'
 // 滚动区域控件
 import { ScrollArea } from '@/components/ui/scroll-area.tsx'
 // 对话框控件
@@ -11,7 +9,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog.tsx'
 // Markdown 编辑器控件
 import MDEditor from '@uiw/react-md-editor'
@@ -21,6 +18,7 @@ import { githubLightTheme } from '@uiw/react-json-view/githubLight'
 import { githubDarkTheme } from '@uiw/react-json-view/githubDark'
 // 日/夜主题上下文
 import { useTheme } from '@/context/theme-provider.tsx'
+import { cn } from '@/lib/utils.ts'
 import { WebsiteItemData } from '../../data/schemas.ts'
 
 interface WebsitesViewDialogProps {
@@ -29,25 +27,18 @@ interface WebsitesViewDialogProps {
   /** 对话框状态变化时的回调函数 */
   onOpenChange: (open: boolean) => void
   /** 网站说明文档内容（Markdown 格式） */
-  website: WebsiteItemData
+  website: WebsiteItemData | null
 }
 
 export function WebsitesViewDialog({ open, onOpenChange, website }: WebsitesViewDialogProps) {
   const { resolvedTheme } = useTheme()
 
+  if (!website) {
+    return null
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {/* 触发按钮：信息图标按钮，用于打开对话框 */}
-      <DialogTrigger asChild>
-        <Button
-          variant='outline'
-          size='icon'
-          title='查看配置与说明'
-          className='h-8 w-8'
-        >
-          <Info className='h-4 w-4' />
-        </Button>
-      </DialogTrigger>
 
       {/* 对话框内容容器 */}
       <DialogContent className='sm:max-w-[80%] h-[80vh] flex flex-col p-0 overflow-hidden'>
@@ -65,6 +56,31 @@ export function WebsitesViewDialog({ open, onOpenChange, website }: WebsitesView
             <div className='space-y-6 px-6 pb-6'>
               {/* 网站基础信息展示区域 - 包含网站ID、名称、标识和URL */}
               <div className="space-y-4">
+                {/* 网站可用性显示区域 - 显示网站是否启用 */}
+                <div className='space-y-2'>
+                  <h4 className='text-sm font-medium'>网站可用性</h4>
+                  <div
+                    className={cn(
+                      'rounded-md border p-3 flex items-center gap-2',
+                      website.website_enabled 
+                        ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800' 
+                        : 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800'
+                    )}
+                  >
+                    {website.website_enabled ? (
+                      <>
+                        <Check className='h-5 w-5 text-green-600 dark:text-green-400' />
+                        <span className='text-green-700 dark:text-green-300 font-medium'>已启用</span>
+                      </>
+                    ) : (
+                      <>
+                        <X className='h-5 w-5 text-red-600 dark:text-red-400' />
+                        <span className='text-red-700 dark:text-red-300 font-medium'>已禁用</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
                 {/* 网站ID显示区域 - 用于唯一标识网站 */}
                 <div className='space-y-2'>
                   <h4 className='text-sm font-medium'>网站ID</h4>

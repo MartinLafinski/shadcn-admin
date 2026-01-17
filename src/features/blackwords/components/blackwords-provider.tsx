@@ -1,9 +1,11 @@
 // 引入依赖
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 // 自定义对话框hook
 import useDialogState from '@/hooks/use-dialog-state'
 // 敏感词数据结构
 import { type BlackwordItemData } from '../data/schemas'
+// 获取当前路由信息
+import { useSearch } from '@tanstack/react-router'
 
 /**
  * 敏感词管理对话框类型枚举
@@ -62,16 +64,29 @@ const BlackwordsContext = React.createContext<BlackwordsContextType | null>(null
  * @param children - 需要访问上下文的子组件
  */
 export function BlackwordsProvider({
-    children
+    children,
+    initialSearchParams = {}
 }: {
     children: React.ReactNode
+    initialSearchParams?: BlackwordSearchParams
 }) {
     // 使用自定义hook管理对话框打开状态，初始为null（关闭状态）
     const [open, setOpen] = useDialogState<BlackwordsDialogType>(null)
     // 管理当前操作的数据行，初始为null（未选中任何行）
     const [currentRow, setCurrentRow] = useState<BlackwordItemData | null>(null)
     // 管理搜索参数状态
-    const [searchParams, setSearchParams] = useState<BlackwordSearchParams>({})
+    const [searchParams, setSearchParams] = useState<BlackwordSearchParams>(initialSearchParams)
+
+    // 监听 URL 的 search 参数变化，同步到 state
+    const search = useSearch({ from: '/_authenticated/blackwords/' })
+    useEffect(() => {
+        setSearchParams({
+            blackwords_keyword: search.blackwords_keyword,
+            blackwords_enabled: search.blackwords_enabled,
+            page: search.page,
+            size: search.size,
+        })
+    }, [search.blackwords_keyword, search.blackwords_enabled, search.page, search.size])
 
     return (
         <BlackwordsContext value={{ open, setOpen, currentRow, setCurrentRow, searchParams, setSearchParams }}>

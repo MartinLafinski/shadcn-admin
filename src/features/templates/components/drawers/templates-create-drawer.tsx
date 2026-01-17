@@ -44,7 +44,8 @@ import MDEditor from '@uiw/react-md-editor'
 // 日/夜主题
 import { useTheme } from '@/context/theme-provider.tsx'
 // 操作结果提示框
-import {toast} from "sonner"
+import { toast } from "sonner"
+import { EditorView } from "@codemirror/view"
 
 
 /**
@@ -184,7 +185,7 @@ export function TemplateCreateDrawer(
                 </FormItem>
               )}
             />
-            {/* 模板内容字段 - Markdown格式的文档内容 */}
+            {/* 模板内容字段 - 文档内容 */}
             <FormField
               control={form.control}
               name='template_content'
@@ -208,12 +209,13 @@ export function TemplateCreateDrawer(
                   </div>
                   <FormControl data-color-mode={resolvedTheme}>
                     <CodeMirror
-                      extensions={[html()]}
+                      extensions={[html(), EditorView.lineWrapping]}
                       value={field.value}
                       onChange={field.onChange}
                       theme={resolvedTheme === 'light' ? githubLight : githubDark}
                       placeholder='请输入模板内容...'
-                      height={isFullscreen ? 'calc(100vh - 60px)' : '200px'}
+                      height={isFullscreen ? 'calc(100vh - 60px)' : 'auto'}
+                      minHeight='300px'
                       basicSetup={{
                         lineNumbers: true,
                         highlightActiveLineGutter: true,

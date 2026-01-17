@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Websites } from '@/features/websites'
+import { z } from 'zod'
 
 /**
  * 网站管理页面路由配置
@@ -14,6 +15,14 @@ import { Websites } from '@/features/websites'
  */
 export const Route = createFileRoute('/_authenticated/websites/')({
   component: RouteComponent,
+  validateSearch: (search) => {
+    return z.object({
+      website_keyword: z.string().optional(),
+      website_enabled: z.boolean().optional(),
+      page: z.number().optional(),
+      size: z.number().optional(),
+    }).parse(search)
+  },
 })
 
 /**

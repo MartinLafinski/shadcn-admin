@@ -189,7 +189,7 @@ export const LinkCreateSchema = z.object({
     // 友链集合，包含友链URL数组
     links_collection: z.array(z.string()).optional(),
     // 友链说明文档内容
-    links_readme: z.string().optional().default(""),
+    links_readme: z.string(),
 })
 
 export type LinkCreateData = z.infer<typeof LinkCreateSchema>

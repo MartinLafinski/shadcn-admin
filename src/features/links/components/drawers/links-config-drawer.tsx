@@ -10,6 +10,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
+// 文本区域控件
+import { Textarea } from "@/components/ui/textarea.tsx"
 // 表单控件
 import {
   Form,
@@ -33,14 +35,13 @@ import {
 import { type LinkConfigData, type LinkItemData, LinkConfigSchema } from '../../data/schemas.ts'
 // 配置友链API调用
 import { usePatchLinkMutation, useLinkQuery } from '../../api/links.ts'
-// JSON编辑器
-import { JsonEditor, githubDarkTheme, githubLightTheme } from 'json-edit-react'
 // Markdown编辑器
 import MDEditor from '@uiw/react-md-editor'
 // 日/夜主题
 import { useTheme } from '@/context/theme-provider.tsx'
 // 操作结果提示框
 import { toast } from "sonner"
+
 
 /**
  * 友链配置和说明抽屉组件
@@ -206,13 +207,30 @@ export function LinkConfigDrawer(
                   <FormLabel>友链集合</FormLabel>
                   <FormControl>
                     {/* 文本区域，每个链接占一行 */}
-                    <textarea
-                      className="w-full h-40 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="请输入友链URL，每行一个"
-                      value={field.value ? field.value.join('\n') : ''}
+                    {/*<textarea*/}
+                    {/*  className="w-full h-40 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"*/}
+                    {/*  placeholder="请输入友链URL，每行一个"*/}
+                    {/*  value={field.value ? field.value.join('\n') : ''}*/}
+                    {/*  onChange={(e) => {*/}
+                    {/*    const newValue = e.target.value.split('\n').filter(line => line.trim() !== '');*/}
+                    {/*    field.onChange(newValue);*/}
+                    {/*  }}*/}
+                    {/*/>*/}
+                    <Textarea
+                      value={field.value?.join('\n')}
+                      placeholder='每行输入一个网址'
                       onChange={(e) => {
-                        const newValue = e.target.value.split('\n').filter(line => line.trim() !== '');
-                        field.onChange(newValue);
+                        const lines = e.target.value.split('\n')
+                        // 过滤掉中间的空行，但保留尾部的空行
+                        const filteredLines = lines.filter((item, index) => {
+                          // 保留非空行
+                          if (item.trim() !== '') return true
+                          // 保留尾部的空行（即最后一个元素是空字符串）
+                          if (index === lines.length - 1) return true
+                          // 过滤掉中间的空行
+                          return false
+                        })
+                        field.onChange(filteredLines)
                       }}
                     />
                   </FormControl>

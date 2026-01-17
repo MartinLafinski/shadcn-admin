@@ -1,3 +1,5 @@
+// 引入依赖
+import { useEffect } from "react"
 // 用户认证
 import { useAuth } from '@clerk/clerk-react'
 // 模板查询
@@ -22,6 +24,13 @@ import { TemplatesProvider, useTemplates } from './components/templates-provider
 import { UserButton } from '@clerk/clerk-react'
 // 模板独立操作按钮
 import { TemplatesPrimaryActions } from "./components/actions/templates-primary-actions.tsx"
+// 路由
+import { getRouteApi } from "@tanstack/react-router"
+
+
+
+// 定义搜索参数记录类型
+const route = getRouteApi('/_authenticated/templates/')
 
 /**
  * 模板管理页面内容组件
@@ -40,9 +49,9 @@ import { TemplatesPrimaryActions } from "./components/actions/templates-primary-
 function TemplatesContent() {
   // 从 TemplatesProvider 上下文获取搜索参数
   // 包含：关键词(keyword)、启用状态(enabled)、页码(page)、页面大小(size)
-  const { searchParams } = useTemplates()
-
+  const { setSearchParams } = useTemplates()
   const { getToken } = useAuth()
+  const search = route.useSearch()
 
   const handleGetToken = async () => {
     // 获取访问令牌
@@ -54,6 +63,22 @@ function TemplatesContent() {
     //   template: 'token-template-name' // 可选：使用特定模板
     // })
   }
+
+  // 直接使用 URL 的 search 参数
+  const template_keyword = search.template_keyword
+  const template_enabled = search.template_enabled
+  const page = search.page
+  const size = search.size
+
+  // 同步搜索参数，防抖动
+  useEffect(() => {
+    setSearchParams({
+      template_keyword: template_keyword,
+      template_enabled: template_enabled,
+      page: page,
+      size: size,
+    })
+  }, [page, size, template_keyword, template_enabled, setSearchParams])
 
   // 调用自定义 Hook 获取模板列表数据
   // 参数说明：
@@ -67,10 +92,10 @@ function TemplatesContent() {
   // - isFetching: 任何时候获取数据时都为 true（包括后台刷新、invalidateQueries等）
   // - isError: 请求出错时为 true，需要处理错误状态
   const { data, isLoading, isFetching, isError } = useTemplatesQuery(
-    searchParams.template_keyword,
-    searchParams.template_enabled,
-    searchParams.page,
-    searchParams.size
+    template_keyword,
+    template_enabled,
+    page,
+    size
   )
 
   // 错误状态处理：当数据获取失败时显示错误信息

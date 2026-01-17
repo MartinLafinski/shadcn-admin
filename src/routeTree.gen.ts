@@ -26,7 +26,10 @@ import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedTemplatesIndexRouteImport } from './routes/_authenticated/templates/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
+import { Route as AuthenticatedReqsIndexRouteImport } from './routes/_authenticated/reqs/index'
+import { Route as AuthenticatedPreTasksIndexRouteImport } from './routes/_authenticated/pre-tasks/index'
 import { Route as AuthenticatedLinksIndexRouteImport } from './routes/_authenticated/links/index'
+import { Route as AuthenticatedJobsIndexRouteImport } from './routes/_authenticated/jobs/index'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
 import { Route as AuthenticatedEntrypointsIndexRouteImport } from './routes/_authenticated/entrypoints/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
@@ -126,9 +129,25 @@ const AuthenticatedSettingsIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedReqsIndexRoute = AuthenticatedReqsIndexRouteImport.update({
+  id: '/reqs/',
+  path: '/reqs/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPreTasksIndexRoute =
+  AuthenticatedPreTasksIndexRouteImport.update({
+    id: '/pre-tasks/',
+    path: '/pre-tasks/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLinksIndexRoute = AuthenticatedLinksIndexRouteImport.update({
   id: '/links/',
   path: '/links/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedJobsIndexRoute = AuthenticatedJobsIndexRouteImport.update({
+  id: '/jobs/',
+  path: '/jobs/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHelpCenterIndexRoute =
@@ -211,7 +230,10 @@ export interface FileRoutesByFullPath {
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/entrypoints': typeof AuthenticatedEntrypointsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
+  '/jobs': typeof AuthenticatedJobsIndexRoute
   '/links': typeof AuthenticatedLinksIndexRoute
+  '/pre-tasks': typeof AuthenticatedPreTasksIndexRoute
+  '/reqs': typeof AuthenticatedReqsIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/templates': typeof AuthenticatedTemplatesIndexRoute
@@ -238,7 +260,10 @@ export interface FileRoutesByTo {
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/entrypoints': typeof AuthenticatedEntrypointsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
+  '/jobs': typeof AuthenticatedJobsIndexRoute
   '/links': typeof AuthenticatedLinksIndexRoute
+  '/pre-tasks': typeof AuthenticatedPreTasksIndexRoute
+  '/reqs': typeof AuthenticatedReqsIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/templates': typeof AuthenticatedTemplatesIndexRoute
@@ -269,7 +294,10 @@ export interface FileRoutesById {
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/entrypoints/': typeof AuthenticatedEntrypointsIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
+  '/_authenticated/jobs/': typeof AuthenticatedJobsIndexRoute
   '/_authenticated/links/': typeof AuthenticatedLinksIndexRoute
+  '/_authenticated/pre-tasks/': typeof AuthenticatedPreTasksIndexRoute
+  '/_authenticated/reqs/': typeof AuthenticatedReqsIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/templates/': typeof AuthenticatedTemplatesIndexRoute
@@ -299,7 +327,10 @@ export interface FileRouteTypes {
     | '/chats'
     | '/entrypoints'
     | '/help-center'
+    | '/jobs'
     | '/links'
+    | '/pre-tasks'
+    | '/reqs'
     | '/settings/'
     | '/tasks'
     | '/templates'
@@ -326,7 +357,10 @@ export interface FileRouteTypes {
     | '/chats'
     | '/entrypoints'
     | '/help-center'
+    | '/jobs'
     | '/links'
+    | '/pre-tasks'
+    | '/reqs'
     | '/settings'
     | '/tasks'
     | '/templates'
@@ -356,7 +390,10 @@ export interface FileRouteTypes {
     | '/_authenticated/chats/'
     | '/_authenticated/entrypoints/'
     | '/_authenticated/help-center/'
+    | '/_authenticated/jobs/'
     | '/_authenticated/links/'
+    | '/_authenticated/pre-tasks/'
+    | '/_authenticated/reqs/'
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
     | '/_authenticated/templates/'
@@ -495,11 +532,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/reqs/': {
+      id: '/_authenticated/reqs/'
+      path: '/reqs'
+      fullPath: '/reqs'
+      preLoaderRoute: typeof AuthenticatedReqsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pre-tasks/': {
+      id: '/_authenticated/pre-tasks/'
+      path: '/pre-tasks'
+      fullPath: '/pre-tasks'
+      preLoaderRoute: typeof AuthenticatedPreTasksIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/links/': {
       id: '/_authenticated/links/'
       path: '/links'
       fullPath: '/links'
       preLoaderRoute: typeof AuthenticatedLinksIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/jobs/': {
+      id: '/_authenticated/jobs/'
+      path: '/jobs'
+      fullPath: '/jobs'
+      preLoaderRoute: typeof AuthenticatedJobsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/help-center/': {
@@ -622,7 +680,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedEntrypointsIndexRoute: typeof AuthenticatedEntrypointsIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
+  AuthenticatedJobsIndexRoute: typeof AuthenticatedJobsIndexRoute
   AuthenticatedLinksIndexRoute: typeof AuthenticatedLinksIndexRoute
+  AuthenticatedPreTasksIndexRoute: typeof AuthenticatedPreTasksIndexRoute
+  AuthenticatedReqsIndexRoute: typeof AuthenticatedReqsIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedTemplatesIndexRoute: typeof AuthenticatedTemplatesIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
@@ -639,7 +700,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedEntrypointsIndexRoute: AuthenticatedEntrypointsIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,
+  AuthenticatedJobsIndexRoute: AuthenticatedJobsIndexRoute,
   AuthenticatedLinksIndexRoute: AuthenticatedLinksIndexRoute,
+  AuthenticatedPreTasksIndexRoute: AuthenticatedPreTasksIndexRoute,
+  AuthenticatedReqsIndexRoute: AuthenticatedReqsIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedTemplatesIndexRoute: AuthenticatedTemplatesIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,

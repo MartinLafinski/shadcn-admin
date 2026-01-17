@@ -105,6 +105,9 @@ export const entrypointsColumns: ColumnDef<EntrypointData>[] = [
       const website = row.getValue('website') as WebsiteItemData | null
       const entrypoint = row.original // 获取当前行的原始数据
       const { setOpen, setCurrentRow } = useEntrypoints() // 使用入口点上下文状态
+      if (!website) {
+        return (<span>-</span>)
+      }
       return (
         <>
           <span>[ {website?.website_name || '-'} ]</span>
@@ -188,6 +191,38 @@ export const entrypointsColumns: ColumnDef<EntrypointData>[] = [
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id)) // 自定义过滤函数
+    },
+  },
+  /**
+   * 起始时间列 - 显示入口点最近起始时间
+   * 使用 SmartDatetime 组件格式化时间，并设置为上海时区
+   */
+  {
+    accessorKey: 'begin_at',
+    header: '起始时间',
+    cell: ({ row }) => {
+      const beginAt = row.getValue('begin_at') as string
+      return beginAt ? (
+        <SmartDatetime date={beginAt} timezone="Asia/Shanghai" />
+      ) : (
+        <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
+      )
+    },
+  },
+  /**
+   * 结束时间列 - 显示入口点最近结束时间
+   * 使用 SmartDatetime 组件格式化时间，并设置为上海时区
+   */
+  {
+    accessorKey: 'end_at',
+    header: '结束时间',
+    cell: ({ row }) => {
+      const endAt = row.getValue('end_at') as string
+      return endAt ? (
+        <SmartDatetime date={endAt} timezone="Asia/Shanghai" />
+      ) : (
+        <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
+      )
     },
   },
   /**

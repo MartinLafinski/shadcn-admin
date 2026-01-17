@@ -71,7 +71,7 @@ export const templatesColumns: ColumnDef<TemplateData>[] = [
     accessorKey: 'template_id',
     header: '模板ID',
     cell: ({ row }) => (
-        <div className="text-center">{row.getValue('template_id')}</div>
+        <div className="">{row.getValue('template_id')}</div>
     ),
   },
   /**
@@ -177,7 +177,7 @@ export const templatesColumns: ColumnDef<TemplateData>[] = [
   {
     id: 'info',
     enableHiding: false, // 信息列不允许隐藏
-    header: '配置说明',
+    header: '内容/说明',
     cell: ({ row }) => {
       const template = row.original // 获取当前行的原始数据
       const { setOpen, setCurrentRow } = useTemplates() // 使用模板上下文状态

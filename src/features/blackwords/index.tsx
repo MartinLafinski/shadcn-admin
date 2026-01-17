@@ -1,3 +1,5 @@
+// 引入依赖
+import { useEffect } from "react"
 // 用户认证
 import { useAuth } from '@clerk/clerk-react'
 // 敏感词查询
@@ -22,6 +24,12 @@ import { BlackwordsProvider, useBlackwords } from './components/blackwords-provi
 import { UserButton } from '@clerk/clerk-react'
 // 敏感词独立操作按钮
 import { BlackwordsPrimaryActions } from "./components/actions/blackwords-primary-actions.tsx"
+// 路由
+import { getRouteApi } from "@tanstack/react-router"
+
+
+// 定义搜索参数记录类型
+const route = getRouteApi('/_authenticated/blackwords/')
 
 /**
  * 敏感词管理页面内容组件
@@ -40,9 +48,9 @@ import { BlackwordsPrimaryActions } from "./components/actions/blackwords-primar
 function BlackwordsContent() {
   // 从 BlackwordsProvider 上下文获取搜索参数
   // 包含：关键词(blackwords_keyword)、启用状态(enabled)、页码(page)、页面大小(size)
-  const { searchParams } = useBlackwords()
-
+  const { setSearchParams } = useBlackwords()
   const { getToken } = useAuth()
+  const search = route.useSearch()
 
   const handleGetToken = async () => {
     // 获取访问令牌
@@ -54,6 +62,22 @@ function BlackwordsContent() {
     //   template: 'token-template-name' // 可选：使用特定模板
     // })
   }
+
+  // 直接使用 URL 的 search 参数
+  const blackwords_keyword = search.blackwords_keyword
+  const blackwords_enabled = search.blackwords_enabled
+  const page = search.page
+  const size = search.size
+
+  // 同步搜索参数，防抖动
+  useEffect(() => {
+    setSearchParams({
+      blackwords_keyword: blackwords_keyword,
+      blackwords_enabled: blackwords_enabled,
+      page: page,
+      size: size,
+    })
+  }, [page, size, blackwords_keyword, blackwords_enabled, setSearchParams])
 
   // 调用自定义 Hook 获取敏感词列表数据
   // 参数说明：
@@ -67,10 +91,10 @@ function BlackwordsContent() {
   // - isFetching: 任何时候获取数据时都为 true（包括后台刷新、invalidateQueries等）
   // - isError: 请求出错时为 true，需要处理错误状态
   const { data, isLoading, isFetching, isError } = useBlackwordsQuery(
-    searchParams.blackwords_keyword,
-    searchParams.blackwords_enabled,
-    searchParams.page || 1,
-    searchParams.size || 10
+    blackwords_keyword,
+    blackwords_enabled,
+    page,
+    size
   )
 
   // 错误状态处理：当数据获取失败时显示错误信息

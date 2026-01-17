@@ -21,6 +21,14 @@ import {
   AudioWaveform,
   Command,
   GalleryVerticalEnd,
+
+  Earth,
+  DoorOpen,
+  BookX,
+  NotepadText,
+  Link,
+  ListVideo,
+  ListTree,
 } from 'lucide-react'
 import { ClerkLogo } from '@/assets/clerk-logo'
 import { type SidebarData } from '../types'
@@ -60,27 +68,42 @@ export const sidebarData: SidebarData = {
         {
           title: '网站',
           url: '/websites',
-          icon: ListTodo,
+          icon: Earth,
         },
         {
           title: '入口点',
           url: '/entrypoints',
-          icon: ListTodo,
+          icon: DoorOpen,
         },
         {
           title: '敏感词',
           url: '/blackwords',
-          icon: ListTodo,
+          icon: BookX,
         },
         {
           title: '模板',
           url: '/templates',
-          icon: ListTodo,
+          icon: NotepadText,
         },
         {
           title: '友链',
           url: '/links',
+          icon: Link,
+        },
+        {
+          title: '预备任务',
+          url: '/pre-tasks',
           icon: ListTodo,
+        },
+        {
+          title: '作业任务',
+          url: '/jobs',
+          icon: ListVideo,
+        },
+        {
+          title: '请求结果',
+          url: '/reqs',
+          icon: ListTree,
         },
         {
           title: 'Tasks',

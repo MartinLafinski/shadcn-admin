@@ -1,9 +1,13 @@
 // 引入依赖
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 // 自定义对话框hook
 import useDialogState from '@/hooks/use-dialog-state'
 // 网站数据结构
 import { type WebsiteItemData } from '../data/schemas'
+// 获取当前路由信息
+// import { useLocation } from '@tanstack/react-router'
+import { useSearch } from '@tanstack/react-router'
+
 
 /**
  * 网站管理对话框类型枚举
@@ -60,18 +64,42 @@ const WebsitesContext = React.createContext<WebsitesContextType | null>(null)
  * 为子组件提供网站管理所需的状态和方法
  *
  * @param children - 需要访问上下文的子组件
+ * @param initialSearchParams - 初始搜索参数，默认为{}
  */
 export function WebsitesProvider({
-    children
+    children,
+    initialSearchParams = {}
 }: {
     children: React.ReactNode
+    initialSearchParams?: WebsiteSearchParams
 }) {
     // 使用自定义hook管理对话框打开状态，初始为null（关闭状态）
     const [open, setOpen] = useDialogState<WebsitesDialogType>(null)
     // 管理当前操作的数据行，初始为null（未选中任何行）
     const [currentRow, setCurrentRow] = useState<WebsiteItemData | null>(null)
     // 管理搜索参数状态
-    const [searchParams, setSearchParams] = useState<WebsiteSearchParams>({})
+    const [searchParams, setSearchParams] = useState<WebsiteSearchParams>(initialSearchParams)
+
+    // // 监听路由变化，当进入 /websites 路由时重置 searchParams
+    // const location = useLocation()
+    // useEffect(() => {
+    //    if (location.pathname === '/websites') {
+    //      console.log('ok')
+    //      setSearchParams({})
+    //    }
+    // }, [location.pathname])
+
+    // 监听 URL 的 search 参数变化，同步到 state
+    const search = useSearch({ from: '/_authenticated/websites/' })
+    useEffect(() => {
+        setSearchParams({
+            website_keyword: search.website_keyword,
+            website_enabled: search.website_enabled,
+            page: search.page,
+            size: search.size,
+        })
+    }, [search.website_keyword, search.website_enabled, search.page, search.size])
+
 
     return (
         <WebsitesContext value={{ open, setOpen, currentRow, setCurrentRow, searchParams, setSearchParams }}>

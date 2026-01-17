@@ -1,3 +1,5 @@
+// 引入依赖
+import { useEffect } from "react"
 // 用户认证
 import { useAuth } from '@clerk/clerk-react'
 // 入口点查询
@@ -18,11 +20,16 @@ import { Search } from './components/actions/entrypoints-search-actions.tsx'
 import { ConfigDrawer } from '@/components/config-drawer'
 // 入口点管理提供者
 import { EntrypointsProvider, useEntrypoints } from './components/entrypoints-provider'
-import { WebsitesProvider } from '@/features/websites/components/websites-provider'
+// import { WebsitesProvider } from '@/features/websites/components/websites-provider'
 // 用户按钮组件
 import { UserButton } from '@clerk/clerk-react'
 // 入口点独立操作按钮
 import { EntrypointsPrimaryActions } from "./components/actions/entrypoints-primary-actions.tsx"
+// 路由
+import { getRouteApi } from "@tanstack/react-router"
+
+// 定义搜索参数记录类型
+const route = getRouteApi('/_authenticated/entrypoints/')
 
 /**
  * 入口点管理页面内容组件
@@ -41,8 +48,12 @@ import { EntrypointsPrimaryActions } from "./components/actions/entrypoints-prim
 function EntrypointsContent() {
   // 从 EntrypointsProvider 上下文获取搜索参数
   // 包含：关键词(keyword)、启用状态(enabled)、页码(page)、页面大小(size)
-  const { searchParams } = useEntrypoints()
+  const { setSearchParams } = useEntrypoints()
 
+  // url搜索参数
+  const search = route.useSearch()
+
+  // 获取访问令牌
   const { getToken } = useAuth()
 
   const handleGetToken = async () => {
@@ -55,6 +66,24 @@ function EntrypointsContent() {
     //   template: 'token-template-name' // 可选：使用特定模板
     // })
   }
+
+  // 直接使用 URL 的 search 参数
+  const website_id = search.website_id
+  const entrypoint_keyword = search.entrypoint_keyword
+  const entrypoint_enabled = search.entrypoint_enabled
+  const page = search.page
+  const size = search.size
+
+  // 同步搜索参数，防抖动
+  useEffect(() => {
+    setSearchParams({
+      website_id: website_id,
+      entrypoint_keyword: entrypoint_keyword,
+      entrypoint_enabled: entrypoint_enabled,
+      page: page,
+      size: size,
+    })
+  }, [page, size, website_id, entrypoint_keyword, entrypoint_enabled, setSearchParams])
 
   // 调用自定义 Hook 获取入口点列表数据
   // 参数说明：
@@ -69,11 +98,11 @@ function EntrypointsContent() {
   // - isFetching: 任何时候获取数据时都为 true（包括后台刷新、invalidateQueries等）
   // - isError: 请求出错时为 true，需要处理错误状态
   const { data, isLoading, isFetching, isError } = useEntrypointsQuery(
-    searchParams.website_id,
-    searchParams.entrypoint_keyword,
-    searchParams.entrypoint_enabled,
-    searchParams.page,
-    searchParams.size
+    website_id,
+    entrypoint_keyword,
+    entrypoint_enabled,
+    page,
+    size
   )
 
   // 错误状态处理：当数据获取失败时显示错误信息
@@ -177,9 +206,10 @@ function EntrypointsContent() {
 export function Entrypoints() {
   return (
     <EntrypointsProvider>
-      <WebsitesProvider>
-        <EntrypointsContent />
-      </WebsitesProvider>
+      <EntrypointsContent />
+      {/*<WebsitesProvider>*/}
+      {/*  <EntrypointsContent />*/}
+      {/*</WebsitesProvider>*/}
     </EntrypointsProvider>
   )
 }

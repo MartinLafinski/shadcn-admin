@@ -19,12 +19,20 @@ export const EntrypointItemSchema = z.object({
     updated_at: z.string(),
     // 更新者标识
     updated_by: z.string(),
+    // 抓取开始时间
+    begin_at: z.string().nullable(),
+    // 抓取结束时间
+    end_at: z.string().nullable(),
+    // 最小可用间隔（只读）
+    min_available_interval: z.number(),
+    // 触发时间（只读）
+    triggered_at: z.string().nullable(),
     // 入口点是否启用状态
     entrypoint_enabled: z.boolean(),
     // 网站ID
-    website_id: z.number().int(),
+    website_id: z.number().int().nullable(),
     // 网站信息
-    website: WebsiteItemSchema,
+    website: WebsiteItemSchema.nullable(),
     // 入口点名称
     entrypoint_name: z.string(),
     // 入口点URL标识符（通常用于路由）

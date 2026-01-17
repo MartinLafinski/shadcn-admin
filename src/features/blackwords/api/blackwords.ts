@@ -18,6 +18,7 @@ import {
 
 // API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8888'
+const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_BLACKWORDS_PAGE_SIZE || 50)
 
 // 通用错误处理
 const handleResponse = async (response: Response) => {
@@ -39,7 +40,7 @@ const handleResponse = async (response: Response) => {
  *                    false: 只返回禁用的敏感词
  *                    undefined: 返回所有敏感词（不考虑启用状态）
  * @param page - 页码，从1开始，默认为1
- * @param size - 每页返回的数据量，默认为10条
+ * @param size - 每页返回的数据量，默认为 DEFAULT_PAGE_SIZE 条
  *
  * @param token - 鉴权token
  * @returns Promise<BlackwordsData> - 返回敏感词数据数组的Promise
@@ -47,7 +48,7 @@ const handleResponse = async (response: Response) => {
  * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
  *
  * 使用示例:
- * // 获取所有敏感词，第一页，每页10条
+ * // 获取所有敏感词，第一页，每页 DEFAULT_PAGE_SIZE 条
  * const allBlackwords = await fetchBlackwords()
  *
  * // 搜索包含"test"关键词的启用敏感词
@@ -60,7 +61,7 @@ export const fetchBlackwords = async (
   blackwords_keyword: string | undefined = undefined,
   blackwords_enabled: boolean | undefined = undefined,
   page: number = 1,
-  size: number = 10,
+  size: number = DEFAULT_PAGE_SIZE,
   token: string | null
 ): Promise<BlackwordsData> => {
 
@@ -641,7 +642,7 @@ export const batchExportBlackwords = async (
  *                        false: 只返回禁用的敏感词
  *                        undefined: 返回所有敏感词（不考虑启用状态）
  * @param page - 页码，从1开始，默认为1，用于分页查询
- * @param size - 每页返回的数据量，默认为10条，最大值取决于后端配置
+ * @param size - 每页返回的数据量，默认为 DEFAULT_PAGE_SIZE 条，最大值取决于后端配置
  *
  * @returns 返回 useQuery 的结果对象，包含以下主要属性：
  *          - data: 查询到的敏感词数据数组 (BlackwordData[])
@@ -669,7 +670,7 @@ export const useBlackwordsQuery = (
   blackwords_keyword: string | undefined = undefined,
   blackwords_enabled: boolean | undefined = undefined,
   page: number = 1,
-  size: number = 10
+  size: number = DEFAULT_PAGE_SIZE
 ) => {
   const { getToken } = useAuth()
   return useQuery({
@@ -678,6 +679,7 @@ export const useBlackwordsQuery = (
       const token = await getToken()
       return fetchBlackwords(blackwords_keyword, blackwords_enabled, page, size, token)
     },
+    placeholderData: (previousData) => previousData,  // 保持上一次的数据
   })
 }
 

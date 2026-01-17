@@ -12,6 +12,7 @@ import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 import { Button } from '@/components/ui/button.tsx'
 // 输入框控件
 import { Input } from '@/components/ui/input.tsx'
+import { Textarea } from '@/components/ui/textarea'
 // 表单控件
 import {
   Form,
@@ -224,13 +225,30 @@ export function LinkUpdateDrawer(
                   <FormLabel>友链集合</FormLabel>
                   <FormControl>
                     {/* 文本区域，每个链接占一行 */}
-                    <textarea
-                      className="w-full h-40 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="请输入友链URL，每行一个"
-                      value={field.value ? field.value.join('\n') : ''}
+                    {/*<textarea*/}
+                    {/*  className="w-full h-40 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"*/}
+                    {/*  placeholder="请输入友链URL，每行一个"*/}
+                    {/*  value={field.value ? field.value.join('\n') : ''}*/}
+                    {/*  onChange={(e) => {*/}
+                    {/*    const newValue = e.target.value.split('\n').filter(line => line.trim() !== '');*/}
+                    {/*    field.onChange(newValue);*/}
+                    {/*  }}*/}
+                    {/*/>*/}
+                    <Textarea
+                      value={field.value?.join('\n')}
+                      placeholder='每行输入一个网址'
                       onChange={(e) => {
-                        const newValue = e.target.value.split('\n').filter(line => line.trim() !== '');
-                        field.onChange(newValue);
+                        const lines = e.target.value.split('\n')
+                        // 过滤掉中间的空行，但保留尾部的空行
+                        const filteredLines = lines.filter((item, index) => {
+                          // 保留非空行
+                          if (item.trim() !== '') return true
+                          // 保留尾部的空行（即最后一个元素是空字符串）
+                          if (index === lines.length - 1) return true
+                          // 过滤掉中间的空行
+                          return false
+                        })
+                        field.onChange(filteredLines)
                       }}
                     />
                   </FormControl>

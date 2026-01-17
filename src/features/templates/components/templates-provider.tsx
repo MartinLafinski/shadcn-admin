@@ -1,9 +1,11 @@
 // 引入依赖
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 // 自定义对话框hook
 import useDialogState from '@/hooks/use-dialog-state'
 // 模板数据结构
 import { type TemplateItemData } from '../data/schemas'
+// 获取当前url搜索信息
+import { useSearch } from '@tanstack/react-router'
 
 /**
  * 模板管理对话框类型枚举
@@ -62,16 +64,29 @@ const TemplatesContext = React.createContext<TemplatesContextType | null>(null)
  * @param children - 需要访问上下文的子组件
  */
 export function TemplatesProvider({
-    children
+    children,
+    initialSearchParams = {}
 }: {
     children: React.ReactNode
+    initialSearchParams?: TemplateSearchParams
 }) {
     // 使用自定义hook管理对话框打开状态，初始为null（关闭状态）
     const [open, setOpen] = useDialogState<TemplatesDialogType>(null)
     // 管理当前操作的数据行，初始为null（未选中任何行）
     const [currentRow, setCurrentRow] = useState<TemplateItemData | null>(null)
     // 管理搜索参数状态
-    const [searchParams, setSearchParams] = useState<TemplateSearchParams>({})
+    const [searchParams, setSearchParams] = useState<TemplateSearchParams>(initialSearchParams)
+
+    // 监听 URL 的 search 参数变化，同步到 state
+    const search = useSearch({ from: '/_authenticated/templates/' })
+    useEffect(() => {
+        setSearchParams({
+            template_keyword: search.template_keyword,
+            template_enabled: search.template_enabled,
+            page: search.page,
+            size: search.size,
+        })
+    }, [search.template_keyword, search.template_enabled, search.page, search.size])
 
     return (
         <TemplatesContext value={{ open, setOpen, currentRow, setCurrentRow, searchParams, setSearchParams }}>

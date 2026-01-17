@@ -1,9 +1,11 @@
 // 引入依赖
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 // 自定义对话框hook
 import useDialogState from '@/hooks/use-dialog-state'
 // 友链数据结构
 import { type LinkItemData } from '../data/schemas'
+// 获取当前url搜索信息
+import { useSearch } from '@tanstack/react-router'
 
 /**
  * 友链管理对话框类型枚举
@@ -62,16 +64,29 @@ const LinksContext = React.createContext<LinksContextType | null>(null)
  * @param children - 需要访问上下文的子组件
  */
 export function LinksProvider({
-    children
+    children, 
+    initialSearchParams = {}
 }: {
     children: React.ReactNode
+    initialSearchParams?: LinkSearchParams
 }) {
     // 使用自定义hook管理对话框打开状态，初始为null（关闭状态）
     const [open, setOpen] = useDialogState<LinksDialogType>(null)
     // 管理当前操作的数据行，初始为null（未选中任何行）
     const [currentRow, setCurrentRow] = useState<LinkItemData | null>(null)
     // 管理搜索参数状态
-    const [searchParams, setSearchParams] = useState<LinkSearchParams>({})
+    const [searchParams, setSearchParams] = useState<LinkSearchParams>(initialSearchParams)
+
+    // 监听 URL 的 search 参数变化，同步到 state
+    const search = useSearch({ from: '/_authenticated/links/' })
+    useEffect(() => {
+        setSearchParams({
+            links_keyword: search.links_keyword,
+            links_enabled: search.links_enabled,
+            page: search.page,
+            size: search.size,
+        })
+    }, [search.links_keyword, search.links_enabled, search.page, search.size])
 
     return (
         <LinksContext value={{ open, setOpen, currentRow, setCurrentRow, searchParams, setSearchParams }}>

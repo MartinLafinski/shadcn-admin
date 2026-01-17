@@ -38,6 +38,14 @@ import { type EntrypointData } from '@/features/entrypoints/data/schemas'
 import { type PaginationInfoData } from '@/config/pagination'
 // 入口点数据同步
 import { useEntrypoints } from './entrypoints-provider'
+// 路由
+import { getRouteApi } from "@tanstack/react-router";
+
+
+// 定义搜索参数记录类型
+type SearchRecord = Record<string, unknown>
+const route = getRouteApi('/_authenticated/entrypoints/')
+const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_ENTRYPOINT_PAGE_SIZE || 50)
 
 /**
  * 入口点数据表格组件
@@ -83,6 +91,8 @@ export function EntrypointsTable({ data = [], pager = undefined, isLoading = fal
   // 表格状态管理
   // 从 context 获取搜索参数
   const { searchParams, setSearchParams } = useEntrypoints()
+  // 获取导航信息
+  const navigate = route.useNavigate()
 
   // 用 ref 标记是否是内部的分页操作
   const isPaginationChangeRef = useRef(false)
@@ -90,7 +100,7 @@ export function EntrypointsTable({ data = [], pager = undefined, isLoading = fal
   // 使用 searchParams 作为分页状态的来源，而不是 pager
   const [pagination, setPagination] = useState({
     pageIndex: (searchParams?.page ?? 1) - 1,
-    pageSize: searchParams?.size ?? 10,
+    pageSize: searchParams?.size ?? DEFAULT_PAGE_SIZE,
   })
 
   // 保持上一次的 pager 值，避免在请求期间闪烁
@@ -108,11 +118,11 @@ export function EntrypointsTable({ data = [], pager = undefined, isLoading = fal
 
     const newPageIndex = (searchParams?.page ?? 1) - 1
     // 只有当 page 真正变化时才更新（避免不必要的重渲染）
-    if (newPageIndex !== pagination.pageIndex) {
+    if (newPageIndex !== pagination.pageIndex || newPageIndex === 0) {
       setPagination(prev => ({
         ...prev,
         pageIndex: newPageIndex,
-        pageSize: searchParams?.size ?? 10,
+        pageSize: searchParams?.size ?? DEFAULT_PAGE_SIZE,
       }))
     }
   }, [searchParams?.page, searchParams?.size]) // 只监听 page，不监听其他
@@ -176,6 +186,17 @@ export function EntrypointsTable({ data = [], pager = undefined, isLoading = fal
         page: newPagination.pageIndex + 1,
         size: newPagination.pageSize,
       }))
+
+      const nextPage = newPagination.pageIndex + 1
+
+      // 关键：调用 navigate 更新 URL
+      navigate({
+        search: (prev) => ({
+          ...(prev as SearchRecord),
+          ["page"]: nextPage <= 1 ? undefined : nextPage,  // 如果是默认页则从 URL 移除
+          ["size"]: newPagination.pageSize === DEFAULT_PAGE_SIZE ? undefined : newPagination.pageSize,
+        }),
+      })
     }, // 分页状态变更时的回调
     
     // 将当前状态传递给表格实例

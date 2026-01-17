@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Blackwords } from '@/features/blackwords'
+import { z } from 'zod'
 
 /**
  * 敏感词管理页面路由配置
@@ -14,6 +15,14 @@ import { Blackwords } from '@/features/blackwords'
  */
 export const Route = createFileRoute('/_authenticated/blackwords/')({
   component: RouteComponent,
+  validateSearch: (search) => {
+    return z.object({
+      blackwords_keyword: z.string().optional(),
+      blackwords_enabled: z.boolean().optional(),
+      page: z.number().optional(),
+      size: z.number().optional(),
+    }).parse(search)
+  },
 })
 
 /**

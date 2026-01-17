@@ -1,3 +1,5 @@
+// 引入依赖
+import { useEffect } from "react"
 // 用户认证
 import { useAuth } from '@clerk/clerk-react'
 // 网站查询
@@ -22,6 +24,13 @@ import { WebsitesProvider, useWebsites } from './components/websites-provider'
 import { UserButton } from '@clerk/clerk-react'
 // 网站独立操作按钮
 import { WebsitesPrimaryActions } from "./components/actions/websites-primary-actions.tsx"
+// 路由
+import { getRouteApi } from "@tanstack/react-router"
+
+
+
+// 定义搜索参数记录类型
+const route = getRouteApi('/_authenticated/websites/')
 
 /**
  * 网站管理页面内容组件
@@ -40,37 +49,42 @@ import { WebsitesPrimaryActions } from "./components/actions/websites-primary-ac
 function WebsitesContent() {
   // 从 WebsitesProvider 上下文获取搜索参数
   // 包含：关键词(keyword)、启用状态(enabled)、页码(page)、页面大小(size)
-  const { searchParams } = useWebsites()
-
+  const { setSearchParams } = useWebsites()
   const { getToken } = useAuth()
+  const search = route.useSearch()
 
-  const handleGetToken = async () => {
-    // 获取访问令牌
-    const token = await getToken()
-    console.log('JWT 令牌:', token)
+  // const handleGetToken = async () => {
+  //   // 获取访问令牌
+  //   const token = await getToken()
+  //   console.log('JWT 令牌:', token)
+  //
+  //   // 获取具有特定权限的令牌
+  //   // const tokenWithPermission = await getToken({
+  //   //   template: 'token-template-name' // 可选：使用特定模板
+  //   // })
+  // }
 
-    // 获取具有特定权限的令牌
-    // const tokenWithPermission = await getToken({
-    //   template: 'token-template-name' // 可选：使用特定模板
-    // })
-  }
+  // 直接使用 URL 的 search 参数
+  const website_keyword = search.website_keyword
+  const website_enabled = search.website_enabled
+  const page = search.page
+  const size = search.size
 
-  // 调用自定义 Hook 获取网站列表数据
-  // 参数说明：
-  // - website_keyword: 搜索关键词，用于模糊匹配网站名称等信息
-  // - website_enabled: 状态筛选，true为启用，false为禁用，undefined为全部
-  // - page: 当前页码，从1开始
-  // - size: 每页显示数量
-  // 返回值说明：
-  // - data: 包含网站列表和分页信息的响应数据
-  // - isLoading: 首次加载且无缓存数据时为 true，显示加载状态
-  // - isFetching: 任何时候获取数据时都为 true（包括后台刷新、invalidateQueries等）
-  // - isError: 请求出错时为 true，需要处理错误状态
+  // 同步搜索参数，防抖动
+  useEffect(() => {
+    setSearchParams({
+      website_keyword: website_keyword,
+      website_enabled: website_enabled,
+      page: page,
+      size: size,
+    })
+  }, [page, size, website_keyword, website_enabled, setSearchParams])
+
   const { data, isLoading, isFetching, isError } = useWebsitesQuery(
-    searchParams.website_keyword,
-    searchParams.website_enabled,
-    searchParams.page,
-    searchParams.size
+    website_keyword,
+    website_enabled,
+    page,
+    size
   )
 
   // 错误状态处理：当数据获取失败时显示错误信息
@@ -111,7 +125,7 @@ function WebsitesContent() {
           
           {/* 用户按钮，显示用户信息和账户操作菜单 */}
           <UserButton />
-          <button onClick={handleGetToken}>获取 JWT 令牌</button>
+          {/*<button onClick={handleGetToken}>获取 JWT 令牌</button>*/}
         </div>
       </Header>
 
