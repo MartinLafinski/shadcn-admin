@@ -1,7 +1,7 @@
 // 引入依赖
 import { useEffect } from "react"
 // 用户认证
-import { useAuth } from '@clerk/clerk-react'
+// import { useAuth } from '@clerk/clerk-react'
 // 网站查询
 import { useWebsitesQuery } from '@/features/websites/api/websites'
 // 表格组件
@@ -50,9 +50,9 @@ function WebsitesContent() {
   // 从 WebsitesProvider 上下文获取搜索参数
   // 包含：关键词(keyword)、启用状态(enabled)、页码(page)、页面大小(size)
   const { setSearchParams } = useWebsites()
-  const { getToken } = useAuth()
   const search = route.useSearch()
 
+  // const { getToken } = useAuth()
   // const handleGetToken = async () => {
   //   // 获取访问令牌
   //   const token = await getToken()
@@ -116,7 +116,7 @@ function WebsitesContent() {
         <Search />
 
         {/* 右侧操作区域，包含主题切换、配置抽屉和用户菜单 */}
-        <div className='ms-auto flex items-center space-x-4'>
+        <div className='ms-auto flex items-center space-x-4 max-sm:space-x-0'>
           {/* 主题切换按钮，允许用户切换明暗主题 */}
           <ThemeSwitch />
           

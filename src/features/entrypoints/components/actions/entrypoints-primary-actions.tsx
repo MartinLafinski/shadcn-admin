@@ -60,7 +60,7 @@ export function EntrypointsPrimaryActions() {
       {/* 导出数据按钮 - 触发导入弹窗，但按钮显示为"导出数据"，可能需要确认文案是否正确 */}
       <Button
         variant='outline'
-        className='space-x-1'
+        className='space-x-1 bg-lime-600 text-white dark:bg-lime-700 hover:bg-lime-700/80 hover:text-white'
         onClick={() => onExport()}
         disabled={exportEntrypointMutation.isPending} // 在同步过程中禁用按钮，避免重复操作
       >
@@ -69,7 +69,7 @@ export function EntrypointsPrimaryActions() {
       {/* 同步入口点按钮 - 触发入口点数据同步操作 */}
       <Button
         variant='outline'
-        className='space-x-1'
+        className='space-x-1 bg-sky-600 text-white dark:bg-sky-700 hover:bg-sky-700/80 hover:text-white'
         onClick={() => onSync()}
         disabled={syncEntrypointMutation.isPending} // 在同步过程中禁用按钮，避免重复操作
       >

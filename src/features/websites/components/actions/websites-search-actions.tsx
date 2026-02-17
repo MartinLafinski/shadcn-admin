@@ -254,7 +254,7 @@ export function Search({
         {/* 搜索按钮 - 触发搜索操作 */}
         <Button onClick={handleSearch}>
           <SearchIcon/>
-          查找
+          <span className="hidden sm:inline">查找</span>
         </Button>
       </ButtonGroup>
 

@@ -1,7 +1,7 @@
 // 引入依赖
 import { useEffect } from "react"
 // 用户认证
-import { useAuth } from '@clerk/clerk-react'
+// import { useAuth } from '@clerk/clerk-react'
 // 友链查询
 import { useLinksQuery } from '@/features/links/api/links'
 // 表格组件
@@ -50,19 +50,19 @@ function LinksContent() {
   // 从 LinksProvider 上下文获取搜索参数
   // 包含：关键词(keyword)、启用状态(enabled)、页码(page)、页面大小(size)
   const { setSearchParams } = useLinks()
-  const { getToken } = useAuth()
+  // const { getToken } = useAuth()
   const search = route.useSearch()
 
-  const handleGetToken = async () => {
-    // 获取访问令牌
-    const token = await getToken()
-    console.log('JWT 令牌:', token)
-
-    // 获取具有特定权限的令牌
-    // const tokenWithPermission = await getToken({
-    //   template: 'token-template-name' // 可选：使用特定模板
-    // })
-  }
+  // const handleGetToken = async () => {
+  //   // 获取访问令牌
+  //   const token = await getToken()
+  //   console.log('JWT 令牌:', token)
+  //
+  //   // 获取具有特定权限的令牌
+  //   // const tokenWithPermission = await getToken({
+  //   //   template: 'token-template-name' // 可选：使用特定模板
+  //   // })
+  // }
 
   // 直接使用 URL 的 search 参数
   const links_keyword = search.links_keyword
@@ -127,7 +127,7 @@ function LinksContent() {
         <Search />
 
         {/* 右侧操作区域，包含主题切换、配置抽屉和用户菜单 */}
-        <div className='ms-auto flex items-center space-x-4'>
+        <div className='ms-auto flex items-center space-x-4 max-sm:space-x-0'>
           {/* 主题切换按钮，允许用户切换明暗主题 */}
           <ThemeSwitch />
           
@@ -136,7 +136,7 @@ function LinksContent() {
           
           {/* 用户按钮，显示用户信息和账户操作菜单 */}
           <UserButton />
-          <button onClick={handleGetToken}>获取 JWT 令牌</button>
+          {/*<button onClick={handleGetToken}>获取 JWT 令牌</button>*/}
         </div>
       </Header>
 

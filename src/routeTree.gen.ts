@@ -34,6 +34,7 @@ import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedEntrypointsIndexRouteImport } from './routes/_authenticated/entrypoints/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
 import { Route as AuthenticatedBlackwordsIndexRouteImport } from './routes/_authenticated/blackwords/index'
+import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authenticated/articles/index'
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
@@ -173,6 +174,12 @@ const AuthenticatedBlackwordsIndexRoute =
     path: '/blackwords/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedArticlesIndexRoute =
+  AuthenticatedArticlesIndexRouteImport.update({
+    id: '/articles/',
+    path: '/articles/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppsIndexRoute = AuthenticatedAppsIndexRouteImport.update({
   id: '/apps/',
   path: '/apps/',
@@ -226,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
+  '/articles': typeof AuthenticatedArticlesIndexRoute
   '/blackwords': typeof AuthenticatedBlackwordsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/entrypoints': typeof AuthenticatedEntrypointsIndexRoute
@@ -256,6 +264,7 @@ export interface FileRoutesByTo {
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
+  '/articles': typeof AuthenticatedArticlesIndexRoute
   '/blackwords': typeof AuthenticatedBlackwordsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/entrypoints': typeof AuthenticatedEntrypointsIndexRoute
@@ -290,6 +299,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
+  '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
   '/_authenticated/blackwords/': typeof AuthenticatedBlackwordsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/entrypoints/': typeof AuthenticatedEntrypointsIndexRoute
@@ -323,6 +333,7 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/apps'
+    | '/articles'
     | '/blackwords'
     | '/chats'
     | '/entrypoints'
@@ -353,6 +364,7 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/apps'
+    | '/articles'
     | '/blackwords'
     | '/chats'
     | '/entrypoints'
@@ -386,6 +398,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
     | '/_authenticated/apps/'
+    | '/_authenticated/articles/'
     | '/_authenticated/blackwords/'
     | '/_authenticated/chats/'
     | '/_authenticated/entrypoints/'
@@ -588,6 +601,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBlackwordsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/articles/': {
+      id: '/_authenticated/articles/'
+      path: '/articles'
+      fullPath: '/articles'
+      preLoaderRoute: typeof AuthenticatedArticlesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/apps/': {
       id: '/_authenticated/apps/'
       path: '/apps'
@@ -676,6 +696,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
+  AuthenticatedArticlesIndexRoute: typeof AuthenticatedArticlesIndexRoute
   AuthenticatedBlackwordsIndexRoute: typeof AuthenticatedBlackwordsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedEntrypointsIndexRoute: typeof AuthenticatedEntrypointsIndexRoute
@@ -696,6 +717,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
+  AuthenticatedArticlesIndexRoute: AuthenticatedArticlesIndexRoute,
   AuthenticatedBlackwordsIndexRoute: AuthenticatedBlackwordsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedEntrypointsIndexRoute: AuthenticatedEntrypointsIndexRoute,

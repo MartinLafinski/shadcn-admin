@@ -34,6 +34,10 @@ type DataTableToolbarProps<TData> = {
       icon?: React.ComponentType<{ className?: string }>
     }[]
   }[]
+  // 自定义左侧控件（在搜索和筛选之后，重置按钮之前）
+  leftActions?: React.ReactNode
+  // 自定义右侧控件（在视图选项之前）
+  rightActions?: React.ReactNode
 }
 
 /**
@@ -55,6 +59,8 @@ export function DataTableToolbar<TData>({
   searchPlaceholder = '过滤...', // 默认搜索提示文字
   searchKey,
   filters = [], // 默认为空数组
+  leftActions, // 自定义左侧控件
+  rightActions, // 自定义右侧控件
 }: DataTableToolbarProps<TData>) {
   // 规范化 searchKey 为数组
   const searchKeys = searchKey
@@ -131,7 +137,13 @@ export function DataTableToolbar<TData>({
             <Cross2Icon className='ms-2 h-4 w-4' />
           </Button>
         )}
+        
+        {/* 自定义左侧控件 */}
+        {leftActions}
       </div>
+
+      {/* 自定义右侧控件 */}
+      {rightActions}
       
       {/* 右侧工具栏：视图选项 */}
       <DataTableViewOptions table={table} />

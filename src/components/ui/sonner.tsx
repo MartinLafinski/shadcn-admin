@@ -7,6 +7,7 @@ export function Toaster({ ...props }: ToasterProps) {
   return (
     <Sonner
       richColors
+      position={'bottom-center'}
       theme={theme as ToasterProps['theme']}
       className='toaster group [&_div[data-content]]:w-full'
       style={

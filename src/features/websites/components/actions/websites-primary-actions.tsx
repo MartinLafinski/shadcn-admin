@@ -60,7 +60,7 @@ export function WebsitesPrimaryActions() {
       {/* 导出数据按钮 - 触发导入弹窗，但按钮显示为"导出数据"，可能需要确认文案是否正确 */}
       <Button
         variant='outline'
-        className='space-x-1'
+        className='space-x-1 bg-lime-600 text-white dark:bg-lime-700 hover:bg-lime-700/80 hover:text-white'
         onClick={() => onExport()}
         disabled={exportWebsiteMutation.isPending} // 在同步过程中禁用按钮，避免重复操作
       >
@@ -69,7 +69,7 @@ export function WebsitesPrimaryActions() {
       {/* 同步网站按钮 - 触发网站数据同步操作 */}
       <Button
         variant='outline'
-        className='space-x-1'
+        className='space-x-1 bg-sky-600 text-white dark:bg-sky-700 hover:bg-sky-700/80 hover:text-white'
         onClick={() => onSync()}
         disabled={syncWebsiteMutation.isPending} // 在同步过程中禁用按钮，避免重复操作
       >

@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react'
 import { usePrevious } from '@/hooks/use-previous'
 // 样式工具函数
 import { cn } from "@/lib/utils.ts"
+// 图标
+import { Table as TableIcon, LayoutGrid, CheckSquare, Square } from 'lucide-react'
 // 表格相关
 import {
   flexRender,
@@ -23,6 +25,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+// Switch 控件
+import { Switch } from '@/components/ui/switch'
+// Button 控件
+import { Button } from '@/components/ui/button'
 // 敏感词数据同步
 import { useBlackwords } from './blackwords-provider'
 // 自定义分页和工具控件
@@ -118,6 +124,15 @@ export function BlackwordsTable({ data = [], pager = undefined, isLoading = fals
   // 保持上一次的 pager 值，避免在请求期间闪烁
   const prevPager = usePrevious(pager)
   const stablePager = pager ?? prevPager
+
+  // 视图模式：'table' 为表格视图，'card' 为卡片视图
+  // 根据页面初始宽度决定默认视图模式：宽度小于1200时采用卡片呈现，否则采用表格呈现
+  const [viewMode, setViewMode] = useState<'table' | 'card'>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1200 ? 'card' : 'table'
+    }
+    return 'table'
+  })
 
   // 【关键】添加一个 useEffect，仅监听 searchParams.page 的变化
   // 当外部（如搜索按钮）强制修改 page 时，同步到 pagination state
@@ -253,83 +268,157 @@ export function BlackwordsTable({ data = [], pager = undefined, isLoading = fals
             options: enableLabels, // 过滤选项，从外部导入的启用状态标签
           },
         ]}
+        // 右侧控件：视图切换 switch 和全选/全不选按钮
+        rightActions={
+          <div className="flex items-center space-x-4 mr-4">
+
+            {/* 视图切换 switch */}
+            <div className="flex items-center space-x-2">
+              <TableIcon className="h-4 w-4 text-muted-foreground" />
+              <Switch
+                checked={viewMode === 'card'}
+                onCheckedChange={(checked) => setViewMode(checked ? 'card' : 'table')}
+              />
+              <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+            </div>
+            {/* 全选/全不选按钮 */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const isAllSelected = table.getIsAllRowsSelected()
+                if (isAllSelected) {
+                  table.resetRowSelection()
+                } else {
+                  table.toggleAllRowsSelected()
+                }
+              }}
+              className="h-8 px-2"
+            >
+              {table.getIsAllRowsSelected() || table.getIsSomeRowsSelected() ? (
+                <CheckSquare className="h-4 w-4" />
+              ) : (
+                <Square className="h-4 w-4" />
+              )}
+              全选
+            </Button>
+          </div>
+        }
       />
 
       {/* 表格容器，添加边框和圆角 */}
-      <div className="rounded-md border">
-        <Table>
-          {/* 表格头部 - 显示列标题 */}
-          <TableHeader>
-            {/* 遍历表头组，通常是单个组 */}
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {/* 遍历每个表头单元格 */}
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {/* 如果是占位符单元格则不渲染内容 */}
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header, // 渲染列定义中的头部组件
-                            header.getContext() // 传递上下文给头部组件
-                          )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          {/* 表格主体 - 显示数据行 */}
-          <TableBody>
-            {/* 如果正在加载，显示加载指示器 */}
-            {isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={blackwordsColumns.length}
-                  className="h-24 text-center"
-                >
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                    <span className="text-muted-foreground">加载中...</span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows?.length ? (
-              /* 如果有数据则渲染行 */
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  // 如果行被选中，添加"selected"状态
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {/* 渲染行中可见的单元格 */}
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {/* 渲染单元格内容 */}
-                      {flexRender(
-                        cell.column.columnDef.cell, // 渲染列定义中的单元格组件
-                        cell.getContext() // 传递上下文给单元格组件
-                      )}
-                    </TableCell>
-                  ))}
+      {viewMode === 'table' ? (
+        <div className="rounded-md border">
+          <Table>
+            {/* 表格头部 - 显示列标题 */}
+            <TableHeader>
+              {/* 遍历表头组，通常是单个组 */}
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {/* 遍历每个表头单元格 */}
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {/* 如果是占位符单元格则不渲染内容 */}
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header, // 渲染列定义中的头部组件
+                              header.getContext() // 传递上下文给头部组件
+                            )}
+                      </TableHead>
+                    )
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              /* 当没有数据时，显示"无结果"提示 */
-              <TableRow>
-                {/* 当没有数据时，显示"无结果"提示，横跨所有列 */}
-                <TableCell
-                  colSpan={blackwordsColumns.length} // 横跨列数等于列定义的长度
-                  className="h-24 text-center" // 居中显示，高度24
-                >
-                  无结果
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableHeader>
+            {/* 表格主体 - 显示数据行 */}
+            <TableBody>
+              {/* 如果正在加载，显示加载指示器 */}
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={blackwordsColumns.length}
+                    className="h-24 text-center"
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      <span className="text-muted-foreground">加载中...</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows?.length ? (
+                /* 如果有数据则渲染行 */
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    // 如果行被选中，添加"selected"状态
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {/* 渲染行中可见的单元格 */}
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {/* 渲染单元格内容 */}
+                        {flexRender(
+                          cell.column.columnDef.cell, // 渲染列定义中的单元格组件
+                          cell.getContext() // 传递上下文给单元格组件
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                /* 当没有数据时，显示"无结果"提示 */
+                <TableRow>
+                  {/* 当没有数据时，显示"无结果"提示，横跨所有列 */}
+                  <TableCell
+                    colSpan={blackwordsColumns.length} // 横跨列数等于列定义的长度
+                    className="h-24 text-center" // 居中显示，高度24
+                  >
+                    无结果
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      ) : (
+        /* 卡片视图 */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {isLoading ? (
+            <div className="col-span-full flex items-center justify-center h-24">
+              <div className="flex items-center justify-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <span className="text-muted-foreground">加载中...</span>
+              </div>
+            </div>
+          ) : table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <div
+                key={row.id}
+                className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <div key={cell.id} className="flex justify-between py-2 border-b last:border-b-0">
+                    <span className="font-medium text-gray-500 text-sm">
+                      {typeof cell.column?.columnDef?.header === 'string'
+                        ? cell.column.columnDef.header
+                        : '功能'}:
+                    </span>
+                    <span className="text-gray-900 text-sm">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full flex items-center justify-center h-24 text-center">
+              无结果
+            </div>
+          )}
+        </div>
+      )}
       {/* 分页组件，自动定位到容器底部 */}
       <DataTablePagination table={table} className='mt-auto' />
       <BlackwordsBulkActions table={table} />

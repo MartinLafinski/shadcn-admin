@@ -10,7 +10,8 @@ import {
   JobData,
   JobEnsureData,
   JobsData,
-  TaskStatus
+  TaskStatus,
+  TaskBatchExportData,
 } from '../data/schemas.ts'
 
 
@@ -853,6 +854,139 @@ export const useClearJobsMutation = () => {
     onSuccess: () => {
       // 清空成功后使任务列表缓存失效，确保列表显示最新状态
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
+    },
+  })
+}
+
+
+
+/**
+ * 批量导出任务数据
+ *
+ * 此函数用于向后端API发送批量导出任务数据的请求，将符合条件的任务数据导出为文件
+ * 该功能允许用户根据特定条件批量导出任务记录，方便后续的数据分析和处理
+ *
+ * @param data - 包含批量导出任务所需的数据对象，必须符合 TaskBatchExportData 接口定义
+ *              通常包含导出条件如日期范围、任务状态、网站ID等筛选参数
+ *
+ * @param token - 鉴权token（可选，tasks API 可能不需要认证）
+ * @returns Promise<Response> - 返回原始响应对象
+ *                响应通常包含导出的文件数据，需要进一步处理为blob格式进行下载
+ *                如果导出成功，响应状态码通常为200 (OK)
+ *                如果导出失败，会通过handleResponse抛出错误
+ *
+ * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
+ *                   可能的错误情况：导出参数无效、权限不足、网络错误等
+ *
+ * 注意事项:
+ * - 该函数会向 /tasks/export/ 端点发送PUT请求
+ * - data参数需要符合TaskBatchExportData接口定义的结构
+ * - 函数内部使用handleResponse进行错误处理，确保错误被正确抛出
+ * - 导出的文件通常是JSON格式，包含符合条件的所有任务数据
+ * - 对于大量数据的导出，可能需要一定处理时间，请耐心等待
+ * - 建议在UI中提供进度提示或加载状态，提升用户体验
+ */
+export const batchExportTasks = async (
+  data: TaskBatchExportData,
+  token: string | null = null
+): Promise<Response> => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  const response = await fetch(`${API_BASE_URL}/tasks/export/`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(data),
+  })
+  return await handleResponse(response)
+}
+
+
+
+/**
+ * 批量导出任务数据的自定义 Mutation Hook
+ *
+ * 此 Hook 封装了批量导出任务数据的逻辑，使用 TanStack Query 的 useMutation 来处理异步操作
+ * 该功能允许前端向后端API发送批量导出任务数据的请求，并自动处理文件下载流程
+ * 
+ * 主要功能：
+ * - 向后端API发送批量导出任务数据的请求
+ * - 处理响应数据，将返回的JSON数据转换为Blob对象
+ * - 从响应头中提取文件名信息，或使用默认文件名
+ * - 自动触发浏览器下载操作，让用户能够保存导出的文件
+ * - 提供完整的状态管理（加载中、错误、成功等状态）
+ *
+ * @returns 返回 useMutation 的结果对象，包含以下主要属性：
+ *          - mutate/mutateAsync: 触发导出操作的函数，需要传入 TaskBatchExportData 类型的参数
+ *          - isLoading: 导出操作的加载状态，可用于显示加载指示器
+ *          - isError: 是否发生错误，可用于错误状态处理
+ *          - error: 错误对象（如果有的话），包含具体的错误信息
+ *          - data: 导出成功后的响应数据（如果有的话），包含Blob对象和文件名
+ *          - reset: 重置mutation状态的函数
+ *
+ * 使用参数 (TaskBatchExportData):
+ *          - 包含导出任务所需的筛选条件，如日期范围、任务状态、网站ID等
+ *          - 具体参数结构需遵循 TaskBatchExportData 接口定义
+ *
+ * 内部处理流程：
+ *          - 1. 获取认证token
+ *          - 2. 调用 batchExportTasks 函数发送导出请求
+ *          - 3. 将响应转换为Blob格式
+ *          - 4. 从Content-Disposition头中解析文件名
+ *          - 5. 在onSuccess回调中创建下载链接并自动触发下载
+ *          - 6. 清理临时创建的URL对象以释放内存
+ *
+ * 下载处理：
+ *          - 自动从响应头Content-Disposition中提取原始文件名
+ *          - 如果后端未提供文件名，则使用默认名称'tasks_export.json'
+ *          - 创建临时下载链接并模拟点击事件触发下载
+ *          - 下载完成后自动清理临时URL以释放内存
+ *
+ * 错误处理：
+ *          - 继承batchExportTasks函数的错误处理机制
+ *          - 任何API错误都会通过TanStack Query的标准错误处理机制传递
+ *          - 可通过isError和error属性获取错误状态和详情
+ *
+ * 注意事项:
+ * - 此 Hook 向 /tasks/export/ 端点发送PUT请求来批量导出任务数据
+ * - 导出的数据格式为JSON，包含所有符合条件的任务记录
+ * - 对于大量数据的导出，可能需要一定处理时间，建议在UI中提供进度反馈
+ * - 文件名从Content-Disposition响应头中获取，格式为"attachment; filename=xxx"
+ * - 自动处理文件下载流程，无需额外的下载逻辑
+ * - 任务导出API可能不需要认证，但为了兼容性，仍然集成了 Clerk 认证
+ * - 由于涉及文件下载，此功能仅能在浏览器环境中正常工作
+ */
+export const useBatchExportTasksMutation = () => {
+  const { getToken } = useAuth()
+
+  return useMutation({
+    mutationFn: async (variables: TaskBatchExportData) => {
+      const token = await getToken()
+      const response = await batchExportTasks(variables, token)
+      const blob = await response.blob()
+      // 从响应头中提取文件名（如果后端提供）
+      // Content-Disposition 格式通常为 "attachment; filename=filename.json"
+      const contentDisposition = response.headers.get('Content-Disposition')
+      const filename = contentDisposition
+        ? contentDisposition.split('filename=')[1]?.replace(/"/g, '') // 移除可能的引号
+        : 'tasks_export.json' // 使用更具描述性的默认文件名
+      return { blob, filename }
+    },
+    onSuccess: ({ blob, filename }) => {
+      // 创建临时URL用于下载
+      const url = window.URL.createObjectURL(blob)
+      // 创建临时的下载链接元素
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      // 触发下载操作
+      a.click()
+      // 清理内存：释放URL对象
+      window.URL.revokeObjectURL(url)
     },
   })
 }

@@ -94,7 +94,7 @@ export function PreTasksPrimaryActions() {
       <div className='flex gap-2'>
         {/* 导出全部准任务按钮 - 触发导出所有准任务操作 */}
         <Button
-          className='space-x-1'
+          className='space-x-1  bg-lime-600 text-white dark:bg-lime-700 hover:bg-lime-700/80 hover:text-white'
           onClick={() => onExportAll()}
           disabled={exportAllMutation.isPending} // 在导出过程中禁用按钮，避免重复操作
         >

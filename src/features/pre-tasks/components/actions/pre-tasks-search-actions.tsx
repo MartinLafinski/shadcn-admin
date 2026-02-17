@@ -20,6 +20,16 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command.tsx'
+// 输入框组控件
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+} from "@/components/ui/input-group.tsx"
+// 按钮组控件
+import {
+  ButtonGroup,
+} from "@/components/ui/button-group.tsx"
 // 确认对话框
 import {
   AlertDialog,
@@ -40,7 +50,7 @@ import { useResetWebsitePreTasksMutation, useClearWebsitePreTasksMutation } from
 // 操作结果提示框
 import { toast } from "sonner"
 // 路由
-import { getRouteApi } from "@tanstack/react-router";
+import { getRouteApi } from "@tanstack/react-router"
 
 // 定义搜索参数记录类型
 const route = getRouteApi('/_authenticated/pre-tasks/')
@@ -199,103 +209,108 @@ export function Search({
   return (
     <>
       <div className={cn("flex w-full max-w-2/3 gap-4 ", className)}>
-        {/* 网站选择框 */}
-        <Popover open={websitePopoverOpen} onOpenChange={setWebsitePopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant='outline'
-              role='combobox'
-              className={cn(
-                'justify-between',
-                !websiteId && 'text-muted-foreground'
-              )}
-            >
-              {websiteId
-                ? selectedWebsite
-                  ? `${selectedWebsite.website_name} [${selectedWebsite.website_slug}]`
-                  : '选择一个网站'
-                : '选择网站'}
-              <ChevronsUpDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className='p-0' align='start'>
-            <Command shouldFilter={false}>
-              <CommandInput
-                placeholder='搜索网站...'
-                value={websiteKeyword}
-                onValueChange={setWebsiteKeyword}
-              />
-              <CommandList>
-                {!websitesLoading && (!websitesData?.websites || websitesData.websites.length === 0) && (
-                  <CommandEmpty>未找到网站</CommandEmpty>
-                )}
-                {websitesLoading && (
-                  <CommandEmpty>加载中...</CommandEmpty>
-                )}
-                {websitesData?.websites && websitesData.websites.length > 0 && (
-                  <CommandGroup key={websitesData?.websites.length.toString()}>
-                    {websitesData.websites.map((website) => (
-                      <CommandItem
-                        key={website.website_id.toString()}
-                        value={`${website.website_id}`}
-                        onSelect={() => {
-                          setWebsiteId(website.website_id)
-                          setWebsitePopoverOpen(false)
-                        }}
-                      >
-                        <CheckIcon
-                          className={cn(
-                            'mr-2 h-4 w-4',
-                            websiteId === website.website_id
-                              ? 'opacity-100'
-                              : 'opacity-0'
-                          )}
-                        />
-                        <div className="flex flex-col">
-                          <span className="flex font-semibold">{website.website_name}</span>
-                          <span className="flex text-muted-foreground text-xs">
+
+        {/* 搜索输入框组合，包含关键词输入和状态筛选下拉菜单 */}
+        <ButtonGroup>
+          <InputGroup className="[--radius:1rem]">
+            <InputGroupAddon align="inline-start">
+              <InputGroupButton size="icon-xs" onClick={handleReset}>
+                <XIcon/>
+              </InputGroupButton>
+            </InputGroupAddon>
+            {/* 网站下拉菜单 */}
+            <InputGroupAddon align="inline-start">
+              <Popover open={websitePopoverOpen} onOpenChange={setWebsitePopoverOpen}>
+                <PopoverTrigger asChild>
+                  <InputGroupButton
+                    variant='ghost'
+                    role='combobox'
+                    className={cn(
+                      'justify-between mr-2 text-sm',
+                      !websiteId && 'text-muted-foreground'
+                    )}
+                  >
+                    {websiteId
+                      ? selectedWebsite
+                        ? `${selectedWebsite.website_name} [${selectedWebsite.website_slug}]`
+                        : '选择一个网站'
+                      : '选择网站'}
+                    <ChevronsUpDownIcon className='size-3' />
+                  </InputGroupButton>
+                </PopoverTrigger>
+                <PopoverContent className='p-0' align='start'>
+                  <Command shouldFilter={false}>
+                    <CommandInput
+                      placeholder='搜索网站...'
+                      value={websiteKeyword}
+                      onValueChange={setWebsiteKeyword}
+                    />
+                    <CommandList>
+                      {!websitesLoading && (!websitesData?.websites || websitesData.websites.length === 0) && (
+                        <CommandEmpty>未找到网站</CommandEmpty>
+                      )}
+                      {websitesLoading && (
+                        <CommandEmpty>加载中...</CommandEmpty>
+                      )}
+                      {websitesData?.websites && websitesData.websites.length > 0 && (
+                        <CommandGroup key={websitesData?.websites.length.toString()}>
+                          {websitesData.websites.map((website) => (
+                            <CommandItem
+                              key={website.website_id.toString()}
+                              value={`${website.website_id}`}
+                              onSelect={() => {
+                                setWebsiteId(website.website_id)
+                                setWebsitePopoverOpen(false)
+                              }}
+                            >
+                              <CheckIcon
+                                className={cn(
+                                  'mr-2 h-4 w-4',
+                                  websiteId === website.website_id
+                                    ? 'opacity-100'
+                                    : 'opacity-0'
+                                )}
+                              />
+                              <div className="flex flex-col">
+                                <span className="flex font-semibold">{website.website_name}</span>
+                                <span className="flex text-muted-foreground text-xs">
                             [{website.website_slug}]
                           </span>
-                        </div>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                )}
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-
-        {/* 搜索按钮 - 触发搜索操作 */}
-        <Button onClick={handleSearch}>
-          <SearchIcon/>
-          查找
-        </Button>
-        
-        {/* 重置按钮 - 清空所有搜索条件 */}
-        <Button variant='outline' onClick={handleReset}>
-          <XIcon/>
-          重置
-        </Button>
-
-        {/* 重置选中网站的准任务按钮 */}
-        <Button
-          onClick={() => setResetDialogOpen(true)}
-          disabled={!websiteId || resetWebsiteMutation.isPending}
-        >
-          <RotateCcw size={18} />
-          重置网站准任务
-        </Button>
-
-        {/* 清空选中网站的准任务按钮 */}
-        <Button
-          variant='destructive'
-          onClick={() => setClearDialogOpen(true)}
-          disabled={!websiteId || clearWebsiteMutation.isPending}
-        >
-          <Trash2 size={18} />
-          清空网站准任务
-        </Button>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      )}
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </InputGroupAddon>
+          </InputGroup>
+          {/* 搜索按钮 - 触发搜索操作 */}
+          <Button onClick={handleSearch}>
+            <SearchIcon/>
+            <span className="max-sm:hidden">查找</span>
+          </Button>
+          {/* 重置选中网站的准任务按钮 */}
+          <Button
+            onClick={() => setResetDialogOpen(true)}
+            disabled={!websiteId || resetWebsiteMutation.isPending}
+            className='bg-orange-500 text-white dark:bg-orange-600 hover:bg-orange-600/80'
+          >
+            <RotateCcw size={18} />
+            <span className="max-sm:hidden">重置</span>
+          </Button>
+          {/* 清空选中网站的准任务按钮 */}
+          <Button
+            variant='destructive'
+            onClick={() => setClearDialogOpen(true)}
+            disabled={!websiteId || clearWebsiteMutation.isPending}
+          >
+            <Trash2 size={18} />
+            <span className="max-sm:hidden">清空</span>
+          </Button>
+        </ButtonGroup>
       </div>
 
       {/* 重置确认对话框 */}

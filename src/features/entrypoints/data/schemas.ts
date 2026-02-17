@@ -323,4 +323,19 @@ export const EntrypointsSchema = z.object({
  * - 分页数据处理函数的参数类型
  */
 export type EntrypointsData = z.infer<typeof EntrypointsSchema>
+
+/**
+ * 生成一个空的用于充当原始数据的entrypointsData对象
+ * 用于初始化入口点列表数据，提供默认的空数组和分页信息
+ */
+export const emptyEntrypointsData: EntrypointsData = {
+    entrypoints: [],
+    pagination: {
+        total: 0,
+        page: 1,
+        pages: 0,
+        size: 50,
+        length: 0
+    }
+}
 // endregion

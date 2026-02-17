@@ -153,7 +153,7 @@ export const JobItemSchema = z.object({
     // 入口点信息
     entrypoint: EntrypointItemSchema,
     // 任务ID
-    task_id: z.number().int().nullable(),
+    task_id: z.number().int(),
     // 网站任务ID
     website_task_id: z.number().int().nullable(),
     // 入口点任务ID
@@ -351,4 +351,44 @@ export const JobsSchema = z.object({
  * - 分页数据处理函数的参数类型
  */
 export type JobsData = z.infer<typeof JobsSchema>
+// endregion
+
+
+// =====================================================================================================================
+// 批量导出Schema
+// =====================================================================================================================
+// region Batch Export Schema
+/**
+ * 作业任务批量导出的 Zod 验证模式
+ * 用于验证批量导出作业任务时的请求数据结构
+ *
+ * 使用场景：
+ * - 批量导出多个作业任务的数据
+ * - 指定需要导出的作业任务ID列表
+ * - 前端表单数据验证
+ * - API 请求体参数验证
+ */
+export const TaskBatchExportSchema = z.object({
+    // 需要批量导出的作业任务ID数组
+    // 该字段包含一个或多个作业任务的唯一标识符，用于指定需要导出数据的作业任务
+    // 数组中每个ID都应该是正整数，代表一个有效的作业任务记录
+    task_ids: z.array(
+      z.number()
+        .int()
+        .positive('作业任务ID必须是正整数')
+    ).min(1, '至少需要选择一个作业任务进行导出')
+      .max(100, '单次批量导出的作业任务数量不能超过100个'),
+})
+
+/**
+ * TaskBatchExport 类型定义
+ * 从 TaskBatchExportSchema 推断出的 TypeScript 类型
+ * 用于作业任务批量导出数据的类型标注，确保类型安全
+ *
+ * 该类型通常用于：
+ * - 批量导出API请求体参数类型
+ * - 批量导出组件的状态管理
+ * - 批量导出表单数据验证结果
+ */
+export type TaskBatchExportData = z.infer<typeof TaskBatchExportSchema>
 // endregion

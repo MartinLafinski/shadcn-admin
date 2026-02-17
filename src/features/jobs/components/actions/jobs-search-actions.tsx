@@ -3,9 +3,18 @@ import { useEffect, useState } from 'react'
 // 样式
 import { cn } from '@/lib/utils.ts'
 // 图标
-import { SearchIcon, XIcon, ChevronDownIcon, CheckIcon, ChevronsUpDownIcon } from 'lucide-react'
+import { SearchIcon, XIcon, CheckIcon, ChevronsUpDownIcon, Filter } from 'lucide-react'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
+// 对话框控件
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog.tsx"
 // 下拉菜单控件
 import {
   DropdownMenu,
@@ -27,19 +36,18 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command.tsx'
-// // 输入框组控件
-// import {
-//   InputGroup,
-//   InputGroupAddon,
-//   InputGroupButton,
-//   InputGroupInput,
-// } from "@/components/ui/input-group.tsx"
-// // 按钮组控件
-// import {
-//   ButtonGroup,
-// } from "@/components/ui/button-group.tsx"
+// 输入框组控件
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+} from "@/components/ui/input-group.tsx"
+// 按钮组控件
+import {
+  ButtonGroup,
+} from "@/components/ui/button-group.tsx"
 // 日期选择器控件
-import { DatePicker } from '@/components/date-picker'
+// import { DatePicker } from '@/components/date-picker'
 // 可用性标签
 import { taskStatusLabels } from "../../data/labels.tsx"
 // 获取任务数据
@@ -53,11 +61,35 @@ import { useTaskDaysQuery } from '@/features/jobs/api/jobs.ts'
 // 路由
 import { getRouteApi } from "@tanstack/react-router"
 
+import { Calendar } from "@/components/ui/calendar"
+import { EntrypointsData, emptyEntrypointsData } from "@/features/entrypoints/data/schemas.ts";
+import { WebsitesData, emptyWebsitesData } from "@/features/websites/data/schemas.ts";
+
 // 定义搜索参数记录类型
 const route = getRouteApi('/_authenticated/jobs/')
 const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_TASK_PAGE_SIZE || 50)
 const WEBSITE_SEARCH_SIZE: number = Number(import.meta.env.VITE_WEBSITE_SEARCH_SIZE || 50)
 const ENTRYPOINT_SEARCH_SIZE: number = Number(import.meta.env.VITE_ENTRYPOINT_SEARCH_SIZE || 50)
+const MOBILE_BREAKPOINT = 1080 // 自定义断点为 1080px
+
+/**
+ * 自定义 hook：检测屏幕宽度是否小于 1080px
+ */
+function useMobile() {
+  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined)
+
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    const onChange = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    }
+    mql.addEventListener('change', onChange)
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    return () => mql.removeEventListener('change', onChange)
+  }, [])
+
+  return !!isMobile
+}
 
 
 type SearchProps = {
@@ -66,11 +98,323 @@ type SearchProps = {
   placeholder?: string
 }
 
+/**
+ * 搜索表单内容组件
+ * 提取搜索表单的通用内容，用于桌面端和移动端复用
+ */
+function SearchFormContent({
+  dayDate,
+  setDayDate,
+  open,
+  setOpen,
+  availableDatesSet,
+  statusValue,
+  setStatusValue,
+  currentStatusLabel,
+  websiteId,
+  setWebsiteId,
+  websitePopoverOpen,
+  setWebsitePopoverOpen,
+  websiteKeyword,
+  setWebsiteKeyword,
+  selectedWebsite,
+  websitesData,
+  websitesLoading,
+  entrypointId,
+  setEntrypointId,
+  entrypointPopoverOpen,
+  setEntrypointPopoverOpen,
+  entrypointKeyword,
+  setEntrypointKeyword,
+  selectedEntrypoint,
+  entrypointsData,
+  entrypointsLoading,
+  handleReset,
+  handleSearch,
+  isVertical = false,
+}: {
+  dayDate: Date | undefined
+  setDayDate: (date: Date | undefined) => void
+  open: boolean
+  setOpen: (open: boolean) => void
+  availableDatesSet: Set<string> | null
+  statusValue: string | undefined
+  setStatusValue: (value: string | undefined) => void
+  currentStatusLabel: string
+  websiteId: number | undefined
+  setWebsiteId: (id: number | undefined) => void
+  websitePopoverOpen: boolean
+  setWebsitePopoverOpen: (open: boolean) => void
+  websiteKeyword: string
+  setWebsiteKeyword: (keyword: string) => void
+  selectedWebsite: any
+  websitesData: WebsitesData
+  websitesLoading: boolean
+  entrypointId: number | undefined
+  setEntrypointId: (id: number | undefined) => void
+  entrypointPopoverOpen: boolean
+  setEntrypointPopoverOpen: (open: boolean) => void
+  entrypointKeyword: string
+  setEntrypointKeyword: (keyword: string) => void
+  selectedEntrypoint: any
+  entrypointsData: EntrypointsData
+  entrypointsLoading: boolean
+  handleReset: () => void
+  handleSearch: () => void
+  isVertical?: boolean
+}) {
+  const containerClass = isVertical ? 'flex flex-col gap-4 w-full' : ''
+
+  return (
+    <div className={containerClass}>
+      <ButtonGroup className={cn('', containerClass)}>
+        <InputGroup className={cn("[--radius:1rem] h-auto!", containerClass)}>
+          <InputGroupAddon align="inline-start">
+            <InputGroupButton size="icon-xs" onClick={handleReset}>
+              <XIcon/>
+              {isVertical ? <span>重置</span> : ''}
+            </InputGroupButton>
+          </InputGroupAddon>
+
+          <InputGroupAddon align="inline-start">
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  id="date-picker"
+                  className="h-6 justify-between font-normal"
+                >
+                  {dayDate ? dayDate.toLocaleDateString() : "日期"}
+                  <ChevronsUpDownIcon className='size-3 shrink-0' />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto overflow-hidden p-0" align={isVertical ? 'center' :'start'}>
+                <Calendar
+                  mode="single"
+                  captionLayout="dropdown"
+                  selected={dayDate}
+                  onSelect={(date) => {
+                    setDayDate(date)
+                    setOpen(false)
+                  }}
+                  disabled={(date: Date) => {
+                    if (availableDatesSet && availableDatesSet.size > 0) {
+                      const year = date.getFullYear()
+                      const month = String(date.getMonth() + 1).padStart(2, '0')
+                      const day = String(date.getDate()).padStart(2, '0')
+                      const dateString = `${year}${month}${day}`
+                      return !availableDatesSet.has(dateString)
+                    }
+                    return date > new Date() || date < new Date('1900-01-01')
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+          </InputGroupAddon>
+
+          <InputGroupAddon align="inline-start">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <InputGroupButton
+                  variant='ghost'
+                  className={cn(
+                    'justify-between',
+                    !statusValue && 'text-muted-foreground'
+                  )}
+                >
+                  {currentStatusLabel}
+                  <ChevronsUpDownIcon className='ml-2 size-3 shrink-0' />
+                </InputGroupButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={isVertical ? 'center' :'start'}>
+                <DropdownMenuItem
+                  onClick={() => setStatusValue(undefined)}
+                  className={cn(!statusValue && 'bg-accent')}
+                >
+                  <CheckIcon
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      !statusValue ? 'opacity-100' : 'opacity-0'
+                    )}
+                  />
+                  所有状态
+                </DropdownMenuItem>
+                {taskStatusLabels.map((item) => (
+                  <DropdownMenuItem
+                    key={item.value}
+                    onClick={() => setStatusValue(item.value)}
+                    className={cn(statusValue === item.value && 'bg-accent')}
+                  >
+                    <CheckIcon
+                      className={cn(
+                        'mr-2 h-4 w-4',
+                        statusValue === item.value ? 'opacity-100' : 'opacity-0'
+                      )}
+                    />
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </InputGroupAddon>
+
+          <InputGroupAddon align="inline-start">
+            <Popover open={websitePopoverOpen} onOpenChange={setWebsitePopoverOpen}>
+              <PopoverTrigger asChild>
+                <InputGroupButton
+                  variant='ghost'
+                  role='combobox'
+                  className={cn(
+                    'justify-between',
+                    !websiteId && 'text-muted-foreground'
+                  )}
+                >
+                  {websiteId
+                    ? selectedWebsite
+                      ? selectedWebsite.website_name
+                      : '选择一个网站'
+                    : '选择网站'}
+                  <ChevronsUpDownIcon className='ml-2 size-3 shrink-0' />
+                </InputGroupButton>
+              </PopoverTrigger>
+              <PopoverContent className='p-0' align={isVertical ? 'center' :'start'}>
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    placeholder='搜索网站...'
+                    value={websiteKeyword}
+                    onValueChange={setWebsiteKeyword}
+                  />
+                  <CommandList>
+                    {!websitesLoading && (!websitesData?.websites || websitesData.websites.length === 0) && (
+                      <CommandEmpty>未找到网站</CommandEmpty>
+                    )}
+                    {websitesLoading && (
+                      <CommandEmpty>加载中...</CommandEmpty>
+                    )}
+                    {websitesData?.websites && websitesData.websites.length > 0 && (
+                      <CommandGroup key={websitesData?.websites.length.toString()}>
+                        {websitesData.websites.map((website) => (
+                          <CommandItem
+                            key={website.website_id.toString()}
+                            value={`${website.website_id}`}
+                            onSelect={() => {
+                              setWebsiteId(website.website_id)
+                              setWebsitePopoverOpen(false)
+                            }}
+                          >
+                            <CheckIcon
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                websiteId === website.website_id
+                                  ? 'opacity-100'
+                                  : 'opacity-0'
+                              )}
+                            />
+                            <div className="flex flex-col">
+                              <span className="flex font-semibold">{website.website_name}</span>
+                              <span className="flex text-muted-foreground text-xs">
+                                [{website.website_slug}]
+                              </span>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    )}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </InputGroupAddon>
+
+          <InputGroupAddon align="inline-start">
+            <Popover open={entrypointPopoverOpen} onOpenChange={setEntrypointPopoverOpen}>
+              <PopoverTrigger asChild>
+                <InputGroupButton
+                  variant='ghost'
+                  role='combobox'
+                  className={cn(
+                    'justify-between',
+                    !entrypointId && 'text-muted-foreground'
+                  )}
+                >
+                  {entrypointId
+                    ? selectedEntrypoint
+                      ? selectedEntrypoint.entrypoint_name
+                      : '选择一个入口点'
+                    : '选择入口点'}
+                  <ChevronsUpDownIcon className='ml-2 size-3 shrink-0' />
+                </InputGroupButton>
+              </PopoverTrigger>
+              <PopoverContent className='p-0' align={isVertical ? 'center' :'start'}>
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    placeholder='搜索入口点...'
+                    value={entrypointKeyword}
+                    onValueChange={setEntrypointKeyword}
+                  />
+                  <CommandList>
+                    {!entrypointsLoading && (!entrypointsData?.entrypoints || entrypointsData.entrypoints.length === 0) && (
+                      <CommandEmpty>未找到入口点</CommandEmpty>
+                    )}
+                    {entrypointsLoading && (
+                      <CommandEmpty>加载中...</CommandEmpty>
+                    )}
+                    {entrypointsData?.entrypoints && entrypointsData.entrypoints.length > 0 && (
+                      <CommandGroup key={entrypointsData?.entrypoints.length.toString()}>
+                        {entrypointsData.entrypoints.map((entrypoint) => (
+                          <CommandItem
+                            key={entrypoint.entrypoint_id.toString()}
+                            value={`${entrypoint.entrypoint_id}`}
+                            onSelect={() => {
+                              setEntrypointId(entrypoint.entrypoint_id)
+                              setEntrypointPopoverOpen(false)
+                            }}
+                          >
+                            <CheckIcon
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                entrypointId === entrypoint.entrypoint_id
+                                  ? 'opacity-100'
+                                  : 'opacity-0'
+                              )}
+                            />
+                            <div className="flex flex-col">
+                              <span className="flex font-semibold">{entrypoint.entrypoint_name}</span>
+                              <span className="flex text-muted-foreground text-xs">
+                                [{entrypoint.entrypoint_slug}]
+                              </span>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    )}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </InputGroupAddon>
+
+        </InputGroup>
+        <Button onClick={handleSearch} className={isVertical ? 'w-full' : ''}>
+          <SearchIcon />
+          搜索
+        </Button>
+      </ButtonGroup>
+    </div>
+  )
+}
+
 export function Search({
                          className = ''
                        }: SearchProps) {
   const { searchParams, setSearchParams } = useJobs()
   const navigate = route.useNavigate()
+
+  // 移动端检测
+  const isMobile = useMobile()
+  // 对话框打开状态
+  const [searchDialogOpen, setSearchDialogOpen] = useState(false)
 
   // 本地状态: 日期（Date对象）
   const [dayDate, setDayDate] = useState<Date | undefined>(undefined)
@@ -258,215 +602,107 @@ export function Search({
   }
 
   // 获取当前选中的状态标签
-  const currentStatusLabel = statusValue 
+  const currentStatusLabel = (statusValue
     ? taskStatusLabels.find(label => label.value === statusValue)?.label 
-    : '所有状态'
+    : '所有状态') || '所有状态'
 
+  const [open, setOpen] = useState(false)
+  // const [date, setDate] = useState<Date | undefined>(undefined)
+
+  const availableDatesSet = taskDays ? new Set(taskDays) : null
+  
+  // 桌面端视图（宽度 > 1080）
+  if (!isMobile) {
+    return (
+      <div className={cn("flex flex-wrap w-full gap-4", className)}>
+        <SearchFormContent
+          dayDate={dayDate}
+          setDayDate={setDayDate}
+          open={open}
+          setOpen={setOpen}
+          availableDatesSet={availableDatesSet}
+          statusValue={statusValue}
+          setStatusValue={setStatusValue}
+          currentStatusLabel={currentStatusLabel}
+          websiteId={websiteId}
+          setWebsiteId={setWebsiteId}
+          websitePopoverOpen={websitePopoverOpen}
+          setWebsitePopoverOpen={setWebsitePopoverOpen}
+          websiteKeyword={websiteKeyword}
+          setWebsiteKeyword={setWebsiteKeyword}
+          selectedWebsite={selectedWebsite}
+          websitesData={websitesData || emptyWebsitesData}
+          websitesLoading={websitesLoading}
+          entrypointId={entrypointId}
+          setEntrypointId={setEntrypointId}
+          entrypointPopoverOpen={entrypointPopoverOpen}
+          setEntrypointPopoverOpen={setEntrypointPopoverOpen}
+          entrypointKeyword={entrypointKeyword}
+          setEntrypointKeyword={setEntrypointKeyword}
+          selectedEntrypoint={selectedEntrypoint}
+          entrypointsData={entrypointsData || emptyEntrypointsData}
+          entrypointsLoading={entrypointsLoading}
+          handleReset={handleReset}
+          handleSearch={handleSearch}
+          isVertical={false}
+        />
+      </div>
+    )
+  }
+
+  // 移动端视图（宽度 <= 1080）
   return (
-    <div className={cn("flex w-full max-w-2/3 gap-4 ", className)}>
-      {/* 网站选择框 */}
-
-      {/* 日期选择器 - 使用 shadcn/ui 的 DatePicker 组件 */}
-      <DatePicker
-        selected={dayDate}
-        onSelect={setDayDate}
-        placeholder='选择日期'
-        availableDates={taskDays}
-      />
-
-      {/* 任务状态选择下拉框 */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant='outline'
-            className={cn(
-              'justify-between',
-              !statusValue && 'text-muted-foreground'
-            )}
-          >
-            {currentStatusLabel}
-            <ChevronDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='start'>
-          {/* "所有状态"选项 - 清除状态筛选 */}
-          <DropdownMenuItem
-            onClick={() => setStatusValue(undefined)}
-            className={cn(!statusValue && 'bg-accent')}
-          >
-            <CheckIcon
-              className={cn(
-                'mr-2 h-4 w-4',
-                !statusValue ? 'opacity-100' : 'opacity-0'
-              )}
-            />
-            所有状态
-          </DropdownMenuItem>
-          
-          {/* 遍历 taskStatusLabels 数组，生成每个状态选项 */}
-          {taskStatusLabels.map((item) => (
-            <DropdownMenuItem
-              key={item.value}
-              onClick={() => setStatusValue(item.value)}
-              className={cn(statusValue === item.value && 'bg-accent')}
-            >
-              <CheckIcon
-                className={cn(
-                  'mr-2 h-4 w-4',
-                  statusValue === item.value ? 'opacity-100' : 'opacity-0'
-                )}
-              />
-              <item.icon className="mr-2 h-4 w-4" />
-              {item.label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <Popover open={websitePopoverOpen} onOpenChange={setWebsitePopoverOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant='outline'
-            role='combobox'
-            className={cn(
-              'justify-between',
-              !websiteId && 'text-muted-foreground'
-            )}
-          >
-            {websiteId
-              ? selectedWebsite
-                ? `${selectedWebsite.website_name} [${selectedWebsite.website_slug}]`
-                : '选择一个网站'
-              : '选择网站'}
-            <ChevronsUpDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className='p-0' align='start'>
-          <Command shouldFilter={false}>
-            <CommandInput
-              placeholder='搜索网站...'
-              value={websiteKeyword}
-              onValueChange={setWebsiteKeyword}
-            />
-            <CommandList>
-              {!websitesLoading && (!websitesData?.websites || websitesData.websites.length === 0) && (
-                <CommandEmpty>未找到网站</CommandEmpty>
-              )}
-              {websitesLoading && (
-                <CommandEmpty>加载中...</CommandEmpty>
-              )}
-              {websitesData?.websites && websitesData.websites.length > 0 && (
-                <CommandGroup key={websitesData?.websites.length.toString()}>
-                  {websitesData.websites.map((website) => (
-                    <CommandItem
-                      key={website.website_id.toString()}
-                      value={`${website.website_id}`}
-                      onSelect={() => {
-                        setWebsiteId(website.website_id)
-                        setWebsitePopoverOpen(false)
-                      }}
-                    >
-                      <CheckIcon
-                        className={cn(
-                          'mr-2 h-4 w-4',
-                          websiteId === website.website_id
-                            ? 'opacity-100'
-                            : 'opacity-0'
-                        )}
-                      />
-                      <div className="flex flex-col">
-                        <span className="flex font-semibold">{website.website_name}</span>
-                        <span className="flex text-muted-foreground text-xs">
-                          [{website.website_slug}]
-                        </span>
-                      </div>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-
-
-      <Popover open={entrypointPopoverOpen} onOpenChange={setEntrypointPopoverOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant='outline'
-            role='combobox'
-            className={cn(
-              'justify-between',
-              !entrypointId && 'text-muted-foreground'
-            )}
-          >
-            {entrypointId
-              ? selectedEntrypoint
-                ? `${selectedEntrypoint.entrypoint_name} [${selectedEntrypoint.entrypoint_slug}]`
-                : '选择一个入口点'
-              : '选择入口点'}
-            <ChevronsUpDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className='p-0' align='start'>
-          <Command shouldFilter={false}>
-            <CommandInput
-              placeholder='搜索入口点...'
-              value={entrypointKeyword}
-              onValueChange={setEntrypointKeyword}
-            />
-            <CommandList>
-              {!entrypointsLoading && (!entrypointsData?.entrypoints || entrypointsData.entrypoints.length === 0) && (
-                <CommandEmpty>未找到入口点</CommandEmpty>
-              )}
-              {entrypointsLoading && (
-                <CommandEmpty>加载中...</CommandEmpty>
-              )}
-              {entrypointsData?.entrypoints && entrypointsData.entrypoints.length > 0 && (
-                <CommandGroup key={entrypointsData?.entrypoints.length.toString()}>
-                  {entrypointsData.entrypoints.map((entrypoint) => (
-                    <CommandItem
-                      key={entrypoint.entrypoint_id.toString()}
-                      value={`${entrypoint.entrypoint_id}`}
-                      onSelect={() => {
-                        setEntrypointId(entrypoint.entrypoint_id)
-                        setEntrypointPopoverOpen(false)
-                      }}
-                    >
-                      <CheckIcon
-                        className={cn(
-                          'mr-2 h-4 w-4',
-                          entrypointId === entrypoint.entrypoint_id
-                            ? 'opacity-100'
-                            : 'opacity-0'
-                        )}
-                      />
-                      <div className="flex flex-col">
-                        <span className="flex font-semibold">{entrypoint.entrypoint_name}</span>
-                        <span className="flex text-muted-foreground text-xs">
-                          [{entrypoint.entrypoint_slug}]
-                        </span>
-                      </div>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-
-      {/* 重置按钮 - 清空所有搜索条件 */}
-      <Button onClick={handleSearch}>
-        <SearchIcon />
-        搜索
-      </Button>
-
-      {/* 重置按钮 - 清空所有搜索条件 */}
-      <Button variant='outline' onClick={handleReset}>
-        <XIcon/>
-        重置
-      </Button>
-    </div>
+    <Dialog open={searchDialogOpen} onOpenChange={setSearchDialogOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className={className}>
+          <Filter className="mr-2 h-4 w-4" />
+          搜索
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>搜索任务</DialogTitle>
+          <DialogDescription>
+            选择筛选条件来搜索任务
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-4">
+          <SearchFormContent
+            dayDate={dayDate}
+            setDayDate={setDayDate}
+            open={open}
+            setOpen={setOpen}
+            availableDatesSet={availableDatesSet}
+            statusValue={statusValue}
+            setStatusValue={setStatusValue}
+            currentStatusLabel={currentStatusLabel}
+            websiteId={websiteId}
+            setWebsiteId={setWebsiteId}
+            websitePopoverOpen={websitePopoverOpen}
+            setWebsitePopoverOpen={setWebsitePopoverOpen}
+            websiteKeyword={websiteKeyword}
+            setWebsiteKeyword={setWebsiteKeyword}
+            selectedWebsite={selectedWebsite}
+            websitesData={websitesData || emptyWebsitesData}
+            websitesLoading={websitesLoading}
+            entrypointId={entrypointId}
+            setEntrypointId={setEntrypointId}
+            entrypointPopoverOpen={entrypointPopoverOpen}
+            setEntrypointPopoverOpen={setEntrypointPopoverOpen}
+            entrypointKeyword={entrypointKeyword}
+            setEntrypointKeyword={setEntrypointKeyword}
+            selectedEntrypoint={selectedEntrypoint}
+            entrypointsData={entrypointsData || emptyEntrypointsData}
+            entrypointsLoading={entrypointsLoading}
+            handleReset={handleReset}
+            handleSearch={() => {
+              handleSearch()
+              setSearchDialogOpen(false)
+            }}
+            isVertical={true}
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

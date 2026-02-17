@@ -8,10 +8,9 @@ import { type Row } from '@tanstack/react-table'
 import {
     Trash2,
     SquarePenIcon,
-    FolderSyncIcon,
     Settings2Icon,
     EllipsisIcon,
-    ListVideo
+    ListVideo, ListTree, Newspaper
 } from 'lucide-react'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
@@ -140,7 +139,7 @@ export function EntrypointsRowActions<TData>(
                         <Settings2Icon size={16} />
                     </DropdownMenuShortcut>
                 </DropdownMenuItem>
-
+                <DropdownMenuSeparator />
                 {/* 查看作业任务功能 */}
                 <DropdownMenuItem asChild>
                     <Link
@@ -158,12 +157,38 @@ export function EntrypointsRowActions<TData>(
                     </Link>
                 </DropdownMenuItem>
 
-                {/* 同步准任务功能 */}
-                <DropdownMenuItem disabled>
-                    同步准任务
-                    <DropdownMenuShortcut>
-                        <FolderSyncIcon size={16} />
-                    </DropdownMenuShortcut>
+                {/* 查看请求结果功能 */}
+                <DropdownMenuItem asChild>
+                    <Link
+                      to="/reqs"
+                      search={{
+                          website_id: entrypointItem.website_id || undefined,
+                          entrypoint_id: entrypointItem.entrypoint_id || undefined,
+                      }}
+                      target="_blank"
+                    >
+                        查看请求结果
+                        <DropdownMenuShortcut>
+                            <ListTree size={16} />
+                        </DropdownMenuShortcut>
+                    </Link>
+                </DropdownMenuItem>
+
+                {/* 查看文章功能 */}
+                <DropdownMenuItem asChild>
+                    <Link
+                      to="/articles"
+                      search={{
+                          website_id: entrypointItem.website_id || undefined,
+                          entrypoint_id: entrypointItem.entrypoint_id || undefined,
+                      }}
+                      target="_blank"
+                    >
+                        查看文章
+                        <DropdownMenuShortcut>
+                            <Newspaper size={16} />
+                        </DropdownMenuShortcut>
+                    </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {/* 入口点启用/禁用状态切换子菜单 */}

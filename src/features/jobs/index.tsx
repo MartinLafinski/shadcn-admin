@@ -1,7 +1,7 @@
 // 引入依赖
 import { useEffect } from "react"
 // 用户认证
-import { useAuth } from '@clerk/clerk-react'
+// import { useAuth } from '@clerk/clerk-react'
 // 任务查询
 import { useJobsQuery } from '@/features/jobs/api/jobs'
 // 表格组件
@@ -55,19 +55,19 @@ function JobsContent() {
   // url搜索参数
   const search = route.useSearch()
 
-  // 获取访问令牌
-  const { getToken } = useAuth()
-
-  const handleGetToken = async () => {
-    // 获取访问令牌
-    const token = await getToken()
-    console.log('JWT 令牌:', token)
-
-    // 获取具有特定权限的令牌
-    // const tokenWithPermission = await getToken({
-    //   template: 'token-template-name' // 可选：使用特定模板
-    // })
-  }
+  // // 获取访问令牌
+  // const { getToken } = useAuth()
+  //
+  // const handleGetToken = async () => {
+  //   // 获取访问令牌
+  //   const token = await getToken()
+  //   console.log('JWT 令牌:', token)
+  //
+  //   // 获取具有特定权限的令牌
+  //   // const tokenWithPermission = await getToken({
+  //   //   template: 'token-template-name' // 可选：使用特定模板
+  //   // })
+  // }
 
   // 直接使用 URL 的 search 参数
   let day = search.day
@@ -145,10 +145,10 @@ function JobsContent() {
         {/*<TopNav links={topNav} />*/}
 
         {/* 搜索组件，用于关键词搜索和筛选 */}
-        <Search />
+        <Search className="" />
 
         {/* 右侧操作区域，包含主题切换、配置抽屉和用户菜单 */}
-        <div className='ms-auto flex items-center space-x-4'>
+        <div className='ms-auto flex items-center space-x-4 max-sm:space-x-0'>
           {/* 主题切换按钮，允许用户切换明暗主题 */}
           <ThemeSwitch />
           
@@ -157,7 +157,7 @@ function JobsContent() {
           
           {/* 用户按钮，显示用户信息和账户操作菜单 */}
           <UserButton />
-          <button onClick={handleGetToken}>获取 JWT 令牌</button>
+          {/*<button onClick={handleGetToken}>获取 JWT 令牌</button>*/}
         </div>
       </Header>
 

@@ -3,7 +3,7 @@ import { type JSX } from "react"
 // 表格
 import { type Row } from '@tanstack/react-table'
 // 图标
-import { Trash2, SquarePenIcon, CloudSyncIcon, FolderSyncIcon, Settings2Icon, EllipsisIcon } from 'lucide-react'
+import { Trash2, SquarePenIcon, Settings2Icon, EllipsisIcon } from 'lucide-react'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
 // 下拉菜单控件
@@ -131,20 +131,6 @@ export function BlackwordsRowActions<TData>(
                     说明与配置
                     <DropdownMenuShortcut>
                         <Settings2Icon size={16} />
-                    </DropdownMenuShortcut>
-                </DropdownMenuItem>
-                {/* 同步入口点功能 - 目前禁用 */}
-                <DropdownMenuItem disabled>
-                    同步入口点
-                    <DropdownMenuShortcut>
-                        <CloudSyncIcon size={16} />
-                    </DropdownMenuShortcut>
-                </DropdownMenuItem>
-                {/* 同步准任务功能 - 目前禁用 */}
-                <DropdownMenuItem disabled>
-                    同步准任务
-                    <DropdownMenuShortcut>
-                        <FolderSyncIcon size={16} />
                     </DropdownMenuShortcut>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

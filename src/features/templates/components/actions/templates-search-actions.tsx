@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 // 样式
 import { cn } from '@/lib/utils.ts'
 // 图标
-import { SearchIcon, XIcon, ChevronDownIcon } from 'lucide-react'
+import { SearchIcon, XIcon, ChevronsUpDownIcon } from 'lucide-react'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
 // 下拉菜单控件
@@ -166,43 +166,38 @@ export function Search({
   }
 
   return (
-    <div className={cn("flex w-full max-w-sm gap-4", className)}>
+    <div className={cn("flex w-full max-w-sm gap-4 xs:max-w-xs", className)}>
       {/* 搜索输入框组合，包含关键词输入和状态筛选下拉菜单 */}
       <ButtonGroup>
         <InputGroup className="[--radius:1rem]">
-          {/* 关键词输入框 - 支持输入模板名称、标识进行搜索 */}
-          <InputGroupInput
-            placeholder="模板名称/标识/内容"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)} // 更新关键词状态
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSearch()
-              }
-            }}
-          />
-          
+          {/* 重置按钮 - 清空所有搜索条件 */}
+          <InputGroupAddon align="inline-start">
+            <InputGroupButton size="icon-xs" onClick={handleReset}>
+              <XIcon/>
+            </InputGroupButton>
+          </InputGroupAddon>
+
           {/* 状态筛选下拉菜单 - 用于筛选模板的启用状态 */}
-          <InputGroupAddon align="inline-end">
+          <InputGroupAddon align="inline-start">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 {/* 下拉触发按钮 - 显示当前选中的状态标签 */}
                 <InputGroupButton
                   variant="ghost"
-                  className={cn("!pr-1.5 text-xs",
+                  className={cn("!pr-1.5 -ml-2 text-sm",
                     enableLabels.find((label)=> {
                       return label.value === enabledValue
                     })?.className ?? ''
                   )}
                 >
-                  {selectedLabel} <ChevronDownIcon className="size-3" />
+                  {selectedLabel} <ChevronsUpDownIcon className="size-3" />
                 </InputGroupButton>
               </DropdownMenuTrigger>
-              
+
               {/* 下拉菜单内容 - 包含所有可选状态项 */}
-              <DropdownMenuContent align="end" className="[--radius:0.95rem]">
+              <DropdownMenuContent align="start" className="[--radius:0.95rem]">
                 {/* "所有"选项 - 清除状态筛选条件 */}
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => {
                     setSelectedLabel('所有')
                     setEnabledValue(undefined)
@@ -210,7 +205,7 @@ export function Search({
                 >
                   所有
                 </DropdownMenuItem>
-                
+
                 {/* 遍历 enableLabels 数组，生成每个状态选项 */}
                 {enableLabels.map((item) => (
                   <DropdownMenuItem
@@ -228,6 +223,20 @@ export function Search({
               </DropdownMenuContent>
             </DropdownMenu>
           </InputGroupAddon>
+
+          {/* 关键词输入框 - 支持输入模板名称、标识进行搜索 */}
+          <InputGroupInput
+            placeholder="模板名称/标识/内容"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)} // 更新关键词状态
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch()
+              }
+            }}
+          />
+          
+
         </InputGroup>
         
         {/* 搜索按钮 - 触发搜索操作 */}
@@ -236,12 +245,7 @@ export function Search({
           查找
         </Button>
       </ButtonGroup>
-      
-      {/* 重置按钮 - 清空所有搜索条件 */}
-      <Button variant='outline' onClick={handleReset}>
-        <XIcon/>
-        重置
-      </Button>
+
     </div>
   )
 }

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 // 数据验证
 import { zodResolver } from '@hookform/resolvers/zod'
 // 显示提交数据
-import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
+// import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
 // 输入框控件
@@ -115,7 +115,7 @@ export function LinkCreateDrawer(
     // 重置表单到默认状态
     form.reset()
     // 显示提交的数据（用于调试）
-    showSubmittedData(data)
+    // showSubmittedData(data)
   }
 
   return (

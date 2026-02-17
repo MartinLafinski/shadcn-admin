@@ -29,6 +29,7 @@ import {
   Link,
   ListVideo,
   ListTree,
+  Newspaper,
 } from 'lucide-react'
 import { ClerkLogo } from '@/assets/clerk-logo'
 import { type SidebarData } from '../types'
@@ -104,6 +105,11 @@ export const sidebarData: SidebarData = {
           title: '请求结果',
           url: '/reqs',
           icon: ListTree,
+        },
+        {
+          title: '文章',
+          url: '/articles',
+          icon: Newspaper,
         },
         {
           title: 'Tasks',

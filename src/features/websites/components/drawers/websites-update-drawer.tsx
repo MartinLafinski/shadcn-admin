@@ -9,7 +9,7 @@ import { useQueryClient } from '@tanstack/react-query'
 // 数据验证
 import { zodResolver } from '@hookform/resolvers/zod'
 // 显示提交数据
-import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
+// import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 图标
 import { Maximize2Icon, Minimize2Icon } from "lucide-react"
 // 按钮控件
@@ -180,7 +180,7 @@ export function WebsiteUpdateDrawer(
     // 重置表单到默认状态
     form.reset()
     // 显示提交的数据（用于调试）
-    showSubmittedData(data)
+    // showSubmittedData(data)
   }
 
   return (

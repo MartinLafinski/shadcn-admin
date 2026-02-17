@@ -5,7 +5,7 @@ import { Link } from "@tanstack/react-router"
 // 表格
 import { type Row } from '@tanstack/react-table'
 // 图标
-import { Trash2, SquarePenIcon, DoorOpen, ListTodo, Settings2Icon, EllipsisIcon, ListVideo } from 'lucide-react'
+import { Trash2, SquarePenIcon, DoorOpen, ListTodo, Settings2Icon, EllipsisIcon, ListVideo, ListTree, Newspaper } from 'lucide-react'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
 // 下拉菜单控件
@@ -133,6 +133,7 @@ export function WebsitesRowActions<TData>(
                         <Settings2Icon size={16} />
                     </DropdownMenuShortcut>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 {/* 查看入口点功能 */}
                 <DropdownMenuItem asChild>
                     <Link
@@ -169,6 +170,32 @@ export function WebsitesRowActions<TData>(
                         查看作业任务
                         <DropdownMenuShortcut>
                             <ListVideo size={16} />
+                        </DropdownMenuShortcut>
+                    </Link>
+                </DropdownMenuItem>
+                {/* 查看请求结果功能 */}
+                <DropdownMenuItem asChild>
+                    <Link
+                      to="/reqs"
+                      search={{ website_id: websiteItem.website_id }}
+                      target="_blank"
+                    >
+                        查看请求结果
+                        <DropdownMenuShortcut>
+                            <ListTree size={16} />
+                        </DropdownMenuShortcut>
+                    </Link>
+                </DropdownMenuItem>
+                {/* 查看文章功能 */}
+                <DropdownMenuItem asChild>
+                    <Link
+                      to="/articles"
+                      search={{ website_id: websiteItem.website_id }}
+                      target="_blank"
+                    >
+                        查看文章
+                        <DropdownMenuShortcut>
+                            <Newspaper size={16} />
                         </DropdownMenuShortcut>
                     </Link>
                 </DropdownMenuItem>

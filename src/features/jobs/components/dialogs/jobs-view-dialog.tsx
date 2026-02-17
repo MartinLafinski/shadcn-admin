@@ -1,23 +1,18 @@
 // 图标
-import { Check, PlayCircle, StopCircle, Clock, Globe, Server, Calendar } from 'lucide-react'
+import {Calendar, Globe, InfoIcon, Server} from 'lucide-react'
 // 滚动区域控件
-import { ScrollArea } from '@/components/ui/scroll-area.tsx'
+import {ScrollArea} from '@/components/ui/scroll-area.tsx'
 // 对话框控件
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog.tsx'
+import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,} from '@/components/ui/dialog.tsx'
 // JSON 数据查看器控件
 import JsonView from '@uiw/react-json-view'
-import { githubLightTheme } from '@uiw/react-json-view/githubLight'
-import { githubDarkTheme } from '@uiw/react-json-view/githubDark'
+import {githubLightTheme} from '@uiw/react-json-view/githubLight'
+import {githubDarkTheme} from '@uiw/react-json-view/githubDark'
 // 日/夜主题上下文
-import { useTheme } from '@/context/theme-provider.tsx'
-import { cn } from '@/lib/utils.ts'
-import { JobItemData } from '../../data/schemas.ts'
+import {useTheme} from '@/context/theme-provider.tsx'
+import {cn} from '@/lib/utils.ts'
+import {JobItemData} from '../../data/schemas.ts'
+import {taskStatusDetailDict} from "@/features/jobs/data/labels.tsx";
 
 interface JobsViewDialogProps {
   /** 对话框的开启状态 */
@@ -60,38 +55,16 @@ export function JobsViewDialog({ open, onOpenChange, job }: JobsViewDialogProps)
     }
   }
 
-  // 获取任务状态显示
   const getTaskStatusDisplay = () => {
-    switch (job.task_result_status) {
-      case 'running':
-        return {
-          icon: PlayCircle,
-          label: '运行中',
-          className: 'bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-800 text-blue-700 dark:text-blue-300'
-        }
-      case 'completed':
-        return {
-          icon: Check,
-          label: '已完成',
-          className: 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800 text-green-700 dark:text-green-300'
-        }
-      case 'canceled':
-        return {
-          icon: StopCircle,
-          label: '已取消',
-          className: 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800 text-red-700 dark:text-red-300'
-        }
-      default:
-        return {
-          icon: Clock,
-          label: '待确认',
-          className: 'bg-gray-50 border-gray-200 dark:bg-gray-950/20 dark:border-gray-800 text-gray-700 dark:text-gray-300'
-        }
+    const taskStatus = job.task_status as string | null
+    return !!taskStatus ? taskStatusDetailDict[taskStatus] : {
+      value: undefined,
+      label: '未知',
+      icon: InfoIcon,
+      className: 'bg-blue-600 text-white',
     }
   }
-
   const statusDisplay = getTaskStatusDisplay()
-  const StatusIcon = statusDisplay.icon
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -120,7 +93,7 @@ export function JobsViewDialog({ open, onOpenChange, job }: JobsViewDialogProps)
                       statusDisplay.className
                     )}
                   >
-                    <StatusIcon className='h-5 w-5' />
+                    <statusDisplay.icon className='h-5 w-5' />
                     <span className='font-medium'>{statusDisplay.label}</span>
                   </div>
                 </div>
@@ -160,14 +133,6 @@ export function JobsViewDialog({ open, onOpenChange, job }: JobsViewDialogProps)
                     </div>
                   </div>
                 )}
-
-                {/* 爬虫类型显示区域 */}
-                <div className='space-y-2'>
-                  <h4 className='text-sm font-medium'>爬虫类型</h4>
-                  <div className='rounded-md border p-2 bg-background break-all'>
-                    {job.spider_type}
-                  </div>
-                </div>
               </div>
 
               {/* 时间信息区域 */}

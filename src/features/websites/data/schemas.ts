@@ -308,5 +308,21 @@ export const WebsitesSchema = z.object({
  * - 分页数据处理函数的参数类型
  */
 export type WebsitesData = z.infer<typeof WebsitesSchema>
+
+
+/**
+ * 生成一个空的用于充当原始数据的websitesData对象
+ * 用于初始化网站列表数据，提供默认的空数组和分页信息
+ */
+export const emptyWebsitesData: WebsitesData = {
+  websites: [],
+  pagination: {
+      total: 0,
+      page: 1,
+      pages: 0,
+      size: 50,
+      length: 0
+  }
+}
 // endregion
 
