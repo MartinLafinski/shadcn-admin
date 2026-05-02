@@ -24,7 +24,10 @@ import {
 // 批量操作工具栏
 import { DataTableBulkActions as BulkActionsToolbar } from '@/components/data-table'
 // 批量更新API调用
-import { useBatchSwitchTemplatesMutation, useBatchExportTemplatesMutation } from '@/features/templates/api/templates'
+import {
+  useBatchSwitchTemplatesMutation,
+  useBatchExportTemplatesMutation,
+} from '@/features/templates/api/templates'
 // 可用性标签
 import { enableLabels } from '../../data/labels'
 // 数据结构
@@ -34,10 +37,10 @@ import { TemplatesMultiDeleteDialog } from '../dialogs/templates-multi-delete-di
 
 /**
  * 模板表格批量操作组件的属性类型定义
- * 
+ *
  * @template TData - 表格数据项的类型，支持泛型以适应不同数据结构
  * @property {Table<TData>} table - TanStack Table实例，用于获取选中行、重置选择等操作
- * 
+ *
  * 开发者说明:
  * - 使用泛型TData使组件具有更好的类型安全性和复用性
  * - table参数提供了对表格状态和操作的访问，如获取选中行(getFilteredSelectedRowModel)、重置选择(resetRowSelection)等
@@ -61,8 +64,8 @@ type TemplateTableBulkActionsProps<TData> = {
  * 4. 支持批量删除模板（带确认对话框）
  */
 export function TemplateTableBulkActions<TData>({
-                                              table,
-                                            }: TemplateTableBulkActionsProps<TData>) {
+  table,
+}: TemplateTableBulkActionsProps<TData>) {
   // 控制删除确认对话框的显示状态
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   // 获取当前选中的行数据
@@ -70,29 +73,28 @@ export function TemplateTableBulkActions<TData>({
   const switchMutation = useBatchSwitchTemplatesMutation()
   const exportMutation = useBatchExportTemplatesMutation()
 
-
   /**
    * 批量更新模板状态的处理函数
-   * 
+   *
    * 功能说明:
    * 1. 获取当前选中的模板数据
    * 2. 提取模板ID列表
    * 3. 调用API批量更新模板状态（启用/禁用）
    * 4. 显示操作进度和结果提示
    * 5. 操作完成后重置表格选择状态
-   * 
+   *
    * 参数说明:
    * @param {boolean} status - 目标状态，true为启用，false为禁用
-   * 
+   *
    * 错误处理:
    * - 捕获并记录API调用异常
    * - 向用户显示错误提示信息
-   * 
+   *
    * 用户体验优化:
    * - 使用toast.promise显示操作状态（加载中、成功、失败）
    * - 添加1秒延时以确保用户能看清提示信息
    * - 操作完成后自动清除选中状态
-   * 
+   *
    * 开发者提示:
    * - 可在此方法中添加更多验证逻辑，如检查选中数据是否为空
    * - 可以根据实际API响应结果调整成功提示信息
@@ -100,48 +102,56 @@ export function TemplateTableBulkActions<TData>({
    */
   const handleBulkStatusChange = async (status: boolean) => {
     // 从表格选中行中提取模板数据
-    const selectedTemplates = selectedRows.map((row) => row.original as TemplateItemData)
+    const selectedTemplates = selectedRows.map(
+      (row) => row.original as TemplateItemData
+    )
     // 提取模板ID数组，用于API调用
-    const selectedTemplateIds = selectedTemplates.map((template) => template.template_id)
+    const selectedTemplateIds = selectedTemplates.map(
+      (template) => template.template_id
+    )
     // 显示操作进度和结果提示
     toast.promise(
-      switchMutation.mutateAsync({
-        template_ids: selectedTemplateIds,
-        template_enabled: status
-      }).then(() => {
-        // 操作成功后重置表格选择状态
-        table.resetRowSelection()
-      }).catch((error) => {
-        // 在捕获错误后，需要确保loading状态被取消
-        console.error('模板批量导出失败:', error)
-        throw error // 重新抛出错误，让toast能正确处理
-      }), {
+      switchMutation
+        .mutateAsync({
+          template_ids: selectedTemplateIds,
+          template_enabled: status,
+        })
+        .then(() => {
+          // 操作成功后重置表格选择状态
+          table.resetRowSelection()
+        })
+        .catch((error) => {
+          // 在捕获错误后，需要确保loading状态被取消
+          console.error('模板批量导出失败:', error)
+          throw error // 重新抛出错误，让toast能正确处理
+        }),
+      {
         loading: `正在更新模板${status ? '启用' : '禁用'}状态...`,
         success: `成功更新了 ${selectedTemplates.length} 条模板的可用状态为 ${status ? '启用' : '禁用'}`,
         error: '模板批量更新状态失败',
-      })
+      }
+    )
   }
-
 
   /**
    * 批量导出模板数据的处理函数
-   * 
+   *
    * 功能说明:
    * 1. 获取当前选中的模板数据
    * 2. 提取模板ID列表
    * 3. 调用API进行批量导出操作
    * 4. 显示操作进度和结果提示
    * 5. 操作完成后重置表格选择状态
-   * 
+   *
    * 错误处理:
    * - 捕获并记录API调用异常
    * - 向用户显示错误提示信息
-   * 
+   *
    * 用户体验优化:
    * - 使用toast.promise显示操作状态（加载中、成功、失败）
    * - 添加1秒延时以确保用户能看清提示信息
    * - 操作完成后自动清除选中状态
-   * 
+   *
    * 开发者提示:
    * - 可在此方法中添加更多验证逻辑，如检查选中数据是否为空
    * - 可以根据实际API响应结果调整成功提示信息
@@ -149,33 +159,41 @@ export function TemplateTableBulkActions<TData>({
    */
   const handleBulkExport = async () => {
     // 从表格选中行中提取模板数据
-    const selectedTemplates = selectedRows.map((row) => row.original as TemplateItemData)
+    const selectedTemplates = selectedRows.map(
+      (row) => row.original as TemplateItemData
+    )
     // 提取模板ID数组，用于API调用
-    const selectedTemplateIds = selectedTemplates.map((template) => template.template_id)
+    const selectedTemplateIds = selectedTemplates.map(
+      (template) => template.template_id
+    )
     // 导出成功后的处理
     toast.promise(
       // 发起批量导出API请求
-      exportMutation.mutateAsync({
-        template_ids: selectedTemplateIds,
-      }).then(()=>{
-        // 操作成功后重置表格选择状态
-        table.resetRowSelection()
-      }).catch((error) => {
-        // 在捕获错误后，需要确保loading状态被取消
-        console.error('模板批量导出失败:', error)
-        throw error // 重新抛出错误，让toast能正确处理
-      }), {
+      exportMutation
+        .mutateAsync({
+          template_ids: selectedTemplateIds,
+        })
+        .then(() => {
+          // 操作成功后重置表格选择状态
+          table.resetRowSelection()
+        })
+        .catch((error) => {
+          // 在捕获错误后，需要确保loading状态被取消
+          console.error('模板批量导出失败:', error)
+          throw error // 重新抛出错误，让toast能正确处理
+        }),
+      {
         loading: '正在导出模板...',
         success: `成功导出 ${selectedTemplates.length} 条模板数据`,
         error: '模板批量导出失败',
-      })
+      }
+    )
   }
 
   return (
     <>
       {/* 批量操作工具栏，传入表格实例和实体名称 */}
       <BulkActionsToolbar table={table} entityName='模板'>
-
         {/* 批量更新状态的下拉菜单 */}
         <DropdownMenu>
           <Tooltip>
@@ -213,7 +231,6 @@ export function TemplateTableBulkActions<TData>({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-
 
         {/* 批量导出按钮 */}
         <Tooltip>

@@ -14,6 +14,7 @@ type Team = {
 
 type BaseNavItem = {
   title: string
+  tip?: string
   badge?: string
   icon?: React.ElementType
 }

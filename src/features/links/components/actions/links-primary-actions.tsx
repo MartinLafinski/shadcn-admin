@@ -1,13 +1,16 @@
 // 图标
 import { Download, Plus, RefreshCcwIcon } from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
+// 同步友链API调用
+import {
+  useSyncLinksMutation,
+  useExportLinksMutation,
+} from '../../api/links.ts'
 // 友链状态
 import { useLinks } from '../links-provider.tsx'
-// 同步友链API调用
-import { useSyncLinksMutation, useExportLinksMutation } from '../../api/links.ts'
-// 操作结果提示框
-import { toast } from "sonner"
 
 /**
  * 友链管理页面的主要操作按钮组件
@@ -25,7 +28,8 @@ export function LinksPrimaryActions() {
    */
   const onSync = async () => {
     // 开始同步操作，显示加载状态
-    await syncLinkMutation.mutateAsync()
+    await syncLinkMutation
+      .mutateAsync()
       .then(() => {
         // 同步成功时的处理
         toast.success('友链同步成功')
@@ -43,7 +47,8 @@ export function LinksPrimaryActions() {
    */
   const onExport = async () => {
     // 开始同步操作，显示加载状态
-    await exportLinkMutation.mutateAsync()
+    await exportLinkMutation
+      .mutateAsync()
       .then(() => {
         // 同步成功时的处理
         toast.success('友链导出成功')
@@ -60,7 +65,7 @@ export function LinksPrimaryActions() {
       {/* 导出数据按钮 - 触发导入弹窗，但按钮显示为"导出数据"，可能需要确认文案是否正确 */}
       <Button
         variant='outline'
-        className='space-x-1 bg-lime-600 text-white dark:bg-lime-700 hover:bg-lime-700/80 hover:text-white'
+        className='space-x-1 bg-lime-600 text-white hover:bg-lime-700/80 hover:text-white dark:bg-lime-700'
         onClick={() => onExport()}
         disabled={exportLinkMutation.isPending} // 在同步过程中禁用按钮，避免重复操作
       >
@@ -69,17 +74,14 @@ export function LinksPrimaryActions() {
       {/* 同步友链按钮 - 触发友链数据同步操作 */}
       <Button
         variant='outline'
-        className='space-x-1 bg-sky-600 text-white dark:bg-sky-700 hover:bg-sky-700/80 hover:text-white'
+        className='space-x-1 bg-sky-600 text-white hover:bg-sky-700/80 hover:text-white dark:bg-sky-700'
         onClick={() => onSync()}
         disabled={syncLinkMutation.isPending} // 在同步过程中禁用按钮，避免重复操作
       >
         <span>同步友链</span> <RefreshCcwIcon size={18} />
       </Button>
       {/* 创建新友链按钮 - 打开创建友链的表单弹窗 */}
-      <Button 
-        className='space-x-1' 
-        onClick={() => setOpen('create')}
-      >
+      <Button className='space-x-1' onClick={() => setOpen('create')}>
         <span>创建新友链</span> <Plus size={18} />
       </Button>
     </div>

@@ -1,5 +1,12 @@
 // 滚动区域控件
-import { ScrollArea } from '@/components/ui/scroll-area.tsx'
+// JSON 数据查看器控件
+import JsonView from '@uiw/react-json-view'
+import { githubDarkTheme } from '@uiw/react-json-view/githubDark'
+import { githubLightTheme } from '@uiw/react-json-view/githubLight'
+// Markdown 编辑器控件
+import MDEditor from '@uiw/react-md-editor'
+// 日/夜主题上下文
+import { useTheme } from '@/context/theme-provider.tsx'
 // 对话框控件
 import {
   Dialog,
@@ -8,27 +15,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog.tsx'
-// Markdown 编辑器控件
-import MDEditor from '@uiw/react-md-editor'
-// JSON 数据查看器控件
-import JsonView from '@uiw/react-json-view'
-import { githubLightTheme } from '@uiw/react-json-view/githubLight'
-import { githubDarkTheme } from '@uiw/react-json-view/githubDark'
-// 日/夜主题上下文
-import { useTheme } from '@/context/theme-provider.tsx'
+import { ScrollArea } from '@/components/ui/scroll-area.tsx'
 
 /**
  * 网站信息对话框组件的属性接口
- * 
+ *
  * 该接口定义了 WebsitesInfoDialog 组件所需的全部属性
- * 
+ *
  * 属性说明：
  * - open: 控制对话框的打开/关闭状态
  * - onOpenChange: 对话框打开状态变化时的回调函数
  * - readme: 网站的说明文档内容（Markdown 格式）
  * - config: 网站的配置信息（JSON 格式）
  * - websiteName: 网站名称，用于在对话框标题中显示
- * 
+ *
  * 二次开发指引：
  * - 如需增加新的属性，可在此接口中添加
  * - 如需修改属性类型，直接修改对应属性的类型标注
@@ -50,28 +50,33 @@ interface WebsitesInfoDialogProps {
 /**
  * 网站信息对话框组件
  * 用于展示网站的 Markdown 说明文档和 JSON 配置信息
- * 
+ *
  * 功能说明：
  * - 通过按钮触发对话框显示
  * - 支持展示 Markdown 格式的说明文档
  * - 以 JSON 格式展示配置信息，支持复制和展开/收起
  * - 响应式布局，适配不同屏幕尺寸
  * - 支持主题色跟随系统主题
- * 
+ *
  * 二次开发指引：
  * - 如需修改对话框尺寸，调整 DialogContent 的 sm:max-w 和 h 属性
  * - 如需修改内容区域样式，调整 ScrollArea 及其子元素的类名
  * - 如需添加新的信息展示区域，可在 ScrollArea 内添加新的 div 区域
  * - 如需修改 Markdown 或 JSON 展示样式，调整 MDEditor.Markdown 和 JsonView 的属性
  */
-export function WebsitesInfoDialog({ open, onOpenChange, readme, config, websiteName }: WebsitesInfoDialogProps) {
+export function WebsitesInfoDialog({
+  open,
+  onOpenChange,
+  readme,
+  config,
+  websiteName,
+}: WebsitesInfoDialogProps) {
   const { resolvedTheme } = useTheme()
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      
       {/* 对话框内容容器 */}
-      <DialogContent className='sm:max-w-[80%] h-[80vh] flex flex-col p-0 overflow-hidden'>
+      <DialogContent className='flex h-[80vh] flex-col overflow-hidden p-0 sm:max-w-[80%]'>
         {/* 对话框头部：显示网站名称和描述信息 */}
         <DialogHeader className='shrink-0 p-6 pb-4'>
           <DialogTitle>{websiteName} - 配置与说明</DialogTitle>
@@ -79,18 +84,18 @@ export function WebsitesInfoDialog({ open, onOpenChange, readme, config, website
             查看网站的 Markdown 说明文档及 JSON 配置数据。
           </DialogDescription>
         </DialogHeader>
-        
+
         {/* 可滚动的内容区域：包含说明文档和配置信息两部分 */}
-        <div className='flex-1 min-h-0 overflow-hidden'>
-          <ScrollArea className="h-full w-full" type={'always'}>
+        <div className='min-h-0 flex-1 overflow-hidden'>
+          <ScrollArea className='h-full w-full' type={'always'}>
             <div className='space-y-6 px-6 pb-6'>
               {/* 说明文档区域：展示 Markdown 格式的说明文档 */}
               <div className='space-y-2'>
                 <h4 className='text-sm font-medium'>说明文档</h4>
                 {/* 使用 MDEditor.Markdown 渲染 Markdown 内容 */}
                 {/* data-color-mode 属性使 Markdown 渲染适配当前主题 */}
-                <div 
-                  className='rounded-md border p-4 bg-background' 
+                <div
+                  className='rounded-md border bg-background p-4'
                   data-color-mode={resolvedTheme}
                 >
                   <MDEditor.Markdown
@@ -99,19 +104,26 @@ export function WebsitesInfoDialog({ open, onOpenChange, readme, config, website
                   />
                 </div>
               </div>
-              
+
               {/* 配置信息区域：展示 JSON 格式的配置数据 */}
               <div className='space-y-2'>
                 <h4 className='text-sm font-medium'>配置信息</h4>
                 {/* 使用 react-json-view 组件展示 JSON 数据 */}
-                <div className='rounded-md border p-4 bg-muted/50'>
+                <div className='rounded-md border bg-muted/50 p-4'>
                   <JsonView
                     value={config}
-                    displayDataTypes={false}        // 不显示数据类型
-                    displayObjectSize={true}         // 显示对象大小
-                    enableClipboard={true}           // 启用复制功能
-                    shortenTextAfterLength={0}       // 不截断长文本
-                    style={resolvedTheme === 'light' ? {...githubLightTheme, backgroundColor: 'transparent'} : {...githubDarkTheme, backgroundColor: 'transparent'}}
+                    displayDataTypes={false} // 不显示数据类型
+                    displayObjectSize={true} // 显示对象大小
+                    enableClipboard={true} // 启用复制功能
+                    shortenTextAfterLength={0} // 不截断长文本
+                    style={
+                      resolvedTheme === 'light'
+                        ? {
+                            ...githubLightTheme,
+                            backgroundColor: 'transparent',
+                          }
+                        : { ...githubDarkTheme, backgroundColor: 'transparent' }
+                    }
                   />
                 </div>
               </div>

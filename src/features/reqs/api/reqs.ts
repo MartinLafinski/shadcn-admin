@@ -1,19 +1,16 @@
 // 引入reactQuery依赖
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-// Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
-import {
-  ReqData,
-  ReqsData,
-  ReqResultType
-} from '../data/schemas.ts'
-
+// Clerk 认证
+import { useAuth } from '@clerk/clerk-react'
+import { ReqData, ReqsData, ReqResultType } from '../data/schemas.ts'
 
 // API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8888'
-const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_REQ_PAGE_SIZE || 50)
+const DEFAULT_PAGE_SIZE: number = Number(
+  import.meta.env.VITE_REQ_PAGE_SIZE || 50
+)
 
 // 通用错误处理
 const handleResponse = async (response: Response) => {
@@ -62,7 +59,6 @@ export const fetchReqs = async (
   size: number = DEFAULT_PAGE_SIZE,
   token: string | null = null
 ): Promise<ReqsData> => {
-
   // 构建基础URL，包含分页参数
   let url = `${API_BASE_URL}/reqs/?page=${page}&size=${size}`
 
@@ -102,10 +98,9 @@ export const fetchReqs = async (
 
   return {
     reqs,
-    pagination
+    pagination,
   }
 }
-
 
 /**
  * 根据 req_id 获取请求
@@ -146,7 +141,6 @@ export const fetchReq = async (
   await handleResponse(response)
   return response.json()
 }
-
 
 /**
  * 清除请求
@@ -213,7 +207,6 @@ export const clearReqs = async (
   return await handleResponse(response)
 }
 
-
 /**
  * 获取请求列表的自定义 Hook
  *
@@ -269,10 +262,9 @@ export const useReqsQuery = (
       const token = await getToken()
       return fetchReqs(task_id, result_type, result_category, page, size, token)
     },
-    placeholderData: (previousData) => previousData,  // 保持上一次的数据
+    placeholderData: (previousData) => previousData, // 保持上一次的数据
   })
 }
-
 
 /**
  * 获取请求详情的自定义 Hook
@@ -308,9 +300,7 @@ export const useReqsQuery = (
  * - 查询键为 ['req', req_id]
  * - reqs API 可能不需要认证，但为了兼容性，仍然集成了 Clerk 认证
  */
-export const useReqQuery = (
-  req_id: number
-) => {
+export const useReqQuery = (req_id: number) => {
   const { getToken } = useAuth()
   return useQuery({
     queryKey: ['req', req_id],
@@ -321,7 +311,6 @@ export const useReqQuery = (
     enabled: !!req_id, // 只有当 req_id 存在时才执行查询
   })
 }
-
 
 /**
  * 清除请求的自定义 Mutation Hook
@@ -378,7 +367,6 @@ export const useClearReqsMutation = () => {
   })
 }
 
-
 /**
  * 批量导出请求
  *
@@ -431,7 +419,6 @@ export const exportReqs = async (
   return await handleResponse(response)
 }
 
-
 /**
  * 导出任务的所有请求
  *
@@ -476,13 +463,15 @@ export const exportReqsByTask = async (
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  const response = await fetch(`${API_BASE_URL}/reqs/tasks/${task_id}/export/`, {
-    method: 'POST',
-    headers,
-  })
+  const response = await fetch(
+    `${API_BASE_URL}/reqs/tasks/${task_id}/export/`,
+    {
+      method: 'POST',
+      headers,
+    }
+  )
   return await handleResponse(response)
 }
-
 
 /**
  * 批量导出请求的自定义 Mutation Hook
@@ -550,7 +539,6 @@ export const useBatchExportReqsMutation = () => {
   })
 }
 
-
 /**
  * 导出任务的所有请求的自定义 Mutation Hook
  *
@@ -617,9 +605,6 @@ export const useExportReqsByTaskMutation = () => {
   })
 }
 
-
-
-
 /**
  * 清空作业请求结果
  *
@@ -672,7 +657,6 @@ export const clearReqsByTask = async (
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 清空作业任务请求结果的自定义 Mutation Hook

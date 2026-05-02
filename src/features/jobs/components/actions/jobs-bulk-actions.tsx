@@ -21,10 +21,10 @@ import { type JobItemData } from '../../data/schemas'
 
 /**
  * 任务表格批量操作组件的属性类型定义
- * 
+ *
  * @template TData - 表格数据项的类型，支持泛型以适应不同数据结构
  * @property {Table<TData>} table - TanStack Table实例，用于获取选中行、重置选择等操作
- * 
+ *
  * 开发者说明:
  * - 使用泛型TData使组件具有更好的类型安全性和复用性
  * - table参数提供了对表格状态和操作的访问，如获取选中行(getFilteredSelectedRowModel)、重置选择(resetRowSelection)等
@@ -52,25 +52,24 @@ export function JobsTableBulkActions<TData>({
   const selectedRows = table.getFilteredSelectedRowModel().rows
   const exportMutation = useBatchExportTasksMutation()
 
-
   /**
    * 批量导出任务数据的处理函数
-   * 
+   *
    * 功能说明:
    * 1. 获取当前选中的任务数据
    * 2. 提取任务ID列表
    * 3. 调用API进行批量导出操作
    * 4. 显示操作进度和结果提示
    * 5. 操作完成后重置表格选择状态
-   * 
+   *
    * 错误处理:
    * - 捕获并记录API调用异常
    * - 向用户显示错误提示信息
-   * 
+   *
    * 用户体验优化:
    * - 使用toast.promise显示操作状态（加载中、成功、失败）
    * - 操作完成后自动清除选中状态
-   * 
+   *
    * 开发者提示:
    * - 可在此方法中添加更多验证逻辑，如检查选中数据是否为空
    * - 可以根据实际API响应结果调整成功提示信息
@@ -84,27 +83,31 @@ export function JobsTableBulkActions<TData>({
     // 导出成功后的处理
     toast.promise(
       // 发起批量导出API请求
-      exportMutation.mutateAsync({
-        task_ids: selectedJobIds,
-      }).then(()=>{
-        // 操作成功后重置表格选择状态
-        table.resetRowSelection()
-      }).catch((error) => {
-        // 在捕获错误后，需要确保loading状态被取消
-        console.error('任务批量导出失败:', error)
-        throw error // 重新抛出错误，让toast能正确处理
-      }), {
+      exportMutation
+        .mutateAsync({
+          task_ids: selectedJobIds,
+        })
+        .then(() => {
+          // 操作成功后重置表格选择状态
+          table.resetRowSelection()
+        })
+        .catch((error) => {
+          // 在捕获错误后，需要确保loading状态被取消
+          console.error('任务批量导出失败:', error)
+          throw error // 重新抛出错误，让toast能正确处理
+        }),
+      {
         loading: '正在导出任务...',
         success: `成功导出 ${selectedJobs.length} 条任务数据`,
         error: '任务批量导出失败',
-      })
+      }
+    )
   }
 
   return (
     <>
       {/* 批量操作工具栏，传入表格实例和实体名称 */}
       <BulkActionsToolbar table={table} entityName='任务'>
-
         {/* 批量导出按钮 */}
         <Tooltip>
           <TooltipTrigger asChild>

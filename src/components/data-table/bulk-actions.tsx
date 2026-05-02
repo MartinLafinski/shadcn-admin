@@ -210,9 +210,7 @@ export function DataTableBulkActions<TData>({
             >
               {selectedCount}
             </Badge>
-            <span className='hidden sm:inline'>
-              条{entityName}
-            </span>
+            <span className='hidden sm:inline'>条{entityName}</span>
             已选取
           </div>
 

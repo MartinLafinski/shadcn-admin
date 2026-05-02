@@ -1,27 +1,25 @@
 // 图标
-import { InfoIcon } from 'lucide-react'
 // 表格列
 import { ColumnDef } from '@tanstack/react-table'
+import { InfoIcon } from 'lucide-react'
 // 按钮控件
-import { Button } from "@/components/ui/button.tsx"
+import { Button } from '@/components/ui/button.tsx'
 // 复选框控件
-import { Checkbox } from "@/components/ui/checkbox.tsx"
+import { Checkbox } from '@/components/ui/checkbox.tsx'
 // 自定义时间控件
-import { SmartDatetime } from "@/components/smart/datetime.tsx"
-// 准任务状态
-import { usePreTasks } from './pre-tasks-provider'
-// 准任务数据结构
-import { PreTaskData } from '@/features/pre-tasks/data/schemas'
+import { SmartDatetime } from '@/components/smart/datetime.tsx'
 // 入口点数据结构
 import { EntrypointItemData } from '@/features/entrypoints/data/schemas'
+// 准任务数据结构
+import { PreTaskData } from '@/features/pre-tasks/data/schemas'
 // 网站数据结构
 import { WebsiteItemData } from '@/features/websites/data/schemas'
-
-
+// 准任务状态
+import { usePreTasks } from './pre-tasks-provider'
 
 /**
  * 准任务列表表格列定义
- * 
+ *
  * 定义了准任务管理页面表格的所有列，包括：
  * - 选择列：支持全选和单选
  * - 基础信息列：准任务ID、爬虫类型
@@ -29,7 +27,7 @@ import { WebsiteItemData } from '@/features/websites/data/schemas'
  * - 时间列：触发时间、采集结束时间
  * - 其他列：优先级
  * - 操作列：信息查看
- * 
+ *
  * 使用 TanStack Table 的 ColumnDef 类型定义
  */
 export const preTasksColumns: ColumnDef<PreTaskData>[] = [
@@ -40,26 +38,26 @@ export const preTasksColumns: ColumnDef<PreTaskData>[] = [
   {
     id: 'select',
     header: ({ table }) => (
-        <Checkbox
-            checked={
-                table.getIsAllPageRowsSelected() ||
-                (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label='全选'
-            className='translate-y-[2px]'
-        />
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label='全选'
+        className='translate-y-[2px]'
+      />
     ),
     cell: ({ row }) => (
-        <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label='行选择'
-            className='translate-y-[2px]'
-        />
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label='行选择'
+        className='translate-y-[2px]'
+      />
     ),
     enableSorting: false, // 选择列不支持排序
-    enableHiding: false,  // 选择列不允许隐藏
+    enableHiding: false, // 选择列不允许隐藏
   },
   /**
    * 准任务ID列 - 显示准任务的唯一标识符
@@ -69,7 +67,7 @@ export const preTasksColumns: ColumnDef<PreTaskData>[] = [
     accessorKey: 'pre_task_id',
     header: '准任务ID',
     cell: ({ row }) => (
-        <div className="text-left">{row.getValue('pre_task_id')}</div>
+      <div className='text-left'>{row.getValue('pre_task_id')}</div>
     ),
   },
   // /**
@@ -95,20 +93,20 @@ export const preTasksColumns: ColumnDef<PreTaskData>[] = [
       const preTask = row.original // 获取当前行的原始数据
       const { setOpen, setCurrentRow } = usePreTasks() // 使用准任务上下文状态
       if (!website) {
-        return (<span>-</span>)
+        return <span>-</span>
       }
       return (
         <>
           <span>[ {website?.website_name || websiteSlug} ]</span>
           <Button
-            variant="ghost"
-            size="icon"
+            variant='ghost'
+            size='icon'
             onClick={() => {
               setCurrentRow(preTask) // 设置当前选中的行数据
               setOpen('viewWebsite') // 打开配置信息对话框
             }}
           >
-            <InfoIcon className="h-4 w-4" />
+            <InfoIcon className='h-4 w-4' />
           </Button>
         </>
       )
@@ -125,20 +123,20 @@ export const preTasksColumns: ColumnDef<PreTaskData>[] = [
       const preTask = row.original // 获取当前行的原始数据
       const { setOpen, setCurrentRow } = usePreTasks() // 使用准任务上下文状态
       if (!entrypoint) {
-        return (<span>-</span>)
+        return <span>-</span>
       }
       return (
         <>
           <span>[ {entrypoint?.entrypoint_name || '-'} ]</span>
           <Button
-            variant="ghost"
-            size="icon"
+            variant='ghost'
+            size='icon'
             onClick={() => {
               setCurrentRow(preTask) // 设置当前选中的行数据
               setOpen('viewEntrypoint') // 打开配置信息对话框
             }}
           >
-            <InfoIcon className="h-4 w-4" />
+            <InfoIcon className='h-4 w-4' />
           </Button>
         </>
       )
@@ -157,17 +155,17 @@ export const preTasksColumns: ColumnDef<PreTaskData>[] = [
       const { setOpen, setCurrentRow } = usePreTasks() // 使用准任务上下文状态
       return (
         <Button
-          variant="ghost"
-          size="icon"
+          variant='ghost'
+          size='icon'
           onClick={() => {
             setCurrentRow(preTask) // 设置当前选中的行数据
             setOpen('view') // 打开配置信息对话框
           }}
         >
-          <InfoIcon className="h-4 w-4" />
+          <InfoIcon className='h-4 w-4' />
         </Button>
       )
-    }
+    },
   },
   /**
    * 触发时间列 - 显示准任务何时之后才能被触发
@@ -178,9 +176,9 @@ export const preTasksColumns: ColumnDef<PreTaskData>[] = [
     cell: ({ row }) => {
       const triggeredAt = row.getValue('triggered_at') as string
       return triggeredAt ? (
-        <SmartDatetime date={triggeredAt} timezone="Asia/Shanghai" />
+        <SmartDatetime date={triggeredAt} timezone='Asia/Shanghai' />
       ) : (
-        <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
+        <span className='text-gray-400'>-</span> // 如果没有时间则显示占位符
       )
     },
   },
@@ -193,9 +191,9 @@ export const preTasksColumns: ColumnDef<PreTaskData>[] = [
     cell: ({ row }) => {
       const endAt = row.getValue('end_at') as string
       return endAt ? (
-        <SmartDatetime date={endAt} timezone="Asia/Shanghai" />
+        <SmartDatetime date={endAt} timezone='Asia/Shanghai' />
       ) : (
-        <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
+        <span className='text-gray-400'>-</span> // 如果没有时间则显示占位符
       )
     },
   },
@@ -205,9 +203,7 @@ export const preTasksColumns: ColumnDef<PreTaskData>[] = [
   {
     accessorKey: 'min_available_interval',
     header: '最小间隔(秒)',
-    cell: ({ row }) => (
-      <div>{row.getValue('min_available_interval')}</div>
-    ),
+    cell: ({ row }) => <div>{row.getValue('min_available_interval')}</div>,
   },
   // /**
   //  * 优先级列 - 显示准任务的优先级

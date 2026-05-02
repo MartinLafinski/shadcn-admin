@@ -4,18 +4,23 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 // 数据验证
 import { zodResolver } from '@hookform/resolvers/zod'
+import { html } from '@codemirror/lang-html'
+import { EditorView } from '@codemirror/view'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+// CodeMirror 编辑器
+import CodeMirror from '@uiw/react-codemirror'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// 图标
+import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-// 输入框控件
-import { Input } from '@/components/ui/input.tsx'
-// CodeMirror 编辑器
-import CodeMirror from '@uiw/react-codemirror'
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
-import { html } from '@codemirror/lang-html'
-// 图标
-import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
 // 表单控件
 import {
   Form,
@@ -25,6 +30,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form.tsx'
+// 输入框控件
+import { Input } from '@/components/ui/input.tsx'
 // 抽屉控件
 import {
   Sheet,
@@ -35,18 +42,14 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// 数据结构
-import { type TemplateCreateData, type TemplateItemData, TemplateCreateSchema } from '../../data/schemas.ts'
 // API调用
 import { useCreateTemplateMutation } from '../../api/templates.ts'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import { toast } from "sonner"
-import { EditorView } from "@codemirror/view"
-
+// 数据结构
+import {
+  type TemplateCreateData,
+  type TemplateItemData,
+  TemplateCreateSchema,
+} from '../../data/schemas.ts'
 
 /**
  * 模板创建抽屉组件
@@ -65,7 +68,7 @@ type TemplateCreateDrawerProps = {
 /**
  * 模板创建抽屉组件
  * 提供创建或编辑模板的表单界面
- * 
+ *
  * 功能特性：
  * - 使用 react-hook-form 进行表单管理
  * - 集成 Zod 验证 schema
@@ -73,19 +76,17 @@ type TemplateCreateDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function TemplateCreateDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: TemplateCreateDrawerProps)
-{
+export function TemplateCreateDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: TemplateCreateDrawerProps) {
   // 获取当前主题（用于MD编辑器主题适配）
   const { resolvedTheme } = useTheme()
-  
+
   // 全屏状态管理
   const [isFullscreen, setIsFullscreen] = React.useState(false)
-  
+
   // 初始化创建模板的mutation
   const createTemplateMutation = useCreateTemplateMutation()
 
@@ -93,23 +94,24 @@ export function TemplateCreateDrawer(
   const form = useForm<TemplateCreateData>({
     resolver: zodResolver(TemplateCreateSchema),
     // 如果有currentRow则使用其值作为默认值，否则使用空值
-    defaultValues: currentRow ? {
-      template_name: currentRow.template_name,
-      template_slug: currentRow.template_slug,
-      template_content: currentRow.template_content || '',  // 将 null 转换为 ''
-      template_readme: currentRow.template_readme,
-    } : {
-      // 模板显示名称 - 用于界面展示的可读名称
-      template_name: '',
-      // 模板URL标识符 - 用于路由和API请求的唯一标识符
-      template_slug: '',
-      // 模板内容 - 模板的主要内容
-      template_content: '',
-      // 模板说明文档 - 使用Markdown格式的说明文档内容
-      template_readme: '',
-    },
+    defaultValues: currentRow
+      ? {
+          template_name: currentRow.template_name,
+          template_slug: currentRow.template_slug,
+          template_content: currentRow.template_content || '', // 将 null 转换为 ''
+          template_readme: currentRow.template_readme,
+        }
+      : {
+          // 模板显示名称 - 用于界面展示的可读名称
+          template_name: '',
+          // 模板URL标识符 - 用于路由和API请求的唯一标识符
+          template_slug: '',
+          // 模板内容 - 模板的主要内容
+          template_content: '',
+          // 模板说明文档 - 使用Markdown格式的说明文档内容
+          template_readme: '',
+        },
   })
-
 
   /**
    * 表单提交处理函数
@@ -118,14 +120,15 @@ export function TemplateCreateDrawer(
    */
   const onSubmit = async (data: TemplateCreateData) => {
     // 使用 mutation 调用 API 创建模板
-    await createTemplateMutation.mutateAsync(
-      data
-    ).then((res) => {
-      toast.success(`模板 ${res.template_name} 创建成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error('模板创建失败:', error) // 记录错误日志
-      toast.error('模板创建失败') // 操作失败提示
-    })
+    await createTemplateMutation
+      .mutateAsync(data)
+      .then((res) => {
+        toast.success(`模板 ${res.template_name} 创建成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error('模板创建失败:', error) // 记录错误日志
+        toast.error('模板创建失败') // 操作失败提示
+      })
     // 关闭抽屉
     onOpenChange(false)
     // 重置表单到默认状态
@@ -143,12 +146,10 @@ export function TemplateCreateDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>创建模板</SheetTitle>
-          <SheetDescription>
-            创建新的模板
-          </SheetDescription>
+          <SheetDescription>创建新的模板</SheetDescription>
         </SheetHeader>
         {/* 将表单与react-hook-form实例连接 */}
         <Form {...form}>
@@ -179,7 +180,10 @@ export function TemplateCreateDrawer(
                 <FormItem>
                   <FormLabel>模板标识</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='模板标识(字母、数字、连字符或下划线)' />
+                    <Input
+                      {...field}
+                      placeholder='模板标识(字母、数字、连字符或下划线)'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -190,7 +194,13 @@ export function TemplateCreateDrawer(
               control={form.control}
               name='template_content'
               render={({ field }) => (
-                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background' : ''}>
+                <FormItem
+                  className={
+                    isFullscreen
+                      ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background'
+                      : ''
+                  }
+                >
                   <div className='flex items-center justify-between'>
                     <FormLabel>模板内容</FormLabel>
                     <Button
@@ -212,7 +222,9 @@ export function TemplateCreateDrawer(
                       extensions={[html(), EditorView.lineWrapping]}
                       value={field.value}
                       onChange={field.onChange}
-                      theme={resolvedTheme === 'light' ? githubLight : githubDark}
+                      theme={
+                        resolvedTheme === 'light' ? githubLight : githubDark
+                      }
                       placeholder='请输入模板内容...'
                       height={isFullscreen ? 'calc(100vh - 60px)' : 'auto'}
                       minHeight='300px'
@@ -254,10 +266,7 @@ export function TemplateCreateDrawer(
                   <FormLabel>模板说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

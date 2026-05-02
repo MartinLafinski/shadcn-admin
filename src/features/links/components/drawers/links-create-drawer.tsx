@@ -2,13 +2,16 @@
 import { useForm } from 'react-hook-form'
 // 数据验证
 import { zodResolver } from '@hookform/resolvers/zod'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-// 输入框控件
-import { Input } from '@/components/ui/input.tsx'
-import { Textarea } from '@/components/ui/textarea'
 // 表单控件
 import {
   Form,
@@ -18,6 +21,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form.tsx'
+// 输入框控件
+import { Input } from '@/components/ui/input.tsx'
 // 抽屉控件
 import {
   Sheet,
@@ -28,17 +33,15 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// 数据结构
-import { type LinkCreateData, type LinkItemData, LinkCreateSchema } from '../../data/schemas.ts'
+import { Textarea } from '@/components/ui/textarea'
 // API调用
 import { useCreateLinkMutation } from '../../api/links.ts'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import {toast} from "sonner"
-
+// 数据结构
+import {
+  type LinkCreateData,
+  type LinkItemData,
+  LinkCreateSchema,
+} from '../../data/schemas.ts'
 
 /**
  * 友链创建抽屉组件
@@ -57,7 +60,7 @@ type LinkCreateDrawerProps = {
 /**
  * 友链创建抽屉组件
  * 提供创建或编辑友链的表单界面
- * 
+ *
  * 功能特性：
  * - 使用 react-hook-form 进行表单管理
  * - 集成 Zod 验证 schema
@@ -66,19 +69,17 @@ type LinkCreateDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function LinkCreateDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: LinkCreateDrawerProps)
-{
+export function LinkCreateDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: LinkCreateDrawerProps) {
   // 获取当前主题（用于MD编辑器主题适配）
   const { resolvedTheme } = useTheme()
-  
+
   // 初始化创建友链的mutation
   const createLinkMutation = useCreateLinkMutation()
-  
+
   // 初始化表单，设置验证规则和默认值
   const form = useForm<LinkCreateData>({
     resolver: zodResolver(LinkCreateSchema),
@@ -102,14 +103,15 @@ export function LinkCreateDrawer(
    */
   const onSubmit = async (data: LinkCreateData) => {
     // 使用 mutation 调用 API 创建友链
-    await createLinkMutation.mutateAsync(
-      data
-    ).then((res) => {
-      toast.success(`友链 ${res.links_name} 创建成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error('友链创建失败:', error) // 记录错误日志
-      toast.error('友链创建失败') // 操作失败提示
-    })
+    await createLinkMutation
+      .mutateAsync(data)
+      .then((res) => {
+        toast.success(`友链 ${res.links_name} 创建成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error('友链创建失败:', error) // 记录错误日志
+        toast.error('友链创建失败') // 操作失败提示
+      })
     // 关闭抽屉
     onOpenChange(false)
     // 重置表单到默认状态
@@ -127,12 +129,10 @@ export function LinkCreateDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>创建友链</SheetTitle>
-          <SheetDescription>
-            创建新的友链
-          </SheetDescription>
+          <SheetDescription>创建新的友链</SheetDescription>
         </SheetHeader>
         {/* 将表单与react-hook-form实例连接 */}
         <Form {...form}>
@@ -163,7 +163,10 @@ export function LinkCreateDrawer(
                 <FormItem>
                   <FormLabel>友链标识</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='友链标识(字母、数字、连字符或下划线)' />
+                    <Input
+                      {...field}
+                      placeholder='友链标识(字母、数字、连字符或下划线)'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -218,10 +221,7 @@ export function LinkCreateDrawer(
                   <FormLabel>友链说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

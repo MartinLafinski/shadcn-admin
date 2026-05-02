@@ -1,10 +1,16 @@
-import { useReqs } from './reqs-provider'
 import { JobsViewDialog } from '@/features/jobs/components/dialogs/jobs-view-dialog'
 import { ReqsViewDialog } from './dialogs/reqs-view-dialog'
-
+import { useReqs } from './reqs-provider'
 
 export function ReqsDialogs() {
-  const { open, setOpen, currentRow, setCurrentRow, currentJob, setCurrentJob } = useReqs()
+  const {
+    open,
+    setOpen,
+    currentRow,
+    setCurrentRow,
+    currentJob,
+    setCurrentJob,
+  } = useReqs()
 
   return (
     <>
@@ -31,7 +37,6 @@ export function ReqsDialogs() {
           }}
         />
       )}
-
     </>
   )
 }

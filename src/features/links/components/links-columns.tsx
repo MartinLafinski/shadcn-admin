@@ -1,37 +1,36 @@
 // 图标
-import { InfoIcon } from 'lucide-react'
 // 表格列
 import { ColumnDef } from '@tanstack/react-table'
+import { InfoIcon } from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
 // 按钮控件
-import { Button } from "@/components/ui/button.tsx"
+import { Button } from '@/components/ui/button.tsx'
+// 复选框控件
+import { Checkbox } from '@/components/ui/checkbox.tsx'
 // 开关控件
 import { Switch } from '@/components/ui/switch'
-// 复选框控件
-import { Checkbox } from "@/components/ui/checkbox.tsx"
 // 自定义时间控件
-import { SmartDatetime } from "@/components/smart/datetime.tsx"
-// 自定义行操作控件
-import { LinksRowActions } from './actions/links-row-actions.tsx'
-// 操作结果提示框
-import { toast } from "sonner"
-// 友链状态
-import { useLinks } from './links-provider'
+import { DatetimeCell } from '@/components/smart/cells/datetime-cell'
 // 友链可用性API调用
 import { useSwitchLinkMutation } from '@/features/links/api/links'
 // 友链数据结构
 import { LinkData } from '@/features/links/data/schemas'
-
+// 自定义行操作控件
+import { LinksRowActions } from './actions/links-row-actions.tsx'
+// 友链状态
+import { useLinks } from './links-provider'
 
 /**
  * 友链列表表格列定义
- * 
+ *
  * 定义了友链管理页面表格的所有列，包括：
  * - 选择列：支持全选和单选
  * - 基础信息列：ID、名称、标识
  * - 状态列：启用/禁用开关
  * - 时间列：创建时间和更新时间
  * - 操作列：配置说明查看和行操作
- * 
+ *
  * 使用 TanStack Table 的 ColumnDef 类型定义
  */
 export const linksColumns: ColumnDef<LinkData>[] = [
@@ -42,26 +41,27 @@ export const linksColumns: ColumnDef<LinkData>[] = [
   {
     id: 'select',
     header: ({ table }) => (
-        <Checkbox
-            checked={
-                table.getIsAllPageRowsSelected() ||
-                (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label='全选'
-            className='translate-y-[2px]'
-        />
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label='全选'
+        className='translate-y-[2px]'
+      />
     ),
     cell: ({ row }) => (
-        <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label='行选择'
-            className='translate-y-[2px]'
-        />
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label='行选择'
+        className='translate-y-[2px]'
+      />
     ),
     enableSorting: false, // 选择列不支持排序
-    enableHiding: false,  // 选择列不允许隐藏
+    enableHiding: false, // 选择列不允许隐藏
+    size: 40,
   },
   /**
    * 友链ID列 - 显示友链的唯一标识符
@@ -71,8 +71,9 @@ export const linksColumns: ColumnDef<LinkData>[] = [
     accessorKey: 'links_id',
     header: '友链ID',
     cell: ({ row }) => (
-        <div className="text-left">{row.getValue('links_id')}</div>
+      <div className='text-left'>{row.getValue('links_id')}</div>
     ),
+    size: 60,
   },
   /**
    * 友链名称列 - 显示友链的显示名称
@@ -82,8 +83,9 @@ export const linksColumns: ColumnDef<LinkData>[] = [
     accessorKey: 'links_name',
     header: '友链名称',
     cell: ({ row }) => (
-      <div className="font-semibold">{row.getValue('links_name')}</div>
+      <div className='font-semibold'>{row.getValue('links_name')}</div>
     ),
+    size: 100,
   },
   /**
    * 友链标识列 - 显示友链的URL友好标识符
@@ -92,6 +94,7 @@ export const linksColumns: ColumnDef<LinkData>[] = [
     accessorKey: 'links_slug',
     header: '友链标识',
     cell: ({ row }) => <div>{row.getValue('links_slug')}</div>,
+    size: 100,
   },
   /**
    * 友链集合信息列 - 显示友链的URL集合数量
@@ -105,7 +108,7 @@ export const linksColumns: ColumnDef<LinkData>[] = [
       return collection ? (
         <span>{collection.length} 个链接</span>
       ) : (
-        <span className="text-gray-400">-</span>
+        <span className='text-gray-400'>-</span>
       )
     },
   },
@@ -127,24 +130,25 @@ export const linksColumns: ColumnDef<LinkData>[] = [
        * 发送API请求切换友链状态并显示操作结果
        */
       const handleToggle = async (links_enabled: boolean) => {
-        await switchMutation.mutateAsync({
-          linkId: link.links_id,
-          data: {
-            links_enabled: links_enabled
-          },
-        })
-        .then((res) => {
-          toast.success(`友链 ${res.links_name} 状态切换成功`) // 操作成功提示
-        })
-        .catch((error) => {
-          console.error(`友链 ${link.links_name} 状态切换失败:`, error) // 记录错误日志
-          toast.error(`友链 ${link.links_name} 状态切换失败`) // 操作失败提示
-        })
+        await switchMutation
+          .mutateAsync({
+            linkId: link.links_id,
+            data: {
+              links_enabled: links_enabled,
+            },
+          })
+          .then((res) => {
+            toast.success(`友链 ${res.links_name} 状态切换成功`) // 操作成功提示
+          })
+          .catch((error) => {
+            console.error(`友链 ${link.links_name} 状态切换失败:`, error) // 记录错误日志
+            toast.error(`友链 ${link.links_name} 状态切换失败`) // 操作失败提示
+          })
       }
 
       return (
         <Switch
-          className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+          className='data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500'
           checked={row.getValue('links_enabled')}
           onCheckedChange={handleToggle}
         />
@@ -153,6 +157,8 @@ export const linksColumns: ColumnDef<LinkData>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id)) // 自定义过滤函数
     },
+    size: 60,
+    maxSize: 60,
   },
   /**
    * 创建时间列 - 显示友链创建时间
@@ -161,30 +167,12 @@ export const linksColumns: ColumnDef<LinkData>[] = [
   {
     accessorKey: 'created_at',
     header: '创建时间',
-    cell: ({ row }) => {
-      const createdAt = row.getValue('created_at') as string
-      return createdAt ? (
-          <SmartDatetime date={createdAt} timezone="Asia/Shanghai" />
-      ) : (
-          <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
-      )
-    },
+    cell: ({ row }) => <DatetimeCell value={row.getValue('created_at')} />,
   },
-  /**
-   * 更新时间列 - 显示友链最后更新时间
-   * 使用 SmartDatetime 组件格式化时间，并设置为上海时区
-   */
   {
     accessorKey: 'updated_at',
     header: '更新时间',
-    cell: ({ row }) => {
-      const updatedAt = row.getValue('updated_at') as string
-      return updatedAt ? (
-          <SmartDatetime date={updatedAt} timezone="Asia/Shanghai" />
-      ) : (
-          <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
-      )
-    },
+    cell: ({ row }) => <DatetimeCell value={row.getValue('updated_at')} />,
   },
   /**
    * 配置说明列 - 提供查看友链配置和说明的入口
@@ -198,18 +186,18 @@ export const linksColumns: ColumnDef<LinkData>[] = [
       const link = row.original // 获取当前行的原始数据
       const { setOpen, setCurrentRow } = useLinks() // 使用友链上下文状态
       return (
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant='ghost'
+          size='icon'
           onClick={() => {
             setCurrentRow(link) // 设置当前选中的行数据
             setOpen('configInfo') // 打开配置信息对话框
           }}
         >
-          <InfoIcon className="h-4 w-4" />
+          <InfoIcon className='h-4 w-4' />
         </Button>
       )
-    }
+    },
   },
   /**
    * 操作列 - 包含行级别的操作按钮
@@ -219,5 +207,7 @@ export const linksColumns: ColumnDef<LinkData>[] = [
     id: 'actions',
     enableHiding: false, // 操作列不允许隐藏
     cell: ({ row }) => <LinksRowActions row={row} />,
+    size: 54,
+    maxSize: 54,
   },
 ]

@@ -1,9 +1,9 @@
 // 引入reactQuery依赖
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-// Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
+// Clerk 认证
+import { useAuth } from '@clerk/clerk-react'
 import {
   JobApplyData,
   JobCompleteData,
@@ -14,10 +14,11 @@ import {
   TaskBatchExportData,
 } from '../data/schemas.ts'
 
-
 // API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8888'
-const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_TASK_PAGE_SIZE || 50)
+const DEFAULT_PAGE_SIZE: number = Number(
+  import.meta.env.VITE_TASK_PAGE_SIZE || 50
+)
 
 // 通用错误处理
 const handleResponse = async (response: Response) => {
@@ -68,7 +69,6 @@ export const fetchJobs = async (
   size: number = DEFAULT_PAGE_SIZE,
   token: string | null = null
 ): Promise<JobsData> => {
-
   // 构建基础URL，包含分页参数
   let url = `${API_BASE_URL}/tasks/?page=${page}&size=${size}`
 
@@ -113,10 +113,9 @@ export const fetchJobs = async (
 
   return {
     jobs,
-    pagination
+    pagination,
   }
 }
-
 
 /**
  * 申请并创建新任务
@@ -174,7 +173,6 @@ export const createJob = async (
   return response.json()
 }
 
-
 /**
  * 确认任务
  *
@@ -230,7 +228,6 @@ export const ensureJob = async (
   return response.json()
 }
 
-
 /**
  * 完成任务
  *
@@ -284,7 +281,6 @@ export const completeJob = async (
   await handleResponse(response)
   return response.json()
 }
-
 
 /**
  * 取消任务
@@ -351,7 +347,6 @@ export const cancelJob = async (
   return await handleResponse(response)
 }
 
-
 /**
  * 清空任务
  *
@@ -417,7 +412,6 @@ export const clearJobs = async (
   return await handleResponse(response)
 }
 
-
 /**
  * 获取任务日期列表
  *
@@ -455,7 +449,6 @@ export const fetchTaskDays = async (
 
   return response.json()
 }
-
 
 /**
  * 获取任务列表的自定义 Hook
@@ -513,12 +506,19 @@ export const useJobsQuery = (
     queryKey: ['jobs', day, website_id, entrypoint_id, status, page, size],
     queryFn: async () => {
       const token = await getToken()
-      return fetchJobs(day, website_id, entrypoint_id, status, page, size, token)
+      return fetchJobs(
+        day,
+        website_id,
+        entrypoint_id,
+        status,
+        page,
+        size,
+        token
+      )
     },
-    placeholderData: (previousData) => previousData,  // 保持上一次的数据
+    placeholderData: (previousData) => previousData, // 保持上一次的数据
   })
 }
-
 
 /**
  * 申请并创建任务的自定义 Mutation Hook
@@ -572,7 +572,6 @@ export const useCreateJobMutation = () => {
     },
   })
 }
-
 
 /**
  * 确认任务的自定义 Mutation Hook
@@ -635,7 +634,6 @@ export const useEnsureJobMutation = () => {
   })
 }
 
-
 /**
  * 完成任务的自定义 Mutation Hook
  *
@@ -685,7 +683,10 @@ export const useCompleteJobMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { taskId: number; data: JobCompleteData }) => {
+    mutationFn: async (variables: {
+      taskId: number
+      data: JobCompleteData
+    }) => {
       const token = await getToken()
       return completeJob(variables.taskId, variables.data, token)
     },
@@ -695,7 +696,6 @@ export const useCompleteJobMutation = () => {
     },
   })
 }
-
 
 /**
  * 取消任务的自定义 Mutation Hook
@@ -751,7 +751,6 @@ export const useCancelJobMutation = () => {
   })
 }
 
-
 /**
  * 获取任务日期列表的自定义 Hook
  *
@@ -801,7 +800,6 @@ export const useTaskDaysQuery = () => {
     staleTime: 5 * 60 * 1000, // 5分钟内认为数据是新鲜的
   })
 }
-
 
 /**
  * 清空任务的自定义 Mutation Hook
@@ -858,8 +856,6 @@ export const useClearJobsMutation = () => {
   })
 }
 
-
-
 /**
  * 批量导出任务数据
  *
@@ -905,14 +901,12 @@ export const batchExportTasks = async (
   return await handleResponse(response)
 }
 
-
-
 /**
  * 批量导出任务数据的自定义 Mutation Hook
  *
  * 此 Hook 封装了批量导出任务数据的逻辑，使用 TanStack Query 的 useMutation 来处理异步操作
  * 该功能允许前端向后端API发送批量导出任务数据的请求，并自动处理文件下载流程
- * 
+ *
  * 主要功能：
  * - 向后端API发送批量导出任务数据的请求
  * - 处理响应数据，将返回的JSON数据转换为Blob对象

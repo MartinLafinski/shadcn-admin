@@ -1,44 +1,44 @@
 // 引入依赖
-import { useEffect } from "react"
-// 用户认证
-// import { useAuth } from '@clerk/clerk-react'
-// 任务查询
-import { useJobsQuery } from '@/features/jobs/api/jobs'
-// 表格组件
-import { JobsTable } from './components/jobs-table.tsx'
+import { useEffect } from 'react'
+// // 任务独立操作按钮
+// import { JobsPrimaryActions } from "./components/actions/jobs-primary-actions.tsx"
+// 路由
+import { getRouteApi } from '@tanstack/react-router'
+// 用户按钮组件
+import { UserButton } from '@clerk/clerk-react'
+// 配置抽屉组件
+import { ConfigDrawer } from '@/components/config-drawer'
 // 头部组件
 import { Header } from '@/components/layout/header'
 // 主体区域
 import { Main } from '@/components/layout/main'
 // 日/夜主题切换组件
 import { ThemeSwitch } from '@/components/theme-switch'
-// 任务管理对话框
-import { JobsDialogs } from './components/jobs-dialogs'
-// 任务搜索框组件
-import { Search } from './components/actions/jobs-search-actions.tsx'
-// 配置抽屉组件
-import { ConfigDrawer } from '@/components/config-drawer'
-// 任务管理提供者
-import { JobsProvider, useJobs } from './components/jobs-provider'
+// 用户认证
+// import { useAuth } from '@clerk/clerk-react'
+// 任务查询
+import { useJobsQuery } from '@/features/jobs/api/jobs'
 // 任务日期查询
 import { useTaskDaysQuery } from '@/features/jobs/api/jobs.ts'
-// 用户按钮组件
-import { UserButton } from '@clerk/clerk-react'
-// // 任务独立操作按钮
-// import { JobsPrimaryActions } from "./components/actions/jobs-primary-actions.tsx"
-// 路由
-import { getRouteApi } from "@tanstack/react-router"
+// 任务搜索框组件
+import { Search } from './components/actions/jobs-search-actions.tsx'
+// 任务管理对话框
+import { JobsDialogs } from './components/jobs-dialogs'
+// 任务管理提供者
+import { JobsProvider, useJobs } from './components/jobs-provider'
+// 表格组件
+import { JobsTable } from './components/jobs-table.tsx'
 
 // 定义搜索参数记录类型
 const route = getRouteApi('/_authenticated/jobs/')
 
 /**
  * 任务管理页面内容组件
- * 
+ *
  * 该组件负责展示任务列表、搜索功能和管理操作
  * 使用 useJobsQuery Hook 获取任务数据
  * 通过 JobsProvider 提供上下文数据
- * 
+ *
  * 功能包括：
  * - 显示任务列表表格
  * - 支持搜索和筛选
@@ -124,8 +124,8 @@ function JobsContent() {
   if (isError) {
     return (
       <Main>
-        <div className="flex items-center justify-center h-64">
-          <p className="text-lg text-red-500">无法获取任务列表数据</p>
+        <div className='flex h-64 items-center justify-center'>
+          <p className='text-lg text-red-500'>无法获取任务列表数据</p>
         </div>
       </Main>
     )
@@ -145,16 +145,16 @@ function JobsContent() {
         {/*<TopNav links={topNav} />*/}
 
         {/* 搜索组件，用于关键词搜索和筛选 */}
-        <Search className="" />
+        <Search className='' />
 
         {/* 右侧操作区域，包含主题切换、配置抽屉和用户菜单 */}
         <div className='ms-auto flex items-center space-x-4 max-sm:space-x-0'>
           {/* 主题切换按钮，允许用户切换明暗主题 */}
           <ThemeSwitch />
-          
+
           {/* 配置抽屉，提供页面或应用的配置选项 */}
           <ConfigDrawer />
-          
+
           {/* 用户按钮，显示用户信息和账户操作菜单 */}
           <UserButton />
           {/*<button onClick={handleGetToken}>获取 JWT 令牌</button>*/}
@@ -173,22 +173,22 @@ function JobsContent() {
               管理所有爬虫任务以及相关设置项
             </p>
           </div>
-          
+
           {/* 主要操作按钮，如新建任务等 */}
           {/*<JobsPrimaryActions />*/}
         </div>
-        
+
         {/* 任务列表表格组件 */}
         {/* 传递参数说明： */}
         {/* - data: 从 API 获取的任务列表数据 */}
         {/* - pager: 分页信息，用于控制分页导航 */}
         {/* - isLoading: 是否处于首次加载状态，显示加载动画 */}
         {/* - isFetching: 是否正在获取数据，用于显示更新状态 */}
-        <JobsTable 
-          data={data?.jobs} 
-          pager={data?.pagination} 
-          isLoading={isLoading} 
-          isFetching={isFetching} 
+        <JobsTable
+          data={data?.jobs}
+          pager={data?.pagination}
+          isLoading={isLoading}
+          isFetching={isFetching}
         />
       </Main>
 
@@ -202,16 +202,16 @@ function JobsContent() {
 
 /**
  * 任务管理页面主组件
- * 
+ *
  * 该组件作为任务管理页面的入口点
  * 使用 JobsProvider 为整个页面提供共享状态和上下文
- * 
+ *
  * JobsProvider 提供的功能：
  * - 搜索参数管理
  * - 对话框状态控制
  * - 选中任务项的管理
  * - 分页状态管理
- * 
+ *
  * 开发者注意事项：
  * 1. 所有子组件都可以通过 useJobs() 访问上下文数据
  * 2. 如需修改搜索参数，使用 context 中的 setSearchParams 方法

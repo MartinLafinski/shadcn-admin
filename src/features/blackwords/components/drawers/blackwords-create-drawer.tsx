@@ -1,18 +1,24 @@
 // 引入依赖
-import React from "react"
+import React from 'react'
 // 处理表单
 import { useForm } from 'react-hook-form'
 // 数据验证
 import { zodResolver } from '@hookform/resolvers/zod'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+// CodeMirror 编辑器
+import CodeMirror from '@uiw/react-codemirror'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// 图标
+import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-// 输入框控件
-import { Input } from '@/components/ui/input.tsx'
-// CodeMirror 编辑器
-import CodeMirror from '@uiw/react-codemirror'
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
 // 表单控件
 import {
   Form,
@@ -22,6 +28,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form.tsx'
+// 输入框控件
+import { Input } from '@/components/ui/input.tsx'
 // 抽屉控件
 import {
   Sheet,
@@ -32,19 +40,14 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// 数据结构
-import { type BlackwordCreateData, type BlackwordItemData, BlackwordCreateSchema } from '../../data/schemas.ts'
 // API调用
 import { useCreateBlackwordMutation } from '../../api/blackwords.ts'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import { toast } from "sonner"
-// 图标
-import { Maximize2Icon, Minimize2Icon } from "lucide-react"
-
+// 数据结构
+import {
+  type BlackwordCreateData,
+  type BlackwordItemData,
+  BlackwordCreateSchema,
+} from '../../data/schemas.ts'
 
 /**
  * 敏感词创建抽屉组件
@@ -63,7 +66,7 @@ type BlackwordCreateDrawerProps = {
 /**
  * 敏感词创建抽屉组件
  * 提供创建或编辑敏感词的表单界面
- * 
+ *
  * 功能特性：
  * - 使用 react-hook-form 进行表单管理
  * - 集成 Zod 验证 schema
@@ -72,22 +75,20 @@ type BlackwordCreateDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function BlackwordCreateDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: BlackwordCreateDrawerProps)
-{
+export function BlackwordCreateDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: BlackwordCreateDrawerProps) {
   // 获取当前主题（用于JSON编辑器和MD编辑器主题适配）
   const { resolvedTheme } = useTheme()
 
   // 全屏状态管理
   const [isFullscreen, setIsFullscreen] = React.useState(false)
-  
+
   // 初始化创建敏感词的mutation
   const createBlackwordMutation = useCreateBlackwordMutation()
-  
+
   // 初始化表单，设置验证规则和默认值
   const form = useForm<BlackwordCreateData>({
     resolver: zodResolver(BlackwordCreateSchema),
@@ -111,14 +112,15 @@ export function BlackwordCreateDrawer(
    */
   const onSubmit = async (data: BlackwordCreateData) => {
     // 使用 mutation 调用 API 创建敏感词
-    await createBlackwordMutation.mutateAsync(
-      data
-    ).then((res) => {
-      toast.success(`敏感词 ${res.blackwords_name} 创建成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error('敏感词创建失败:', error) // 记录错误日志
-      toast.error('敏感词创建失败') // 操作失败提示
-    })
+    await createBlackwordMutation
+      .mutateAsync(data)
+      .then((res) => {
+        toast.success(`敏感词 ${res.blackwords_name} 创建成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error('敏感词创建失败:', error) // 记录错误日志
+        toast.error('敏感词创建失败') // 操作失败提示
+      })
     // 关闭抽屉
     onOpenChange(false)
     // 重置表单到默认状态
@@ -136,12 +138,10 @@ export function BlackwordCreateDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>创建敏感词</SheetTitle>
-          <SheetDescription>
-            创建新的敏感词
-          </SheetDescription>
+          <SheetDescription>创建新的敏感词</SheetDescription>
         </SheetHeader>
         {/* 将表单与react-hook-form实例连接 */}
         <Form {...form}>
@@ -172,7 +172,10 @@ export function BlackwordCreateDrawer(
                 <FormItem>
                   <FormLabel>敏感词标识</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='敏感词标识(字母、数字、连字符或下划线)' />
+                    <Input
+                      {...field}
+                      placeholder='敏感词标识(字母、数字、连字符或下划线)'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -183,7 +186,13 @@ export function BlackwordCreateDrawer(
               control={form.control}
               name='blackwords_collection'
               render={({ field }) => (
-                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background' : ''}>
+                <FormItem
+                  className={
+                    isFullscreen
+                      ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background'
+                      : ''
+                  }
+                >
                   <div className='flex items-center justify-between'>
                     <FormLabel>敏感词集合</FormLabel>
                     <Button
@@ -235,7 +244,9 @@ export function BlackwordCreateDrawer(
                         })
                         field.onChange(filteredLines)
                       }}
-                      theme={resolvedTheme === 'light' ? githubLight : githubDark}
+                      theme={
+                        resolvedTheme === 'light' ? githubLight : githubDark
+                      }
                       placeholder='每行输入一个敏感词'
                       height={isFullscreen ? 'calc(100vh - 60px)' : '200px'}
                       basicSetup={{
@@ -276,10 +287,7 @@ export function BlackwordCreateDrawer(
                   <FormLabel>敏感词说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

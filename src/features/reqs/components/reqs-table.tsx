@@ -1,10 +1,7 @@
 // 引入依赖
 import { useState, useEffect, useRef } from 'react'
-import { usePrevious } from '@/hooks/use-previous'
-// 样式工具函数
-import { cn } from "@/lib/utils.ts"
-// 图标
-import { Table as TableIcon, LayoutGrid, CheckSquare, Square } from 'lucide-react'
+// 路由
+import { getRouteApi } from '@tanstack/react-router'
 // 表格相关
 import {
   ColumnFiltersState,
@@ -17,6 +14,22 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+// 分页数据结构
+import { type PaginationInfoData } from '@/config/pagination'
+// 图标
+import {
+  Table as TableIcon,
+  LayoutGrid,
+  CheckSquare,
+  Square,
+} from 'lucide-react'
+// 样式工具函数
+import { cn } from '@/lib/utils.ts'
+import { usePrevious } from '@/hooks/use-previous'
+// Button 控件
+import { Button } from '@/components/ui/button'
+// Switch 控件
+import { Switch } from '@/components/ui/switch'
 // 表格控件
 import {
   Table,
@@ -26,35 +39,27 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-// Switch 控件
-import { Switch } from '@/components/ui/switch'
-// Button 控件
-import { Button } from '@/components/ui/button'
 // 自定义分页和工具控件
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
+// 请求数据结构
+import { type ReqData } from '@/features/reqs/data/schemas'
 // 批量操作控件
 import { ReqsTableBulkActions } from './actions/reqs-bulk-actions'
 // 请求表格数据列
 import { reqsColumns } from './reqs-columns'
-// 请求数据结构
-import { type ReqData } from '@/features/reqs/data/schemas'
-// 分页数据结构
-import { type PaginationInfoData } from '@/config/pagination'
 // 请求数据同步
 import { useReqs } from './reqs-provider'
-// 路由
-import { getRouteApi } from "@tanstack/react-router";
-
-
 
 // 定义搜索参数记录类型
 type SearchRecord = Record<string, unknown>
 const route = getRouteApi('/_authenticated/reqs/')
-const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_REQ_PAGE_SIZE || 50)
+const DEFAULT_PAGE_SIZE: number = Number(
+  import.meta.env.VITE_REQ_PAGE_SIZE || 50
+)
 
 /**
  * 请求数据表格组件
- * 
+ *
  * 此组件用于展示请求列表数据，支持排序、过滤、搜索和分页功能
  * 主要功能包括：
  * - 显示请求基本信息（ID、标题、URL、状态等）
@@ -88,11 +93,16 @@ interface DataTableProps {
 
 /**
  * 请求数据表格组件
- * 
+ *
  * 使用 TanStack Table 实现的可交互数据表格
  * 包含工具栏（搜索和过滤）、表格主体和分页组件
  */
-export function ReqsTable({ data = [], pager = undefined, isLoading = false, isFetching = false }: DataTableProps) {
+export function ReqsTable({
+  data = [],
+  pager = undefined,
+  isLoading = false,
+  isFetching = false,
+}: DataTableProps) {
   // 表格状态管理
   // 从 context 获取搜索参数
   const { searchParams, setSearchParams } = useReqs()
@@ -133,15 +143,13 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
     const newPageIndex = (searchParams?.page ?? 1) - 1
     // 只有当 page 真正变化时才更新（避免不必要的重渲染）
     if (newPageIndex !== pagination.pageIndex || newPageIndex === 0) {
-      setPagination(prev => ({
+      setPagination((prev) => ({
         ...prev,
         pageIndex: newPageIndex,
         pageSize: searchParams?.size ?? DEFAULT_PAGE_SIZE,
       }))
     }
   }, [searchParams?.page, searchParams?.size]) // 只监听 page，不监听其他
-
-
 
   // 排序状态：跟踪当前的排序列和排序方向
   const [sorting, setSorting] = useState<SortingState>([])
@@ -153,7 +161,6 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
   const [rowSelection, setRowSelection] = useState({})
   // 全局过滤状态：用于跨多列的 OR 搜索
   const [globalFilter, setGlobalFilter] = useState('')
-
 
   // 创建 TanStack Table 实例
   // 通过配置各种模型和状态来实现数据表格的功能
@@ -178,7 +185,10 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
       // OR 逻辑：只要任一列匹配就返回 true
       return searchKeys.some((key) => {
         const value = row.getValue(key)
-        return value?.toString().toLowerCase().includes(filterValue.toLowerCase())
+        return value
+          ?.toString()
+          .toLowerCase()
+          .includes(filterValue.toLowerCase())
       })
     },
     // 设置状态变更处理函数
@@ -188,14 +198,15 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
     onRowSelectionChange: setRowSelection, // 行选择状态变更时的回调
     onGlobalFilterChange: setGlobalFilter, // 全局过滤状态变更时的回调
     onPaginationChange: (updater) => {
-      const newPagination = typeof updater === 'function' ? updater(pagination) : updater
+      const newPagination =
+        typeof updater === 'function' ? updater(pagination) : updater
       setPagination(newPagination)
 
       // 标记这是内部分页操作
       isPaginationChangeRef.current = true
-      
+
       // 更新 URL 参数
-      setSearchParams(prev => ({
+      setSearchParams((prev) => ({
         ...prev,
         page: newPagination.pageIndex + 1,
         size: newPagination.pageSize,
@@ -207,12 +218,15 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
       navigate({
         search: (prev) => ({
           ...(prev as SearchRecord),
-          ["page"]: nextPage <= 1 ? undefined : nextPage,  // 如果是默认页则从 URL 移除
-          ["size"]: newPagination.pageSize === DEFAULT_PAGE_SIZE ? undefined : newPagination.pageSize,
+          ['page']: nextPage <= 1 ? undefined : nextPage, // 如果是默认页则从 URL 移除
+          ['size']:
+            newPagination.pageSize === DEFAULT_PAGE_SIZE
+              ? undefined
+              : newPagination.pageSize,
         }),
       })
     }, // 分页状态变更时的回调
-    
+
     // 将当前状态传递给表格实例
     state: {
       pagination, // 当前分页状态
@@ -234,9 +248,9 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
     >
       {/* 数据刷新指示器 - 居中显示在顶部 */}
       {isFetching && !isLoading && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 rounded-md bg-muted/80 px-3 py-1.5 text-sm backdrop-blur-sm">
-          <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <span className="text-muted-foreground">刷新中...</span>
+        <div className='absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-md bg-muted/80 px-3 py-1.5 text-sm backdrop-blur-sm'>
+          <div className='h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent' />
+          <span className='text-muted-foreground'>刷新中...</span>
         </div>
       )}
 
@@ -252,21 +266,22 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
         filters={[]}
         // 右侧控件：视图切换 switch 和全选/全不选按钮
         rightActions={
-          <div className="flex items-center space-x-4 mr-4">
-
+          <div className='mr-4 flex items-center space-x-4'>
             {/* 视图切换 switch */}
-            <div className="flex items-center space-x-2">
-              <TableIcon className="h-4 w-4 text-muted-foreground" />
+            <div className='flex items-center space-x-2'>
+              <TableIcon className='h-4 w-4 text-muted-foreground' />
               <Switch
                 checked={viewMode === 'card'}
-                onCheckedChange={(checked) => setViewMode(checked ? 'card' : 'table')}
+                onCheckedChange={(checked) =>
+                  setViewMode(checked ? 'card' : 'table')
+                }
               />
-              <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+              <LayoutGrid className='h-4 w-4 text-muted-foreground' />
             </div>
             {/* 全选/全不选按钮 */}
             <Button
-              variant="outline"
-              size="sm"
+              variant='outline'
+              size='sm'
               onClick={() => {
                 const isAllSelected = table.getIsAllRowsSelected()
                 if (isAllSelected) {
@@ -275,12 +290,12 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
                   table.toggleAllRowsSelected()
                 }
               }}
-              className="h-8 px-2"
+              className='h-8 px-2'
             >
               {table.getIsAllRowsSelected() || table.getIsSomeRowsSelected() ? (
-                <CheckSquare className="h-4 w-4" />
+                <CheckSquare className='h-4 w-4' />
               ) : (
-                <Square className="h-4 w-4" />
+                <Square className='h-4 w-4' />
               )}
               全选
             </Button>
@@ -290,7 +305,7 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
 
       {/* 表格容器，添加边框和圆角 */}
       {viewMode === 'table' ? (
-        <div className="rounded-md border">
+        <div className='rounded-md border'>
           <Table>
             {/* 表格头部 - 显示列标题 */}
             <TableHeader>
@@ -321,11 +336,11 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
                 <TableRow>
                   <TableCell
                     colSpan={reqsColumns.length}
-                    className="h-24 text-center"
+                    className='h-24 text-center'
                   >
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                      <span className="text-muted-foreground">加载中...</span>
+                    <div className='flex items-center justify-center gap-2'>
+                      <div className='h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent' />
+                      <span className='text-muted-foreground'>加载中...</span>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -335,7 +350,7 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
                   <TableRow
                     key={row.id}
                     // 如果行被选中，添加"selected"状态
-                    data-state={row.getIsSelected() && "selected"}
+                    data-state={row.getIsSelected() && 'selected'}
                   >
                     {/* 渲染行中可见的单元格 */}
                     {row.getVisibleCells().map((cell) => (
@@ -355,7 +370,7 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
                   {/* 当没有数据时，显示"无结果"提示，横跨所有列 */}
                   <TableCell
                     colSpan={reqsColumns.length} // 横跨列数等于列定义的长度
-                    className="h-24 text-center" // 居中显示，高度24
+                    className='h-24 text-center' // 居中显示，高度24
                   >
                     无结果
                   </TableCell>
@@ -366,36 +381,43 @@ export function ReqsTable({ data = [], pager = undefined, isLoading = false, isF
         </div>
       ) : (
         /* 卡片视图 */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
           {isLoading ? (
-            <div className="col-span-full flex items-center justify-center h-24">
-              <div className="flex items-center justify-center gap-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                <span className="text-muted-foreground">加载中...</span>
+            <div className='col-span-full flex h-24 items-center justify-center'>
+              <div className='flex items-center justify-center gap-2'>
+                <div className='h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent' />
+                <span className='text-muted-foreground'>加载中...</span>
               </div>
             </div>
           ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <div
                 key={row.id}
-                className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                className='rounded-lg border bg-white p-4 shadow-sm transition-shadow hover:shadow-md'
               >
                 {row.getVisibleCells().map((cell) => (
-                  <div key={cell.id} className="flex justify-between py-2 border-b last:border-b-0">
-                    <span className="font-medium text-gray-500 text-sm">
+                  <div
+                    key={cell.id}
+                    className='flex justify-between border-b py-2 last:border-b-0'
+                  >
+                    <span className='text-sm font-medium text-gray-500'>
                       {typeof cell.column?.columnDef?.header === 'string'
                         ? cell.column.columnDef.header
-                        : '功能'}:
+                        : '功能'}
+                      :
                     </span>
-                    <span className="text-gray-900 text-sm">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    <span className='text-sm text-gray-900'>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </span>
                   </div>
                 ))}
               </div>
             ))
           ) : (
-            <div className="col-span-full flex items-center justify-center h-24 text-center">
+            <div className='col-span-full flex h-24 items-center justify-center text-center'>
               无结果
             </div>
           )}

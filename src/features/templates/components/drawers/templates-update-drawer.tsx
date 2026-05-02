@@ -2,16 +2,27 @@
 import React, { useState, useEffect } from 'react'
 // 表单处理
 import { useForm } from 'react-hook-form'
-// 用于同步后台数据
-import { useQueryClient } from '@tanstack/react-query'
 // 数据验证
 import { zodResolver } from '@hookform/resolvers/zod'
+// 用于同步后台数据
+import { useQueryClient } from '@tanstack/react-query'
+import { html } from '@codemirror/lang-html'
+import { EditorView } from '@codemirror/view'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+// CodeMirror 编辑器
+import CodeMirror from '@uiw/react-codemirror'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// 图标
+import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-// 输入框控件
-import { Input } from '@/components/ui/input.tsx'
 // 表单控件
 import {
   Form,
@@ -21,6 +32,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form.tsx'
+// 输入框控件
+import { Input } from '@/components/ui/input.tsx'
 // 抽屉控件
 import {
   Sheet,
@@ -31,25 +44,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// 数据结构
-import { type TemplateUpdateData, type TemplateItemData, TemplateUpdateSchema } from '../../data/schemas.ts'
 // 更新模板API调用
-import { useUpdateTemplateMutation, useTemplateQuery } from '../../api/templates.ts'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import { toast } from "sonner"
-// 图标
-import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
-// CodeMirror 编辑器
-import CodeMirror from '@uiw/react-codemirror'
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
-import { html } from '@codemirror/lang-html'
-import { EditorView } from '@codemirror/view'
-
-
+import {
+  useUpdateTemplateMutation,
+  useTemplateQuery,
+} from '../../api/templates.ts'
+// 数据结构
+import {
+  type TemplateUpdateData,
+  type TemplateItemData,
+  TemplateUpdateSchema,
+} from '../../data/schemas.ts'
 
 /**
  * 模板更新抽屉组件
@@ -77,16 +82,18 @@ type TemplateUpdateDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function TemplateUpdateDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: TemplateUpdateDrawerProps)
-{
+export function TemplateUpdateDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: TemplateUpdateDrawerProps) {
   const queryClient = useQueryClient()
   // 添加查询钩子
-  const { data: latestTemplate, isLoading: isLatestDataLoading, refetch } = useTemplateQuery(currentRow?.template_id || 0)
+  const {
+    data: latestTemplate,
+    isLoading: isLatestDataLoading,
+    refetch,
+  } = useTemplateQuery(currentRow?.template_id || 0)
 
   // 添加状态管理
   const [, setShowConflictWarning] = useState(false)
@@ -131,21 +138,23 @@ export function TemplateUpdateDrawer(
   const form = useForm<TemplateUpdateData>({
     resolver: zodResolver(TemplateUpdateSchema),
     // 如果有currentRow则使用其值作为默认值，否则使用空值
-    defaultValues: currentRow ? {
-      template_name: currentRow.template_name,
-      template_slug: currentRow.template_slug,
-      template_content: currentRow.template_content || '',  // 将 null 转换为 ''
-      template_readme: currentRow.template_readme,
-    } : {
-      // 模板显示名称 - 用于界面展示的可读名称
-      template_name: '',
-      // 模板URL标识符 - 用于路由和API请求的唯一标识符
-      template_slug: '',
-      // 模板内容 - 模板的主要内容
-      template_content: '',
-      // 模板说明文档 - 使用Markdown格式的说明文档内容
-      template_readme: '',
-    },
+    defaultValues: currentRow
+      ? {
+          template_name: currentRow.template_name,
+          template_slug: currentRow.template_slug,
+          template_content: currentRow.template_content || '', // 将 null 转换为 ''
+          template_readme: currentRow.template_readme,
+        }
+      : {
+          // 模板显示名称 - 用于界面展示的可读名称
+          template_name: '',
+          // 模板URL标识符 - 用于路由和API请求的唯一标识符
+          template_slug: '',
+          // 模板内容 - 模板的主要内容
+          template_content: '',
+          // 模板说明文档 - 使用Markdown格式的说明文档内容
+          template_readme: '',
+        },
   })
 
   /**
@@ -162,15 +171,18 @@ export function TemplateUpdateDrawer(
     }
 
     // 使用 mutation 调用 API 更新模板
-    await updateTemplateMutation.mutateAsync({
-      templateId: currentRow.template_id,
-      data
-    }).then((res) => {
-      toast.success(`模板 ${res.template_name} 更新成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error(`模板 ${currentRow.template_name} 更新失败:`, error) // 记录错误日志
-      toast.error(`模板 ${currentRow.template_name} 更新失败`) // 操作失败提示
-    })
+    await updateTemplateMutation
+      .mutateAsync({
+        templateId: currentRow.template_id,
+        data,
+      })
+      .then((res) => {
+        toast.success(`模板 ${res.template_name} 更新成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error(`模板 ${currentRow.template_name} 更新失败:`, error) // 记录错误日志
+        toast.error(`模板 ${currentRow.template_name} 更新失败`) // 操作失败提示
+      })
 
     // 关闭抽屉
     onOpenChange(false)
@@ -189,7 +201,7 @@ export function TemplateUpdateDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>更新模板</SheetTitle>
           <SheetDescription>
@@ -225,7 +237,10 @@ export function TemplateUpdateDrawer(
                 <FormItem>
                   <FormLabel>模板标识</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='模板标识(字母、数字、连字符或下划线)' />
+                    <Input
+                      {...field}
+                      placeholder='模板标识(字母、数字、连字符或下划线)'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -236,7 +251,13 @@ export function TemplateUpdateDrawer(
               control={form.control}
               name='template_content'
               render={({ field }) => (
-                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background' : ''}>
+                <FormItem
+                  className={
+                    isFullscreen
+                      ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background'
+                      : ''
+                  }
+                >
                   <div className='flex items-center justify-between'>
                     <FormLabel>模板内容</FormLabel>
                     <Button
@@ -258,7 +279,9 @@ export function TemplateUpdateDrawer(
                       extensions={[html(), EditorView.lineWrapping]}
                       value={field.value}
                       onChange={field.onChange}
-                      theme={resolvedTheme === 'light' ? githubLight : githubDark}
+                      theme={
+                        resolvedTheme === 'light' ? githubLight : githubDark
+                      }
                       placeholder='请输入模板内容...'
                       width='w-full'
                       height={isFullscreen ? 'calc(100vh - 60px)' : 'auto'}
@@ -301,10 +324,7 @@ export function TemplateUpdateDrawer(
                   <FormLabel>模板说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

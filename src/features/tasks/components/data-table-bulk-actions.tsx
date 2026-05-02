@@ -27,11 +27,11 @@ type DataTableBulkActionsProps<TData> = {
 /**
  * 任务数据表格的批量操作组件
  * 提供批量更新状态、优先级、导出和删除等功能
- * 
+ *
  * @template TData - 表格数据类型
  * @param {DataTableBulkActionsProps<TData>} props - 组件属性
  * @param {Table<TData>} props.table - TanStack表格实例
- * 
+ *
  * 使用说明:
  * 1. 通过 table.getFilteredSelectedRowModel() 获取选中的行数据
  * 2. 支持批量更新任务状态、优先级
@@ -48,10 +48,10 @@ export function DataTableBulkActions<TData>({
 
   /**
    * 批量更新任务状态的处理函数
-   * 
+   *
    * @param {string} status - 新的状态值
-   * 
-   * 开发者提示: 
+   *
+   * 开发者提示:
    * - 可在此方法中替换模拟API调用(sleep)为真实的服务端请求
    * - 在实际项目中，应处理API响应和错误情况
    */
@@ -70,9 +70,9 @@ export function DataTableBulkActions<TData>({
 
   /**
    * 批量更新任务优先级的处理函数
-   * 
+   *
    * @param {string} priority - 新的优先级值
-   * 
+   *
    * 开发者提示:
    * - 可在此方法中替换模拟API调用(sleep)为真实的服务端请求
    * - 在实际项目中，应处理API响应和错误情况
@@ -92,13 +92,13 @@ export function DataTableBulkActions<TData>({
 
   /**
    * 批量导出任务的处理函数
-   * 
-   * @example 
+   *
+   * @example
    * 实际项目中可以替换为:
    * 1. 生成CSV文件并下载
    * 2. 导出为PDF格式
    * 3. 发送到邮件或其他服务
-   * 
+   *
    * 开发者提示:
    * - 可在此方法中替换模拟API调用(sleep)为真实的导出逻辑
    * - 可以根据需要修改导出格式和处理逻辑
@@ -120,7 +120,6 @@ export function DataTableBulkActions<TData>({
     <>
       {/* 批量操作工具栏，传入表格实例和实体名称 */}
       <BulkActionsToolbar table={table} entityName='task'>
-
         {/* 批量更新状态的下拉菜单 */}
         <DropdownMenu>
           <Tooltip>

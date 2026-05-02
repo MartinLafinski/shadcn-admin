@@ -11,10 +11,10 @@ export const PaginationInfoSchema = z.object({
   linkNext: z.string().optional(),
   linkPrev: z.string().optional(),
   linkSelf: z.string().optional(),
-});
+})
 
 // 分页信息
-export type PaginationInfoData = z.infer<typeof PaginationInfoSchema>;
+export type PaginationInfoData = z.infer<typeof PaginationInfoSchema>
 
 export function extracted_pagination(response: Response) {
   const pagination: PaginationInfoData = {
@@ -28,6 +28,6 @@ export function extracted_pagination(response: Response) {
     linkNext: response.headers.get('x-link-next') || undefined,
     linkPrev: response.headers.get('x-link-prev') || undefined,
     linkSelf: response.headers.get('x-link-self') || undefined,
-  };
-  return pagination;
+  }
+  return pagination
 }

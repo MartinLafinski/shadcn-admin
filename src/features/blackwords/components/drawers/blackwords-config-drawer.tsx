@@ -2,10 +2,21 @@
 import React, { useState, useEffect } from 'react'
 // 导入表单库
 import { useForm } from 'react-hook-form'
-// 用于同步后台数据
-import { useQueryClient } from '@tanstack/react-query'
 // 数据验证库
 import { zodResolver } from '@hookform/resolvers/zod'
+// 用于同步后台数据
+import { useQueryClient } from '@tanstack/react-query'
+import { githubDark, githubLight } from '@uiw/codemirror-theme-github'
+// 代码编辑器
+import CodeMirror from '@uiw/react-codemirror'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// 图标
+import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
@@ -29,21 +40,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// 数据结构
-import { type BlackwordConfigData, type BlackwordItemData, BlackwordConfigSchema } from '../../data/schemas.ts'
 // 配置敏感词API调用
-import { usePatchBlackwordMutation, useBlackwordQuery } from '../../api/blackwords.ts'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import { toast } from "sonner"
-// 图标
-import { Maximize2Icon, Minimize2Icon } from "lucide-react"
-// 代码编辑器
-import CodeMirror from "@uiw/react-codemirror"
-import { githubDark, githubLight } from "@uiw/codemirror-theme-github"
+import {
+  usePatchBlackwordMutation,
+  useBlackwordQuery,
+} from '../../api/blackwords.ts'
+// 数据结构
+import {
+  type BlackwordConfigData,
+  type BlackwordItemData,
+  BlackwordConfigSchema,
+} from '../../data/schemas.ts'
 
 /**
  * 敏感词配置和说明抽屉组件
@@ -71,19 +78,21 @@ type BlackwordConfigDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function BlackwordConfigDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: BlackwordConfigDrawerProps)
-{
+export function BlackwordConfigDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: BlackwordConfigDrawerProps) {
   // 全屏状态管理
   const [isFullscreen, setIsFullscreen] = React.useState(false)
 
   // 添加查询钩子
   const queryClient = useQueryClient()
-  const { data: latestBlackword, isLoading: isLatestDataLoading, refetch } = useBlackwordQuery(currentRow?.blackwords_id || 0)
+  const {
+    data: latestBlackword,
+    isLoading: isLatestDataLoading,
+    refetch,
+  } = useBlackwordQuery(currentRow?.blackwords_id || 0)
 
   // 添加状态管理
   const [, setShowConflictWarning] = useState(false)
@@ -139,20 +148,26 @@ export function BlackwordConfigDrawer(
   const onSubmit = async (data: BlackwordConfigData) => {
     // 确保有 currentRow 和 blackwords_id
     if (!currentRow?.blackwords_id) {
-        console.error('缺少敏感词ID，无法配置和说明')
-        return
+      console.error('缺少敏感词ID，无法配置和说明')
+      return
     }
 
     // 使用 mutation 调用 API 配置和说明敏感词
-    await configBlackwordMutation.mutateAsync({
+    await configBlackwordMutation
+      .mutateAsync({
         blackwordsId: currentRow.blackwords_id,
-        data
-    }).then((res) => {
-      toast.success(`敏感词 ${res.blackwords_name} 说明与配置编辑成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error(`敏感词 ${currentRow.blackwords_name} 说明与配置编辑失败:`, error) // 记录错误日志
-      toast.error(`敏感词 ${currentRow.blackwords_name} 说明与配置编辑失败`) // 操作失败提示
-    })
+        data,
+      })
+      .then((res) => {
+        toast.success(`敏感词 ${res.blackwords_name} 说明与配置编辑成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error(
+          `敏感词 ${currentRow.blackwords_name} 说明与配置编辑失败:`,
+          error
+        ) // 记录错误日志
+        toast.error(`敏感词 ${currentRow.blackwords_name} 说明与配置编辑失败`) // 操作失败提示
+      })
 
     // 关闭抽屉
     onOpenChange(false)
@@ -171,7 +186,7 @@ export function BlackwordConfigDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>配置和说明敏感词</SheetTitle>
           <SheetDescription>
@@ -194,10 +209,7 @@ export function BlackwordConfigDrawer(
                   <FormLabel>敏感词说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -228,7 +240,13 @@ export function BlackwordConfigDrawer(
               control={form.control}
               name='blackwords_collection'
               render={({ field }) => (
-                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background' : ''}>
+                <FormItem
+                  className={
+                    isFullscreen
+                      ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background'
+                      : ''
+                  }
+                >
                   <div className='flex items-center justify-between'>
                     <FormLabel>敏感词集合</FormLabel>
                     <Button
@@ -262,7 +280,9 @@ export function BlackwordConfigDrawer(
                         })
                         field.onChange(filteredLines)
                       }}
-                      theme={resolvedTheme === 'light' ? githubLight : githubDark}
+                      theme={
+                        resolvedTheme === 'light' ? githubLight : githubDark
+                      }
                       placeholder='每行输入一个敏感词'
                       height={isFullscreen ? 'calc(100vh - 60px)' : '200px'}
                       basicSetup={{
@@ -294,7 +314,6 @@ export function BlackwordConfigDrawer(
                 </FormItem>
               )}
             />
-
           </form>
         </Form>
         <SheetFooter className='gap-2'>

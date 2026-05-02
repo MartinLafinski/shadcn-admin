@@ -1,17 +1,35 @@
 // 引入依赖
 import { useEffect, useState } from 'react'
+// 路由
+import { getRouteApi } from '@tanstack/react-router'
+// 图标
+import {
+  SearchIcon,
+  XIcon,
+  CheckIcon,
+  ChevronsUpDownIcon,
+  Trash2,
+  RotateCcw,
+} from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
 // 样式
 import { cn } from '@/lib/utils.ts'
-// 图标
-import { SearchIcon, XIcon, CheckIcon, ChevronsUpDownIcon, Trash2, RotateCcw } from 'lucide-react'
+// 确认对话框
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+// 按钮组控件
+import { ButtonGroup } from '@/components/ui/button-group.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-// Popover 和 Command 控件
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover.tsx'
 import {
   Command,
   CommandEmpty,
@@ -25,47 +43,41 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
-} from "@/components/ui/input-group.tsx"
-// 按钮组控件
+} from '@/components/ui/input-group.tsx'
+// Popover 和 Command 控件
 import {
-  ButtonGroup,
-} from "@/components/ui/button-group.tsx"
-// 确认对话框
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-// 获取准任务数据
-import { usePreTasks } from '../pre-tasks-provider.tsx'
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover.tsx'
 // 网站数据查询
 import { useWebsitesQuery } from '@/features/websites/api/websites.ts'
 // 准任务API调用
-import { useResetWebsitePreTasksMutation, useClearWebsitePreTasksMutation } from '../../api/pre-tasks.ts'
-// 操作结果提示框
-import { toast } from "sonner"
-// 路由
-import { getRouteApi } from "@tanstack/react-router"
+import {
+  useResetWebsitePreTasksMutation,
+  useClearWebsitePreTasksMutation,
+} from '../../api/pre-tasks.ts'
+// 获取准任务数据
+import { usePreTasks } from '../pre-tasks-provider.tsx'
 
 // 定义搜索参数记录类型
 const route = getRouteApi('/_authenticated/pre-tasks/')
-const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_TASK_PAGE_SIZE || 50)
-const WEBSITE_SEARCH_SIZE: number = Number(import.meta.env.VITE_WEBSITE_SEARCH_SIZE || 50)
+const DEFAULT_PAGE_SIZE: number = Number(
+  import.meta.env.VITE_TASK_PAGE_SIZE || 50
+)
+const WEBSITE_SEARCH_SIZE: number = Number(
+  import.meta.env.VITE_WEBSITE_SEARCH_SIZE || 50
+)
 
 /**
  * 准任务搜索组件
  * 提供网站筛选功能
- * 
+ *
  * 组件功能：
  * 1. 支持根据网站筛选准任务
  * 2. 提供重置功能
  * 3. 支持对所选网站进行清空和重置操作
- * 
+ *
  * 使用说明：
  * - 组件会自动调用 usePreTasks 的 setSearchParams 方法更新搜索参数
  * - 搜索参数包括：website_id（网站ID）
@@ -76,16 +88,14 @@ type SearchProps = {
   placeholder?: string
 }
 
-export function Search({
-                         className = ''
-                       }: SearchProps) {
+export function Search({ className = '' }: SearchProps) {
   const { searchParams, setSearchParams } = usePreTasks()
   const navigate = route.useNavigate()
 
   // 初始化准任务重置/清空mutation
   const resetWebsiteMutation = useResetWebsitePreTasksMutation()
   const clearWebsiteMutation = useClearWebsitePreTasksMutation()
-  
+
   // 确认对话框状态
   const [resetDialogOpen, setResetDialogOpen] = useState(false)
   const [clearDialogOpen, setClearDialogOpen] = useState(false)
@@ -98,10 +108,17 @@ export function Search({
   const [websiteId, setWebsiteId] = useState<number | undefined>(undefined)
 
   // 获取网站列表数据（支持搜索）
-  const { data: websitesData, isLoading: websitesLoading } = useWebsitesQuery(websiteKeyword, undefined, 1, WEBSITE_SEARCH_SIZE)
+  const { data: websitesData, isLoading: websitesLoading } = useWebsitesQuery(
+    websiteKeyword,
+    undefined,
+    1,
+    WEBSITE_SEARCH_SIZE
+  )
 
   // 获取当前选中的网站
-  const selectedWebsite = websitesData?.websites?.find(w => w.website_id === websiteId)
+  const selectedWebsite = websitesData?.websites?.find(
+    (w) => w.website_id === websiteId
+  )
 
   useEffect(() => {
     setWebsiteId(searchParams?.website_id)
@@ -119,12 +136,15 @@ export function Search({
           ...(prev as Record<string, unknown>), // 保留之前的参数
           website_id: params.website_id || undefined, // 如果网站ID为空则设为undefined
           page: params.page && params.page > 1 ? params.page : undefined, // 只有页码大于1时才保留
-          size: params.size && params.size !== DEFAULT_PAGE_SIZE ? params.size : undefined, // 只有数量非 DEFAULT_PAGE_SIZE 时才保留
+          size:
+            params.size && params.size !== DEFAULT_PAGE_SIZE
+              ? params.size
+              : undefined, // 只有数量非 DEFAULT_PAGE_SIZE 时才保留
         }
 
         // 清理 undefined 值，避免在URL中出现 undefined 字符串
         // 这样可以保持URL的简洁性，例如不会出现 ?page=undefined 的情况
-        Object.keys(newParams).forEach(key => {
+        Object.keys(newParams).forEach((key) => {
           if (newParams[key as keyof typeof newParams] === undefined) {
             delete newParams[key as keyof typeof newParams]
           }
@@ -178,8 +198,9 @@ export function Search({
   const onResetWebsite = async () => {
     if (!websiteId) return
     setResetDialogOpen(false)
-    
-    await resetWebsiteMutation.mutateAsync(websiteId)
+
+    await resetWebsiteMutation
+      .mutateAsync(websiteId)
       .then(() => {
         toast.success(`网站 ${selectedWebsite?.website_name} 的准任务重置成功`)
       })
@@ -195,8 +216,9 @@ export function Search({
   const onClearWebsite = async () => {
     if (!websiteId) return
     setClearDialogOpen(false)
-    
-    await clearWebsiteMutation.mutateAsync(websiteId)
+
+    await clearWebsiteMutation
+      .mutateAsync(websiteId)
       .then(() => {
         toast.success(`网站 ${selectedWebsite?.website_name} 的准任务清空成功`)
       })
@@ -208,25 +230,27 @@ export function Search({
 
   return (
     <>
-      <div className={cn("flex w-full max-w-2/3 gap-4 ", className)}>
-
+      <div className={cn('flex w-full max-w-2/3 gap-4', className)}>
         {/* 搜索输入框组合，包含关键词输入和状态筛选下拉菜单 */}
         <ButtonGroup>
-          <InputGroup className="[--radius:1rem]">
-            <InputGroupAddon align="inline-start">
-              <InputGroupButton size="icon-xs" onClick={handleReset}>
-                <XIcon/>
+          <InputGroup className='[--radius:1rem]'>
+            <InputGroupAddon align='inline-start'>
+              <InputGroupButton size='icon-xs' onClick={handleReset}>
+                <XIcon />
               </InputGroupButton>
             </InputGroupAddon>
             {/* 网站下拉菜单 */}
-            <InputGroupAddon align="inline-start">
-              <Popover open={websitePopoverOpen} onOpenChange={setWebsitePopoverOpen}>
+            <InputGroupAddon align='inline-start'>
+              <Popover
+                open={websitePopoverOpen}
+                onOpenChange={setWebsitePopoverOpen}
+              >
                 <PopoverTrigger asChild>
                   <InputGroupButton
                     variant='ghost'
                     role='combobox'
                     className={cn(
-                      'justify-between mr-2 text-sm',
+                      'mr-2 justify-between text-sm',
                       !websiteId && 'text-muted-foreground'
                     )}
                   >
@@ -246,41 +270,48 @@ export function Search({
                       onValueChange={setWebsiteKeyword}
                     />
                     <CommandList>
-                      {!websitesLoading && (!websitesData?.websites || websitesData.websites.length === 0) && (
-                        <CommandEmpty>未找到网站</CommandEmpty>
-                      )}
+                      {!websitesLoading &&
+                        (!websitesData?.websites ||
+                          websitesData.websites.length === 0) && (
+                          <CommandEmpty>未找到网站</CommandEmpty>
+                        )}
                       {websitesLoading && (
                         <CommandEmpty>加载中...</CommandEmpty>
                       )}
-                      {websitesData?.websites && websitesData.websites.length > 0 && (
-                        <CommandGroup key={websitesData?.websites.length.toString()}>
-                          {websitesData.websites.map((website) => (
-                            <CommandItem
-                              key={website.website_id.toString()}
-                              value={`${website.website_id}`}
-                              onSelect={() => {
-                                setWebsiteId(website.website_id)
-                                setWebsitePopoverOpen(false)
-                              }}
-                            >
-                              <CheckIcon
-                                className={cn(
-                                  'mr-2 h-4 w-4',
-                                  websiteId === website.website_id
-                                    ? 'opacity-100'
-                                    : 'opacity-0'
-                                )}
-                              />
-                              <div className="flex flex-col">
-                                <span className="flex font-semibold">{website.website_name}</span>
-                                <span className="flex text-muted-foreground text-xs">
-                            [{website.website_slug}]
-                          </span>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      )}
+                      {websitesData?.websites &&
+                        websitesData.websites.length > 0 && (
+                          <CommandGroup
+                            key={websitesData?.websites.length.toString()}
+                          >
+                            {websitesData.websites.map((website) => (
+                              <CommandItem
+                                key={website.website_id.toString()}
+                                value={`${website.website_id}`}
+                                onSelect={() => {
+                                  setWebsiteId(website.website_id)
+                                  setWebsitePopoverOpen(false)
+                                }}
+                              >
+                                <CheckIcon
+                                  className={cn(
+                                    'mr-2 h-4 w-4',
+                                    websiteId === website.website_id
+                                      ? 'opacity-100'
+                                      : 'opacity-0'
+                                  )}
+                                />
+                                <div className='flex flex-col'>
+                                  <span className='flex font-semibold'>
+                                    {website.website_name}
+                                  </span>
+                                  <span className='flex text-xs text-muted-foreground'>
+                                    [{website.website_slug}]
+                                  </span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        )}
                     </CommandList>
                   </Command>
                 </PopoverContent>
@@ -289,17 +320,17 @@ export function Search({
           </InputGroup>
           {/* 搜索按钮 - 触发搜索操作 */}
           <Button onClick={handleSearch}>
-            <SearchIcon/>
-            <span className="max-sm:hidden">查找</span>
+            <SearchIcon />
+            <span className='max-sm:hidden'>查找</span>
           </Button>
           {/* 重置选中网站的准任务按钮 */}
           <Button
             onClick={() => setResetDialogOpen(true)}
             disabled={!websiteId || resetWebsiteMutation.isPending}
-            className='bg-orange-500 text-white dark:bg-orange-600 hover:bg-orange-600/80'
+            className='bg-orange-500 text-white hover:bg-orange-600/80 dark:bg-orange-600'
           >
             <RotateCcw size={18} />
-            <span className="max-sm:hidden">重置</span>
+            <span className='max-sm:hidden'>重置</span>
           </Button>
           {/* 清空选中网站的准任务按钮 */}
           <Button
@@ -308,7 +339,7 @@ export function Search({
             disabled={!websiteId || clearWebsiteMutation.isPending}
           >
             <Trash2 size={18} />
-            <span className="max-sm:hidden">清空</span>
+            <span className='max-sm:hidden'>清空</span>
           </Button>
         </ButtonGroup>
       </div>
@@ -319,12 +350,15 @@ export function Search({
           <AlertDialogHeader>
             <AlertDialogTitle>确认重置网站准任务？</AlertDialogTitle>
             <AlertDialogDescription>
-              此操作将重置网站 {selectedWebsite?.website_name} 的所有准任务状态，但不会删除准任务数据。此操作不可撤销。
+              此操作将重置网站 {selectedWebsite?.website_name}{' '}
+              的所有准任务状态，但不会删除准任务数据。此操作不可撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={onResetWebsite}>确认重置</AlertDialogAction>
+            <AlertDialogAction onClick={onResetWebsite}>
+              确认重置
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -335,12 +369,16 @@ export function Search({
           <AlertDialogHeader>
             <AlertDialogTitle>确认清空网站准任务？</AlertDialogTitle>
             <AlertDialogDescription>
-              此操作将永久删除网站 {selectedWebsite?.website_name} 的所有准任务数据，此操作不可撤销。请谨慎操作。
+              此操作将永久删除网站 {selectedWebsite?.website_name}{' '}
+              的所有准任务数据，此操作不可撤销。请谨慎操作。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={onClearWebsite} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={onClearWebsite}
+              className='text-destructive-foreground bg-destructive hover:bg-destructive/90'
+            >
               确认清空
             </AlertDialogAction>
           </AlertDialogFooter>

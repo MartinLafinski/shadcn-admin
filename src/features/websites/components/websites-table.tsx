@@ -1,12 +1,10 @@
 // 引入依赖
-import { useState, useEffect, useRef } from 'react'
-import { usePrevious } from '@/hooks/use-previous'
-// 样式工具函数
-import { cn } from "@/lib/utils.ts"
-// 图标
-import { Table as TableIcon, LayoutGrid, CheckSquare, Square } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+// 路由
+import { getRouteApi } from '@tanstack/react-router'
 // 表格相关
 import {
+  Column,
   ColumnFiltersState,
   SortingState,
   VisibilityState,
@@ -17,6 +15,24 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+// 分页数据结构
+import { type PaginationInfoData } from '@/config/pagination'
+// 图标
+import {
+  Table as TableIcon,
+  LayoutGrid,
+  CheckSquare,
+  Square,
+} from 'lucide-react'
+// 样式工具函数
+import { cn } from '@/lib/utils.ts'
+import { usePrevious } from '@/hooks/use-previous'
+// Label 控件
+// import { Label } from '@/components/ui/label'
+// Button 控件
+import { Button } from '@/components/ui/button'
+// Switch 控件
+import { Switch } from '@/components/ui/switch'
 // 表格控件
 import {
   Table,
@@ -26,39 +42,40 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-// Switch 控件
-import { Switch } from '@/components/ui/switch'
-// Label 控件
-// import { Label } from '@/components/ui/label'
-// Button 控件
-import { Button } from '@/components/ui/button'
 // 自定义分页和工具控件
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 // 可用性标签
-import { enableLabels } from "@/features/websites/data/labels"
+import {
+  enableLabels,
+  lockedLabels,
+  pausedLabels,
+  historyLabels,
+  remainImageLabels,
+  backupLabels,
+  limitedLabels,
+} from '@/features/websites/data/labels'
+// 网站数据结构
+import { type WebsiteData } from '@/features/websites/data/schemas'
 // 批量操作控件
 import { WebsiteTableBulkActions } from './actions/websites-bulk-actions'
 // 网站表格数据列
 import { websitesColumns } from './websites-columns'
-// 网站数据结构
-import { type WebsiteData } from '@/features/websites/data/schemas'
-// 分页数据结构
-import { type PaginationInfoData } from '@/config/pagination'
 // 网站数据同步
-import { useWebsites } from './websites-provider'
-// 路由
-import { getRouteApi } from "@tanstack/react-router";
-
+import { useWebsitesSearch, useWebsitesActions } from './websites-provider'
+// 网站表格行组件
+import { WebsiteTableRow, type PinningStyles } from './websites-table-row'
 
 // 定义搜索参数记录类型
 type SearchRecord = Record<string, unknown>
 const route = getRouteApi('/_authenticated/websites/')
 // 默认网站每页数量
-const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_WEBSITE_PAGE_SIZE || 50)
+const DEFAULT_PAGE_SIZE: number = Number(
+  import.meta.env.VITE_WEBSITE_PAGE_SIZE || 50
+)
 
 /**
  * 网站数据表格组件
- * 
+ *
  * 此组件用于展示网站列表数据，支持排序、过滤、搜索和分页功能
  * 主要功能包括：
  * - 显示网站基本信息（名称、标识、URL等）
@@ -90,17 +107,35 @@ interface DataTableProps {
   isFetching?: boolean
 }
 
+// 定义固定列 ID
+const pinnedLeftIds = [
+  'select',
+  'website_id',
+  'website_name',
+  'website_status_mini',
+]
+const pinnedRightIds = ['website_status', 'website_enabled', 'actions']
+
 /**
  * 网站数据表格组件
- * 
+ *
  * 使用 TanStack Table 实现的可交互数据表格
  * 包含工具栏（搜索和过滤）、表格主体和分页组件
  */
-export function WebsitesTable({ data = [], pager = undefined, isLoading = false, isFetching = false }: DataTableProps) {
+const WebsitesTableComponent = ({
+  data = [],
+  pager = undefined,
+  isLoading = false,
+  isFetching = false,
+}: DataTableProps) => {
   // 表格状态管理
   // 从 context 获取搜索参数
-  const { searchParams, setSearchParams } = useWebsites()
+  const { searchParams } = useWebsitesSearch()
+  const { setSearchParams } = useWebsitesActions()
   // const search = route.useSearch()
+
+  // 记忆化列定义，虽然 websitesColumns 是外部常量，但包裹 useMemo 是最佳实践
+  const columns = React.useMemo(() => websitesColumns, [])
 
   // 视图模式：'table' 为表格视图，'card' 为卡片视图
   // 根据页面初始宽度决定默认视图模式：宽度小于1200时采用卡片呈现，否则采用表格呈现
@@ -138,13 +173,19 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
     const newPageIndex = (searchParams?.page ?? 1) - 1
     // 只有当 page 真正变化时才更新（避免不必要的重渲染）
     if (newPageIndex !== pagination.pageIndex || newPageIndex === 0) {
-      setPagination(prev => ({
+      setPagination((prev) => ({
         ...prev,
         pageIndex: newPageIndex,
         pageSize: searchParams?.size ?? DEFAULT_PAGE_SIZE,
       }))
     }
   }, [searchParams?.page, searchParams?.size]) // 只监听 page，不监听其他
+
+  // 列固定状态
+  const [columnPinning] = useState({
+    left: pinnedLeftIds,
+    right: pinnedRightIds,
+  })
 
   // 排序状态：跟踪当前的排序列和排序方向
   const [sorting, setSorting] = useState<SortingState>([])
@@ -157,12 +198,48 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
   // 全局过滤状态：用于跨多列的 OR 搜索
   const [globalFilter, setGlobalFilter] = useState('')
 
+  // =============================================
+  // 工具函数：生成固定列的样式
+  // =============================================
+
+  const getPinningStyles = React.useCallback(
+    (column: Column<WebsiteData>): PinningStyles => {
+      const isPinned = column.getIsPinned()
+
+      const isLastLeftPinned =
+        isPinned === 'left' &&
+        column.id === pinnedLeftIds[pinnedLeftIds.length - 1]
+
+      const isFirstRightPinned =
+        isPinned === 'right' &&
+        pinnedRightIds.length > 0 &&
+        column.id === pinnedRightIds[0]
+
+      const style: React.CSSProperties = {
+        width: `${column.getSize()}px`,
+        minWidth: `${column.getSize()}px`,
+        left: '',
+        right: '',
+      }
+
+      if (isPinned === 'left') {
+        style.left = `${column.getStart('left')}px`
+      }
+
+      if (isPinned === 'right') {
+        style.right = `${column.getAfter('right')}px`
+      }
+
+      return { style, isPinned, isLastLeftPinned, isFirstRightPinned }
+    },
+    [pinnedLeftIds, pinnedRightIds]
+  )
 
   // 创建 TanStack Table 实例
   // 通过配置各种模型和状态来实现数据表格的功能
   const table = useReactTable({
     data, // 表格数据源
-    columns: websitesColumns, // 列定义，从外部导入
+    columns, // 使用记忆化后的列定义
     // 启用核心行模型（基础渲染功能）
     getCoreRowModel: getCoreRowModel(),
     // 启用分页模型（分页功能）
@@ -181,24 +258,29 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
       // OR 逻辑：只要任一列匹配就返回 true
       return searchKeys.some((key) => {
         const value = row.getValue(key)
-        return value?.toString().toLowerCase().includes(filterValue.toLowerCase())
+        return value
+          ?.toString()
+          .toLowerCase()
+          .includes(filterValue.toLowerCase())
       })
     },
     // 设置状态变更处理函数
+    // onColumnPinningChange: setColumnPinning,
     onSortingChange: setSorting, // 排序状态变更时的回调
     onColumnFiltersChange: setColumnFilters, // 过滤状态变更时的回调
     onColumnVisibilityChange: setColumnVisibility, // 列可见性变更时的回调
     onRowSelectionChange: setRowSelection, // 行选择状态变更时的回调
     onGlobalFilterChange: setGlobalFilter, // 全局过滤状态变更时的回调
     onPaginationChange: (updater) => {
-      const newPagination = typeof updater === 'function' ? updater(pagination) : updater
+      const newPagination =
+        typeof updater === 'function' ? updater(pagination) : updater
       setPagination(newPagination)
 
       // 标记这是内部分页操作
       isPaginationChangeRef.current = true
 
       // 更新 URL 参数
-      setSearchParams(prev => ({
+      setSearchParams((prev) => ({
         ...prev,
         page: newPagination.pageIndex + 1,
         size: newPagination.pageSize,
@@ -208,16 +290,20 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
 
       // 关键：调用 navigate 更新 URL
       navigate({
-         search: (prev) => ({
-            ...(prev as SearchRecord),
-            ["page"]: nextPage <= 1 ? undefined : nextPage,  // 如果是默认页则从 URL 移除
-            ["size"]: newPagination.pageSize === DEFAULT_PAGE_SIZE ? undefined : newPagination.pageSize,
-         }),
+        search: (prev) => ({
+          ...(prev as SearchRecord),
+          ['page']: nextPage <= 1 ? undefined : nextPage, // 如果是默认页则从 URL 移除
+          ['size']:
+            newPagination.pageSize === DEFAULT_PAGE_SIZE
+              ? undefined
+              : newPagination.pageSize,
+        }),
       })
     }, // 分页状态变更时的回调
-    
+
     // 将当前状态传递给表格实例
     state: {
+      columnPinning, // 当前固定状态
       pagination, // 当前分页状态
       sorting, // 当前排序状态
       columnFilters, // 当前过滤状态
@@ -235,12 +321,11 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
         'relative' // 相对定位，用于放置刷新指示器
       )}
     >
-
       {/* 数据刷新指示器 - 居中显示在顶部 */}
       {isFetching && !isLoading && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 rounded-md bg-muted/80 px-3 py-1.5 text-sm backdrop-blur-sm">
-          <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <span className="text-muted-foreground">刷新中...</span>
+        <div className='absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-md bg-muted/80 px-3 py-1.5 text-sm backdrop-blur-sm'>
+          <div className='h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent' />
+          <span className='text-muted-foreground'>刷新中...</span>
         </div>
       )}
 
@@ -259,24 +344,55 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
             title: '可用', // 过滤器标题
             options: enableLabels, // 过滤选项，从外部导入的启用状态标签
           },
+          {
+            columnId: 'website_locked',
+            title: '锁定',
+            options: lockedLabels,
+          },
+          {
+            columnId: 'website_paused',
+            title: '运转',
+            options: pausedLabels,
+          },
+          {
+            columnId: 'website_limited',
+            title: '未限',
+            options: limitedLabels,
+          },
+          // {
+          //   columnId: 'history_mode',
+          //   title: '追溯',
+          //   options: historyLabels,
+          // },
+          // {
+          //   columnId: 'remain_img',
+          //   title: '存图',
+          //   options: remainImageLabels,
+          // },
+          // {
+          //   columnId: 'backup_in_seaweed',
+          //   title: '备份',
+          //   options: backupLabels,
+          // },
         ]}
         // 右侧控件：视图切换 switch 和全选/全不选按钮
         rightActions={
-          <div className="flex items-center space-x-4 mr-4">
-
+          <div className='mr-4 flex items-center space-x-4'>
             {/* 视图切换 switch */}
-            <div className="flex items-center space-x-2">
-              <TableIcon className="h-4 w-4 text-muted-foreground" />
+            <div className='flex items-center space-x-2'>
+              <TableIcon className='h-4 w-4 text-muted-foreground' />
               <Switch
                 checked={viewMode === 'card'}
-                onCheckedChange={(checked) => setViewMode(checked ? 'card' : 'table')}
+                onCheckedChange={(checked) =>
+                  setViewMode(checked ? 'card' : 'table')
+                }
               />
-              <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+              <LayoutGrid className='h-4 w-4 text-muted-foreground' />
             </div>
             {/* 全选/全不选按钮 */}
             <Button
-              variant="outline"
-              size="sm"
+              variant='outline'
+              size='sm'
               onClick={() => {
                 const isAllSelected = table.getIsAllRowsSelected()
                 if (isAllSelected) {
@@ -285,12 +401,12 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
                   table.toggleAllRowsSelected()
                 }
               }}
-              className="h-8 px-2"
+              className='h-8 px-2'
             >
               {table.getIsAllRowsSelected() || table.getIsSomeRowsSelected() ? (
-                <CheckSquare className="h-4 w-4" />
+                <CheckSquare className='h-4 w-4' />
               ) : (
-                <Square className="h-4 w-4" />
+                <Square className='h-4 w-4' />
               )}
               全选
             </Button>
@@ -300,7 +416,7 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
 
       {/* 表格容器，添加边框和圆角 */}
       {viewMode === 'table' ? (
-        <div className="rounded-md border">
+        <div className='rounded-md border'>
           <Table>
             {/* 表格头部 - 显示列标题 */}
             <TableHeader>
@@ -309,8 +425,40 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
                 <TableRow key={headerGroup.id}>
                   {/* 遍历每个表头单元格 */}
                   {headerGroup.headers.map((header) => {
+                    // const isSticky = header.column.columnDef.meta?.isSticky as boolean
+                    const {
+                      style,
+                      isPinned,
+                      isLastLeftPinned,
+                      isFirstRightPinned,
+                    } = getPinningStyles(header.column)
+                    const metaClassName =
+                      header.column.columnDef.meta?.className || ''
                     return (
-                      <TableHead key={header.id}>
+                      <TableHead
+                        key={header.id}
+                        style={style}
+                        className={[
+                          'bg-background whitespace-nowrap',
+                          isPinned ? `sticky z-20` : 'relative',
+                          isLastLeftPinned
+                            ? 'after:absolute after:top-0 after:right-0 after:bottom-0 after:z-[25] after:w-0.5 after:bg-slate-200 dark:after:bg-slate-700'
+                            : '',
+                          isFirstRightPinned
+                            ? 'after:absolute after:top-0 after:bottom-0 after:left-0 after:z-[25] after:w-0.5 after:bg-slate-200 dark:after:bg-slate-700'
+                            : '',
+                          // isLastLeftPinned
+                          //   ? 'border-r-2 border-slate-200 dark:border-slate-700 shadow-sm'
+                          //   : '',
+                          // isFirstRightPinned
+                          //   ? 'border-l-2 border-slate-200 dark:border-slate-700 shadow-sm'
+                          //   : '',
+                          metaClassName,
+                        ].join(' ')}
+                        // className={cn(
+                        //   isSticky && 'sticky right-0 bg-background z-10 shadow-[inset_-1px_0_0_0_hsl(var(--border))]'
+                        // )}
+                      >
                         {/* 如果是占位符单元格则不渲染内容 */}
                         {header.isPlaceholder
                           ? null
@@ -331,41 +479,34 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
                 <TableRow>
                   <TableCell
                     colSpan={websitesColumns.length}
-                    className="h-24 text-center"
+                    className='h-24 text-center'
                   >
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                      <span className="text-muted-foreground">加载中...</span>
+                    <div className='flex items-center justify-center gap-2'>
+                      <div className='h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent' />
+                      <span className='text-muted-foreground'>加载中...</span>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows?.length ? (
                 /* 如果有数据则渲染行 */
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    // 如果行被选中，添加"selected"状态
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {/* 渲染行中可见的单元格 */}
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {/* 渲染单元格内容 */}
-                        {flexRender(
-                          cell.column.columnDef.cell, // 渲染列定义中的单元格组件
-                          cell.getContext() // 传递上下文给单元格组件
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+                table
+                  .getRowModel()
+                  .rows.map((row, rowIdx) => (
+                    <WebsiteTableRow
+                      key={row.id}
+                      row={row}
+                      rowIdx={rowIdx}
+                      isSelected={row.getIsSelected()}
+                      getPinningStyles={getPinningStyles}
+                    />
+                  ))
               ) : (
                 /* 当没有数据时，显示"无结果"提示 */
                 <TableRow>
                   {/* 当没有数据时，显示"无结果"提示，横跨所有列 */}
                   <TableCell
                     colSpan={websitesColumns.length} // 横跨列数等于列定义的长度
-                    className="h-24 text-center" // 居中显示，高度24
+                    className='h-24 text-center' // 居中显示，高度24
                   >
                     无结果
                   </TableCell>
@@ -376,36 +517,43 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
         </div>
       ) : (
         /* 卡片视图 */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
           {isLoading ? (
-            <div className="col-span-full flex items-center justify-center h-24">
-              <div className="flex items-center justify-center gap-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                <span className="text-muted-foreground">加载中...</span>
+            <div className='col-span-full flex h-24 items-center justify-center'>
+              <div className='flex items-center justify-center gap-2'>
+                <div className='h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent' />
+                <span className='text-muted-foreground'>加载中...</span>
               </div>
             </div>
           ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <div
                 key={row.id}
-                className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                className='rounded-lg border bg-background p-4 shadow-sm transition-shadow hover:shadow-md'
               >
                 {row.getVisibleCells().map((cell) => (
-                  <div key={cell.id} className="flex justify-between py-2 border-b last:border-b-0">
-                    <span className="font-medium text-gray-500 text-sm">
+                  <div
+                    key={cell.id}
+                    className='flex justify-between border-b py-2 last:border-b-0'
+                  >
+                    <span className='text-sm font-medium text-gray-500'>
                       {typeof cell.column?.columnDef?.header === 'string'
                         ? cell.column.columnDef.header
-                        : '功能'}:
+                        : '功能'}
+                      :
                     </span>
-                    <span className="text-gray-900 text-sm">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    <span className='text-sm text-slate-900 dark:text-slate-300'>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </span>
                   </div>
                 ))}
               </div>
             ))
           ) : (
-            <div className="col-span-full flex items-center justify-center h-24 text-center">
+            <div className='col-span-full flex h-24 items-center justify-center text-center'>
               无结果
             </div>
           )}
@@ -418,3 +566,8 @@ export function WebsitesTable({ data = [], pager = undefined, isLoading = false,
     </div>
   )
 }
+
+/**
+ * 网站数据表格组件 (记忆化版本)
+ */
+export const WebsitesTable = React.memo(WebsitesTableComponent)

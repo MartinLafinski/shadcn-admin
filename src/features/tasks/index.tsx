@@ -1,3 +1,4 @@
+import { UserButton } from '@clerk/clerk-react'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -8,7 +9,6 @@ import { TasksDialogs } from './components/tasks-dialogs'
 import { TasksPrimaryButtons } from './components/tasks-primary-buttons'
 import { TasksProvider } from './components/tasks-provider'
 import { TasksTable } from './components/tasks-table'
-import { UserButton } from '@clerk/clerk-react'
 import { tasks } from './data/tasks'
 
 export function Tasks() {
@@ -19,7 +19,7 @@ export function Tasks() {
         <div className='ms-auto flex items-center space-x-4'>
           <ThemeSwitch />
           <ConfigDrawer />
-          <UserButton/>
+          <UserButton />
         </div>
       </Header>
 

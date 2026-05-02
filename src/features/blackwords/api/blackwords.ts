@@ -1,9 +1,9 @@
 // 引入reactQuery依赖
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-// Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
+// Clerk 认证
+import { useAuth } from '@clerk/clerk-react'
 import {
   BlackwordBatchSwitchData,
   BlackwordBatchExportData,
@@ -12,13 +12,14 @@ import {
   BlackwordData,
   BlackwordsData,
   BlackwordSwitchData,
-  BlackwordUpdateData
+  BlackwordUpdateData,
 } from '../data/schemas.ts'
-
 
 // API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8888'
-const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_BLACKWORDS_PAGE_SIZE || 50)
+const DEFAULT_PAGE_SIZE: number = Number(
+  import.meta.env.VITE_BLACKWORDS_PAGE_SIZE || 50
+)
 
 // 通用错误处理
 const handleResponse = async (response: Response) => {
@@ -64,7 +65,6 @@ export const fetchBlackwords = async (
   size: number = DEFAULT_PAGE_SIZE,
   token: string | null
 ): Promise<BlackwordsData> => {
-
   // 构建基础URL，包含分页参数
   let url = `${API_BASE_URL}/blackwords/?page=${page}&size=${size}`
 
@@ -96,10 +96,9 @@ export const fetchBlackwords = async (
 
   return {
     blackwords,
-    pagination
+    pagination,
   }
 }
-
 
 /**
  * 根据ID获取敏感词详细信息
@@ -256,7 +255,6 @@ export const updateBlackword = async (
   return response.json()
 }
 
-
 /**
  * 部分更新敏感词配置
  *
@@ -316,7 +314,6 @@ export const patchBlackword = async (
   return response.json()
 }
 
-
 /**
  * 切换敏感词启用状态
  *
@@ -349,19 +346,20 @@ export const switchBlackword = async (
   data: BlackwordSwitchData,
   token: string | null
 ): Promise<BlackwordData> => {
-  const response = await fetch(`${API_BASE_URL}/blackwords/${blackwordsId}/switch/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  })
+  const response = await fetch(
+    `${API_BASE_URL}/blackwords/${blackwordsId}/switch/`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  )
   await handleResponse(response)
   return response.json()
 }
-
-
 
 /**
  * 删除指定敏感词
@@ -374,7 +372,7 @@ export const switchBlackword = async (
  *                   删除操作不可逆，请谨慎操作
  *
  * @param token - 鉴权token
- * 
+ *
  * @returns Promise<Response> - 返回原始响应对象
  *                如果删除成功，响应状态码通常为204 (No Content)
  *                如果删除失败，会通过handleResponse抛出错误
@@ -425,7 +423,6 @@ export const deleteBlackword = async (
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 批量切换敏感词启用状态
@@ -478,12 +475,11 @@ export const batchSwitchBlackwords = async (
   return response.json()
 }
 
-
 export const batchDeleteBlackwords = async (
   blackwordsIds: number[],
   token: string | null
 ): Promise<Response> => {
-  const params = blackwordsIds.map(id => `blackwords_ids=${id}`).join('&')
+  const params = blackwordsIds.map((id) => `blackwords_ids=${id}`).join('&')
   const response = await fetch(`${API_BASE_URL}/blackwords/?${params}`, {
     method: 'DELETE',
     headers: {
@@ -493,7 +489,6 @@ export const batchDeleteBlackwords = async (
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 同步敏感词数据
@@ -568,7 +563,9 @@ export const syncBlackwords = async (token: string | null): Promise<void> => {
  * - 可能需要处理大文件下载，注意浏览器内存限制
  * - 导出的文件格式取决于后端实现，通常为JSON格式
  */
-export const exportBlackwords = async (token: string | null): Promise<Response> => {
+export const exportBlackwords = async (
+  token: string | null
+): Promise<Response> => {
   const response = await fetch(`${API_BASE_URL}/blackwords/export/`, {
     method: 'POST',
     headers: {
@@ -628,7 +625,6 @@ export const batchExportBlackwords = async (
   return await handleResponse(response)
 }
 
-
 /**
  * 获取敏感词列表的自定义 Hook
  *
@@ -674,12 +670,24 @@ export const useBlackwordsQuery = (
 ) => {
   const { getToken } = useAuth()
   return useQuery({
-    queryKey: ['blackwords', blackwords_keyword, blackwords_enabled, page, size],
+    queryKey: [
+      'blackwords',
+      blackwords_keyword,
+      blackwords_enabled,
+      page,
+      size,
+    ],
     queryFn: async () => {
       const token = await getToken()
-      return fetchBlackwords(blackwords_keyword, blackwords_enabled, page, size, token)
+      return fetchBlackwords(
+        blackwords_keyword,
+        blackwords_enabled,
+        page,
+        size,
+        token
+      )
     },
-    placeholderData: (previousData) => previousData,  // 保持上一次的数据
+    placeholderData: (previousData) => previousData, // 保持上一次的数据
   })
 }
 
@@ -725,15 +733,14 @@ export const useBlackwordQuery = (blackwordsId: number) => {
   const { getToken } = useAuth()
 
   return useQuery({
-    queryKey: ['blackword', blackwordsId],  // 查询键包含敏感词ID，确保不同ID有独立缓存
+    queryKey: ['blackword', blackwordsId], // 查询键包含敏感词ID，确保不同ID有独立缓存
     queryFn: async () => {
-      const token = await getToken()  // 获取认证token
-      return fetchBlackwordById(blackwordsId, token)  // 调用API获取敏感词详情
+      const token = await getToken() // 获取认证token
+      return fetchBlackwordById(blackwordsId, token) // 调用API获取敏感词详情
     },
-    enabled: !!blackwordsId,  // 只有当 blackwordsId 存在且不为0时才启用查询
+    enabled: !!blackwordsId, // 只有当 blackwordsId 存在且不为0时才启用查询
   })
 }
-
 
 /**
  * 创建敏感词的自定义 Mutation Hook
@@ -787,7 +794,6 @@ export const useCreateBlackwordMutation = () => {
   })
 }
 
-
 /**
  * 更新敏感词信息的自定义 Mutation Hook
  *
@@ -835,7 +841,10 @@ export const useUpdateBlackwordMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { blackwordsId: number; data: BlackwordUpdateData }) => {
+    mutationFn: async (variables: {
+      blackwordsId: number
+      data: BlackwordUpdateData
+    }) => {
       const token = await getToken()
       return updateBlackword(variables.blackwordsId, variables.data, token)
     },
@@ -843,11 +852,12 @@ export const useUpdateBlackwordMutation = () => {
       // 更新成功后使敏感词列表缓存失效，确保列表显示最新数据
       queryClient.invalidateQueries({ queryKey: ['blackwords'] })
       // 同时使单个敏感词详情缓存失效，确保详情页显示最新数据
-      queryClient.invalidateQueries({ queryKey: ['blackword', variables.blackwordsId] })
+      queryClient.invalidateQueries({
+        queryKey: ['blackword', variables.blackwordsId],
+      })
     },
   })
 }
-
 
 /**
  * 部分更新敏感词信息的自定义 Mutation Hook
@@ -901,7 +911,10 @@ export const usePatchBlackwordMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { blackwordsId: number; data: BlackwordConfigData }) => {
+    mutationFn: async (variables: {
+      blackwordsId: number
+      data: BlackwordConfigData
+    }) => {
       const token = await getToken()
       return patchBlackword(variables.blackwordsId, variables.data, token)
     },
@@ -909,11 +922,12 @@ export const usePatchBlackwordMutation = () => {
       // 更新成功后使敏感词列表缓存失效，确保列表显示最新数据
       queryClient.invalidateQueries({ queryKey: ['blackwords'] })
       // 同时使单个敏感词详情缓存失效，确保详情页显示最新数据
-      queryClient.invalidateQueries({ queryKey: ['blackword', variables.blackwordsId] })
+      queryClient.invalidateQueries({
+        queryKey: ['blackword', variables.blackwordsId],
+      })
     },
   })
 }
-
 
 /**
  * 切换敏感词启用状态的自定义 Mutation Hook
@@ -961,7 +975,10 @@ export const useSwitchBlackwordMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { blackwordsId: number; data: BlackwordSwitchData }) => {
+    mutationFn: async (variables: {
+      blackwordsId: number
+      data: BlackwordSwitchData
+    }) => {
       const token = await getToken()
       return switchBlackword(variables.blackwordsId, variables.data, token)
     },
@@ -969,11 +986,12 @@ export const useSwitchBlackwordMutation = () => {
       // 状态切换成功后使敏感词列表缓存失效，确保列表显示最新状态
       queryClient.invalidateQueries({ queryKey: ['blackwords'] })
       // 同时使单个敏感词详情缓存失效，确保详情页显示最新状态
-      queryClient.invalidateQueries({ queryKey: ['blackword', variables.blackwordsId] })
+      queryClient.invalidateQueries({
+        queryKey: ['blackword', variables.blackwordsId],
+      })
     },
   })
 }
-
 
 /**
  * 批量切换敏感词启用状态的自定义 Mutation Hook
@@ -1031,14 +1049,15 @@ export const useBatchSwitchBlackwordsMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['blackwords'] })
       // 同时使单个敏感词详情缓存失效，确保详情页显示最新状态
       if (variables.blackwords_ids && Array.isArray(variables.blackwords_ids)) {
-        variables.blackwords_ids.forEach(blackwords_id => {
-          queryClient.invalidateQueries({ queryKey: ['blackword', blackwords_id] })
+        variables.blackwords_ids.forEach((blackwords_id) => {
+          queryClient.invalidateQueries({
+            queryKey: ['blackword', blackwords_id],
+          })
         })
       }
     },
   })
 }
-
 
 /**
  * 同步敏感词数据的自定义 Mutation Hook
@@ -1079,13 +1098,12 @@ export const useSyncBlackwordsMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async() => {
+    mutationFn: async () => {
       const token = await getToken()
       return syncBlackwords(token)
-    }
+    },
   })
 }
-
 
 /**
  * 导出所有敏感词数据的自定义 Mutation Hook
@@ -1230,8 +1248,6 @@ export const useBatchExportBlackwordsMutation = () => {
   })
 }
 
-
-
 /**
  * 删除敏感词的自定义 Mutation Hook
  *
@@ -1289,7 +1305,7 @@ export const useDeleteBlackwordMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { blackwordsId: number; }) => {
+    mutationFn: async (variables: { blackwordsId: number }) => {
       const token = await getToken()
       return deleteBlackword(variables.blackwordsId, token)
     },
@@ -1297,11 +1313,12 @@ export const useDeleteBlackwordMutation = () => {
       // 删除成功后使敏感词列表缓存失效，确保列表显示最新状态（已移除被删除的敏感词）
       queryClient.invalidateQueries({ queryKey: ['blackwords'] })
       // 同时使单个敏感词详情缓存失效，确保详情页不会显示已删除的敏感词信息
-      queryClient.invalidateQueries({ queryKey: ['blackword', variables.blackwordsId] })
+      queryClient.invalidateQueries({
+        queryKey: ['blackword', variables.blackwordsId],
+      })
     },
   })
 }
-
 
 export const useBatchDeleteBlackwordsMutation = () => {
   const queryClient = useQueryClient()
@@ -1317,8 +1334,10 @@ export const useBatchDeleteBlackwordsMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['blackwords'] })
       // 同时使单个敏感词详情缓存失效，确保详情页显示最新状态
       if (variables && Array.isArray(variables)) {
-        variables.forEach(blackwordsId => {
-          queryClient.invalidateQueries({ queryKey: ['blackword', blackwordsId] })
+        variables.forEach((blackwordsId) => {
+          queryClient.invalidateQueries({
+            queryKey: ['blackword', blackwordsId],
+          })
         })
       }
     },

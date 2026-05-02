@@ -1,36 +1,40 @@
 // import { showSubmittedData } from '@/lib/show-submitted-data'
-import { ConfirmDialog } from '@/components/confirm-dialog'
-import { LinkUpdateDrawer } from './drawers/links-update-drawer.tsx'
-import { LinkCreateDrawer} from "./drawers/links-create-drawer.tsx"
-import { LinkConfigDrawer} from "./drawers/links-config-drawer.tsx"
-import { useLinks } from './links-provider'
-import { LinksInfoDialog } from './dialogs/links-info-dialog.tsx'
-import { useDeleteLinkMutation } from "@/features/links/api/links.ts"
 // 操作结果提示框
-import { toast } from "sonner"
+import { toast } from 'sonner'
+import { ConfirmDialog } from '@/components/confirm-dialog'
+import { useDeleteLinkMutation } from '@/features/links/api/links.ts'
+import { LinksInfoDialog } from './dialogs/links-info-dialog.tsx'
+import { LinkConfigDrawer } from './drawers/links-config-drawer.tsx'
+import { LinkCreateDrawer } from './drawers/links-create-drawer.tsx'
+import { LinkUpdateDrawer } from './drawers/links-update-drawer.tsx'
+import { useLinks } from './links-provider'
 
 export function LinksDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useLinks()
 
   const deleteMutation = useDeleteLinkMutation()
   const handleDelete = async () => {
-    await deleteMutation.mutateAsync({
-      linkId: currentRow?.links_id || 0,
-    }).then((_) => {
-      toast.success(`友链 ${currentRow?.links_name} 删除成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error(`友链 ${currentRow?.links_name} 删除失败:`, error) // 记录错误日志
-      toast.error(`友链 ${currentRow?.links_name} 删除失败`) // 操作失败提示
-    }).finally(() => {
-      setOpen(null)
-      setTimeout(() => {
-        setCurrentRow(null)
-      }, 500)
-      // showSubmittedData(
-      //   currentRow,
-      //   '提示的数据：'
-      // )
-    })
+    await deleteMutation
+      .mutateAsync({
+        linkId: currentRow?.links_id || 0,
+      })
+      .then((_) => {
+        toast.success(`友链 ${currentRow?.links_name} 删除成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error(`友链 ${currentRow?.links_name} 删除失败:`, error) // 记录错误日志
+        toast.error(`友链 ${currentRow?.links_name} 删除失败`) // 操作失败提示
+      })
+      .finally(() => {
+        setOpen(null)
+        setTimeout(() => {
+          setCurrentRow(null)
+        }, 500)
+        // showSubmittedData(
+        //   currentRow,
+        //   '提示的数据：'
+        // )
+      })
   }
 
   return (
@@ -105,7 +109,8 @@ export function LinksDialogs() {
             title={`删除此友链 [${currentRow.links_name}] ?`}
             desc={
               <>
-                您即将删除 ID 为 <strong>{currentRow.links_id}</strong> 的友链！<br />
+                您即将删除 ID 为 <strong>{currentRow.links_id}</strong> 的友链！
+                <br />
                 此操作无法撤销。
               </>
             }

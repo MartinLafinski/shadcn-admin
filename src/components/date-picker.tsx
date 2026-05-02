@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
-import { cn } from '@/lib/utils'
 import { Calendar as CalendarIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
@@ -28,7 +28,7 @@ export function DatePicker({
   availableDates,
   open,
   onOpenChange,
-  className = ''
+  className = '',
 }: DatePickerProps) {
   // 将日期列表转换为 Set 以提高查找性能
   const availableDatesSet = availableDates ? new Set(availableDates) : null
@@ -39,7 +39,10 @@ export function DatePicker({
         <Button
           variant='outline'
           data-empty={!selected}
-          className={cn('w-[240px] justify-start text-start font-normal data-[empty=true]:text-muted-foreground', className)}
+          className={cn(
+            'w-[240px] justify-start text-start font-normal data-[empty=true]:text-muted-foreground',
+            className
+          )}
         >
           {selected ? (
             format(selected, 'MMM d, yyyy')

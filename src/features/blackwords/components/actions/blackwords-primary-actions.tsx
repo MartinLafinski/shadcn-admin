@@ -1,13 +1,16 @@
 // 图标
 import { Download, Plus, RefreshCcwIcon } from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
+// 同步敏感词API调用
+import {
+  useSyncBlackwordsMutation,
+  useExportBlackwordsMutation,
+} from '../../api/blackwords.ts'
 // 敏感词状态
 import { useBlackwords } from '../blackwords-provider.tsx'
-// 同步敏感词API调用
-import { useSyncBlackwordsMutation, useExportBlackwordsMutation } from '../../api/blackwords.ts'
-// 操作结果提示框
-import { toast } from "sonner"
 
 /**
  * 敏感词管理页面的主要操作按钮组件
@@ -25,7 +28,8 @@ export function BlackwordsPrimaryActions() {
    */
   const onSync = async () => {
     // 开始同步操作，显示加载状态
-    await syncBlackwordMutation.mutateAsync()
+    await syncBlackwordMutation
+      .mutateAsync()
       .then(() => {
         // 同步成功时的处理
         toast.success('敏感词同步成功')
@@ -43,7 +47,8 @@ export function BlackwordsPrimaryActions() {
    */
   const onExport = async () => {
     // 开始同步操作，显示加载状态
-    await exportBlackwordMutation.mutateAsync()
+    await exportBlackwordMutation
+      .mutateAsync()
       .then(() => {
         // 同步成功时的处理
         toast.success('敏感词导出成功')
@@ -60,7 +65,7 @@ export function BlackwordsPrimaryActions() {
       {/* 导出数据按钮 - 触发导入弹窗，但按钮显示为"导出数据"，可能需要确认文案是否正确 */}
       <Button
         variant='outline'
-        className='space-x-1 bg-lime-600 text-white dark:bg-lime-700 hover:bg-lime-700/80 hover:text-white'
+        className='space-x-1 bg-lime-600 text-white hover:bg-lime-700/80 hover:text-white dark:bg-lime-700'
         onClick={() => onExport()}
         disabled={exportBlackwordMutation.isPending} // 在同步过程中禁用按钮，避免重复操作
       >
@@ -69,17 +74,14 @@ export function BlackwordsPrimaryActions() {
       {/* 同步敏感词按钮 - 触发敏感词数据同步操作 */}
       <Button
         variant='outline'
-        className='space-x-1 bg-sky-600 text-white dark:bg-sky-700 hover:bg-sky-700/80 hover:text-white'
+        className='space-x-1 bg-sky-600 text-white hover:bg-sky-700/80 hover:text-white dark:bg-sky-700'
         onClick={() => onSync()}
         disabled={syncBlackwordMutation.isPending} // 在同步过程中禁用按钮，避免重复操作
       >
         <span>同步敏感词</span> <RefreshCcwIcon size={18} />
       </Button>
       {/* 创建新敏感词按钮 - 打开创建敏感词的表单弹窗 */}
-      <Button 
-        className='space-x-1' 
-        onClick={() => setOpen('create')}
-      >
+      <Button className='space-x-1' onClick={() => setOpen('create')}>
         <span>创建新敏感词</span> <Plus size={18} />
       </Button>
     </div>

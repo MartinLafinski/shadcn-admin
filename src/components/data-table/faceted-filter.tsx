@@ -23,7 +23,7 @@ import { Separator } from '@/components/ui/separator'
 /**
  * 数据表格多面过滤组件
  * 提供一个下拉选择器，允许用户根据预定义的选项过滤数据表列
- * 
+ *
  * 使用场景：
  * - 当数据表格中某列的值是有限的预定义选项时
  * - 需要让用户能够多选过滤条件时
@@ -33,22 +33,22 @@ type DataTableFacetedFilterProps<TData, TValue> = {
   column?: Column<TData, TValue>
   title?: string
   options: {
-    label: string           // 选项显示文本
-    value: string | number | boolean  // 选项实际值
-    icon?: React.ComponentType<{ className?: string }>  // 选项图标（可选）
+    label: string // 选项显示文本
+    value: string | number | boolean // 选项实际值
+    icon?: React.ComponentType<{ className?: string }> // 选项图标（可选）
   }[]
 }
 
 /**
  * 数据表格多面过滤组件
  * 该组件创建一个带有多选功能的过滤器，用户可以从预定义的选项列表中选择一个或多个值来过滤表格数据
- * 
+ *
  * 功能特性：
  * - 显示已选择的过滤项数量
  * - 在大屏幕上显示具体的已选选项标签
  * - 显示每个选项在数据中的出现次数
  * - 提供清除所有过滤项的功能
- * 
+ *
  * @param column - 表格列对象，用于获取和设置过滤值
  * @param title - 过滤器标题，显示在触发按钮上
  * @param options - 可供选择的过滤选项列表

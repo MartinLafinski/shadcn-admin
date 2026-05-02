@@ -1,9 +1,9 @@
 // 引入reactQuery依赖
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-// Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
+// Clerk 认证
+import { useAuth } from '@clerk/clerk-react'
 import {
   WebsiteBatchSwitchData,
   WebsiteBatchExportData,
@@ -12,13 +12,16 @@ import {
   WebsiteData,
   WebsitesData,
   WebsiteSwitchData,
-  WebsiteUpdateData
+  WebsiteUpdateData,
+  WebsiteSyncData,
+  SpiderConfigData,
+  WebsiteBatchLockData,
+  WebsiteBatchPauseData,
 } from '../data/schemas.ts'
-
 
 // API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8888'
-const PAGE_SIZE: number = Number(import.meta.env.VITE_WEBSITE_PAGE_SIZE || 50)
+const PAGE_SIZE: number = Number(import.meta.env.VITE_WEBSITE_PAGE_SIZE || 20)
 
 // 通用错误处理
 const handleResponse = async (response: Response) => {
@@ -60,11 +63,13 @@ const handleResponse = async (response: Response) => {
 export const fetchWebsites = async (
   website_keyword: string | undefined = undefined,
   website_enabled: boolean | undefined = undefined,
+  website_locked: boolean | undefined = undefined,
+  website_paused: boolean | undefined = undefined,
+  website_limited: boolean | undefined = undefined,
   page: number = 1,
   size: number = PAGE_SIZE,
   token: string | null
 ): Promise<WebsitesData> => {
-
   // 构建基础URL，包含分页参数
   let url = `${API_BASE_URL}/websites/?page=${page}&size=${size}`
 
@@ -76,6 +81,21 @@ export const fetchWebsites = async (
   // 如果提供了启用状态参数（注意：undefined !== 某个布尔值），则添加到查询字符串中
   if (website_enabled !== undefined) {
     url += `&website_enabled=${website_enabled}`
+  }
+
+  // 如果提供了锁定状态参数（注意：undefined !== 某个布尔值），则添加到查询字符串中
+  if (website_locked !== undefined) {
+    url += `&website_locked=${website_locked}`
+  }
+
+  // 如果提供了暂停状态参数（注意：undefined !== 某个布尔值），则添加到查询字符串中
+  if (website_paused !== undefined) {
+    url += `&website_paused=${website_paused}`
+  }
+
+  // 如果提供了限制状态参数（注意：undefined !== 某个布尔值），则添加到查询字符串中
+  if (website_limited !== undefined) {
+    url += `&website_limited=${website_limited}`
   }
 
   // 发送GET请求获取数据
@@ -96,10 +116,9 @@ export const fetchWebsites = async (
 
   return {
     websites,
-    pagination
+    pagination,
   }
 }
-
 
 /**
  * 根据ID获取网站详细信息
@@ -256,7 +275,6 @@ export const updateWebsite = async (
   return response.json()
 }
 
-
 /**
  * 部分更新网站配置
  *
@@ -316,7 +334,6 @@ export const patchWebsite = async (
   return response.json()
 }
 
-
 /**
  * 切换网站启用状态
  *
@@ -349,19 +366,20 @@ export const switchWebsite = async (
   data: WebsiteSwitchData,
   token: string | null
 ): Promise<WebsiteData> => {
-  const response = await fetch(`${API_BASE_URL}/websites/${websiteId}/switch/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  })
+  const response = await fetch(
+    `${API_BASE_URL}/websites/${websiteId}/switch/`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  )
   await handleResponse(response)
   return response.json()
 }
-
-
 
 /**
  * 删除指定网站
@@ -374,7 +392,7 @@ export const switchWebsite = async (
  *                   删除操作不可逆，请谨慎操作
  *
  * @param token - 鉴权token
- * 
+ *
  * @returns Promise<Response> - 返回原始响应对象
  *                如果删除成功，响应状态码通常为204 (No Content)
  *                如果删除失败，会通过handleResponse抛出错误
@@ -425,7 +443,6 @@ export const deleteWebsite = async (
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 批量切换网站启用状态
@@ -478,12 +495,119 @@ export const batchSwitchWebsites = async (
   return response.json()
 }
 
+/**
+ * 批量锁定/解销网站
+ *
+ * 此函数用于批量锁定多个网站，通过向后端API发送PUT请求来更改多个网站的锁定状态
+ * 通常用于防止特定网站被意外修改或执行某些操作
+ *
+ * @param data - 包含批量锁定所需数据的对象，符合 WebsiteBatchLockData 接口定义
+ *              通常包含以下字段：
+ *              - website_ids: number[] - 需要锁定的网站ID数组
+ *              - locked: boolean - 目标锁定状态，true为锁定，false为解锁
+ *
+ * @param token - 鉴权token
+ * @returns Promise<WebsiteData> - 返回操作结果的Promise
+ *                                注意：根据API设计，可能返回最后一个处理的网站数据或操作结果摘要
+ *
+ * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
+ *
+ * 注意事项:
+ * - 该函数会向 /websites/lock/ 端点发送PUT请求
+ * - 确保传入的website_ids数组中的ID都是有效的网站ID
+ * - data参数需要符合WebsiteBatchLockData接口定义的结构
+ * - 此操作是批量操作，会影响多个网站的状态，请谨慎使用
+ */
+export const batchLockWebsites = async (
+  data: WebsiteBatchLockData,
+  token: string | null
+): Promise<WebsiteData> => {
+  const response = await fetch(`${API_BASE_URL}/websites/lock/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+  await handleResponse(response)
+  return response.json()
+}
 
+/**
+ * 批量暂停/恢复网站
+ *
+ * 此函数用于批量暂停多个网站的运行状态，通过向后端API发送PUT请求来更改多个网站的暂停状态
+ * 通常用于临时停止特定网站的爬取或处理任务，而不改变其启用/禁用状态
+ *
+ * @param data - 包含批量暂停所需数据的对象，符合 WebsiteBatchPauseData 接口定义
+ *              通常包含以下字段：
+ *              - website_ids: number[] - 需要暂停的网站ID数组
+ *              - paused: boolean - 目标暂停状态，true为暂停，false为恢复运行
+ *
+ * @param token - 鉴权token
+ * @returns Promise<WebsiteData> - 返回操作结果的Promise
+ *                                注意：根据API设计，可能返回最后一个处理的网站数据或操作结果摘要
+ *
+ * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
+ *
+ * 注意事项:
+ * - 该函数会向 /websites/pause/ 端点发送PUT请求
+ * - 确保传入的website_ids数组中的ID都是有效的网站ID
+ * - data参数需要符合WebsiteBatchPauseData接口定义的结构
+ * - 此操作是批量操作，会影响多个网站的运行状态，请谨慎使用
+ * - 暂停状态通常独立于启用状态，启用的网站也可以处于暂停状态
+ */
+export const batchPauseWebsites = async (
+  data: WebsiteBatchPauseData,
+  token: string | null
+): Promise<WebsiteData> => {
+  const response = await fetch(`${API_BASE_URL}/websites/pause/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+  await handleResponse(response)
+  return response.json()
+}
+
+/**
+ * 批量删除网站
+ *
+ * 此函数用于向后端API发送DELETE请求，批量删除指定ID列表的网站记录
+ * 该操作会永久删除多个网站数据，请在调用前确认用户意图，建议配合确认对话框使用
+ *
+ * @param websiteIds - 需要删除的网站的唯一标识符（ID）数组
+ *                     必须是有效的数字ID数组，对应数据库中存在的网站记录
+ *                     删除操作不可逆，请谨慎操作
+ *
+ * @param token - 鉴权token
+ *
+ * @returns Promise<Response> - 返回原始响应对象
+ *                如果删除成功，响应状态码通常为204 (No Content) 或 200
+ *                如果删除失败，会通过handleResponse抛出错误
+ *
+ * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
+ *                   可能的错误情况：部分或全部网站ID不存在、权限不足、网络错误等
+ *
+ * 注意事项:
+ * - 该函数会向 /websites/ 端点发送DELETE请求，并通过查询参数传递网站ID列表
+ * - 删除操作是永久性的，无法恢复，请确保用户明确意图后再执行
+ * - 函数内部使用handleResponse进行错误处理，确保错误被正确抛出
+ * - 在UI中建议添加二次确认机制，防止误删操作
+ * - 删除后需要手动使相关查询缓存失效，以确保UI显示最新数据
+ */
 export const batchDeleteWebsites = async (
   websiteIds: number[],
   token: string | null
 ): Promise<Response> => {
-  const params = websiteIds.map(id => `website_ids=${id}`).join('&')
+  // 将网站ID数组转换为查询参数字符串，例如: website_ids=1&website_ids=2&website_ids=3
+  const params = websiteIds.map((id) => `website_ids=${id}`).join('&')
+
+  // 发送DELETE请求，通过URL查询参数传递待删除的网站ID列表
   const response = await fetch(`${API_BASE_URL}/websites/?${params}`, {
     method: 'DELETE',
     headers: {
@@ -491,27 +615,33 @@ export const batchDeleteWebsites = async (
       Authorization: `Bearer ${token}`,
     },
   })
+
+  // 检查响应状态并返回响应对象
   return await handleResponse(response)
 }
-
 
 /**
  * 同步网站数据
  *
- * 此函数用于触发后端网站数据同步操作，通常用于从外部源（如数据库、API或其他服务）同步最新的网站数据
- * 该操作会向后端发起同步请求，可能涉及大量数据处理，具体同步逻辑由后端实现
+ * 此函数用于从后端API同步网站数据，通常用于更新本地缓存或获取最新数据
+ * 适用于数据不一致、定期同步、手动刷新等场景
  *
+ * @param data - 同步选项数据，包含是否清空入口点、预备作业、锁定、暂停信息的标志
  * @param token - 鉴权token
  *
- * @returns Promise<void> - 返回一个Promise，表示同步操作是否完成
- *                        注意：此函数返回void，表示操作完成但不返回具体数据
+ * @returns Promise<void> - 无返回值，仅触发同步操作
  *
  * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
  *
  * 使用示例:
- * // 触发网站数据同步
+ * // 同步网站数据，不清空任何关联
  * try {
- *   await syncWebsites()
+ *   await syncWebsites({
+ *     clear_entrypoints: false,
+ *     clear_prejobs: false,
+ *     clear_locked: false,
+ *     clear_paused: false
+ *   })
  *   console.log("网站数据同步完成")
  * } catch (error) {
  *   console.error("网站数据同步失败:", error)
@@ -519,16 +649,22 @@ export const batchDeleteWebsites = async (
  *
  * 注意事项:
  * - 该函数会向 /websites/sync/ 端点发送POST请求
+ * - 需要传入同步选项参数来控制同步行为
  * - 同步操作可能耗时较长，建议在UI中提供加载状态提示
  * - 操作完成后，可能需要手动刷新网站列表以显示最新数据
  * - 根据后端实现，同步可能包括添加新网站、更新现有网站或删除不存在的网站
  */
-export const syncWebsites = async (token: string | null): Promise<void> => {
+export const syncWebsites = async (
+  data: WebsiteSyncData,
+  token: string | null
+): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/websites/sync/`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
     },
+    body: JSON.stringify(data),
   })
   await handleResponse(response)
 }
@@ -568,7 +704,9 @@ export const syncWebsites = async (token: string | null): Promise<void> => {
  * - 可能需要处理大文件下载，注意浏览器内存限制
  * - 导出的文件格式取决于后端实现，通常为JSON格式
  */
-export const exportWebsites = async (token: string | null): Promise<Response> => {
+export const exportWebsites = async (
+  token: string | null
+): Promise<Response> => {
   const response = await fetch(`${API_BASE_URL}/websites/export/`, {
     method: 'POST',
     headers: {
@@ -628,7 +766,6 @@ export const batchExportWebsites = async (
   return await handleResponse(response)
 }
 
-
 /**
  * 获取网站列表的自定义 Hook
  *
@@ -669,17 +806,38 @@ export const batchExportWebsites = async (
 export const useWebsitesQuery = (
   website_keyword: string | undefined = undefined,
   website_enabled: boolean | undefined = undefined,
+  website_locked: boolean | undefined = undefined,
+  website_paused: boolean | undefined = undefined,
+  website_limited: boolean | undefined = undefined,
   page: number = 1,
   size: number = PAGE_SIZE
 ) => {
   const { getToken } = useAuth()
   return useQuery({
-    queryKey: ['websites', website_keyword, website_enabled, page, size],
+    queryKey: [
+      'websites',
+      website_keyword,
+      website_enabled,
+      website_locked,
+      website_paused,
+      website_limited,
+      page,
+      size,
+    ],
     queryFn: async () => {
       const token = await getToken()
-      return fetchWebsites(website_keyword, website_enabled, page, size, token)
+      return fetchWebsites(
+        website_keyword,
+        website_enabled,
+        website_locked,
+        website_paused,
+        website_limited,
+        page,
+        size,
+        token
+      )
     },
-    placeholderData: (previousData) => previousData,  // 保持上一次的数据
+    placeholderData: (previousData) => previousData, // 保持上一次的数据
   })
 }
 
@@ -725,15 +883,14 @@ export const useWebsiteQuery = (websiteId: number) => {
   const { getToken } = useAuth()
 
   return useQuery({
-    queryKey: ['website', websiteId],  // 查询键包含网站ID，确保不同ID有独立缓存
+    queryKey: ['website', websiteId], // 查询键包含网站ID，确保不同ID有独立缓存
     queryFn: async () => {
-      const token = await getToken()  // 获取认证token
-      return fetchWebsiteById(websiteId, token)  // 调用API获取网站详情
+      const token = await getToken() // 获取认证token
+      return fetchWebsiteById(websiteId, token) // 调用API获取网站详情
     },
-    enabled: !!websiteId,  // 只有当 websiteId 存在且不为0时才启用查询
+    enabled: !!websiteId, // 只有当 websiteId 存在且不为0时才启用查询
   })
 }
-
 
 /**
  * 创建网站的自定义 Mutation Hook
@@ -787,7 +944,6 @@ export const useCreateWebsiteMutation = () => {
   })
 }
 
-
 /**
  * 更新网站信息的自定义 Mutation Hook
  *
@@ -835,7 +991,10 @@ export const useUpdateWebsiteMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { websiteId: number; data: WebsiteUpdateData }) => {
+    mutationFn: async (variables: {
+      websiteId: number
+      data: WebsiteUpdateData
+    }) => {
       const token = await getToken()
       return updateWebsite(variables.websiteId, variables.data, token)
     },
@@ -843,11 +1002,12 @@ export const useUpdateWebsiteMutation = () => {
       // 更新成功后使网站列表缓存失效，确保列表显示最新数据
       queryClient.invalidateQueries({ queryKey: ['websites'] })
       // 同时使单个网站详情缓存失效，确保详情页显示最新数据
-      queryClient.invalidateQueries({ queryKey: ['website', variables.websiteId] })
+      queryClient.invalidateQueries({
+        queryKey: ['website', variables.websiteId],
+      })
     },
   })
 }
-
 
 /**
  * 部分更新网站信息的自定义 Mutation Hook
@@ -901,7 +1061,10 @@ export const usePatchWebsiteMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { websiteId: number; data: WebsiteConfigData }) => {
+    mutationFn: async (variables: {
+      websiteId: number
+      data: WebsiteConfigData
+    }) => {
       const token = await getToken()
       return patchWebsite(variables.websiteId, variables.data, token)
     },
@@ -909,11 +1072,12 @@ export const usePatchWebsiteMutation = () => {
       // 更新成功后使网站列表缓存失效，确保列表显示最新数据
       queryClient.invalidateQueries({ queryKey: ['websites'] })
       // 同时使单个网站详情缓存失效，确保详情页显示最新数据
-      queryClient.invalidateQueries({ queryKey: ['website', variables.websiteId] })
+      queryClient.invalidateQueries({
+        queryKey: ['website', variables.websiteId],
+      })
     },
   })
 }
-
 
 /**
  * 切换网站启用状态的自定义 Mutation Hook
@@ -962,7 +1126,10 @@ export const useSwitchWebsiteMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { websiteId: number; data: WebsiteSwitchData }) => {
+    mutationFn: async (variables: {
+      websiteId: number
+      data: WebsiteSwitchData
+    }) => {
       const token = await getToken()
       return switchWebsite(variables.websiteId, variables.data, token)
     },
@@ -970,11 +1137,12 @@ export const useSwitchWebsiteMutation = () => {
       // 状态切换成功后使网站列表缓存失效，确保列表显示最新状态
       queryClient.invalidateQueries({ queryKey: ['websites'] })
       // 同时使单个网站详情缓存失效，确保详情页显示最新状态
-      queryClient.invalidateQueries({ queryKey: ['website', variables.websiteId] })
+      queryClient.invalidateQueries({
+        queryKey: ['website', variables.websiteId],
+      })
     },
   })
 }
-
 
 /**
  * 批量切换网站启用状态的自定义 Mutation Hook
@@ -1032,7 +1200,7 @@ export const useBatchSwitchWebsitesMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['websites'] })
       // 同时使单个网站详情缓存失效，确保详情页显示最新状态
       if (variables.website_ids && Array.isArray(variables.website_ids)) {
-        variables.website_ids.forEach(website_id => {
+        variables.website_ids.forEach((website_id) => {
           queryClient.invalidateQueries({ queryKey: ['website', website_id] })
         })
       }
@@ -1040,6 +1208,101 @@ export const useBatchSwitchWebsitesMutation = () => {
   })
 }
 
+/**
+ * 批量锁定/解锁网站的自定义 Mutation Hook
+ *
+ * 此 Hook 封装了批量锁定或解锁多个网站的逻辑，使用 TanStack Query 的 useMutation 来处理异步操作
+ * 允许前端通过 API 调用批量更改多个网站的锁定状态，并自动处理相关的缓存更新
+ *
+ * 主要功能：
+ * - 向后端API发送批量锁定/解锁网站的请求
+ * - 自动处理缓存失效，确保UI显示最新的网站锁定状态
+ * - 提供完整的状态管理（加载中、错误、成功等状态）
+ *
+ * @returns 返回 useMutation 的结果对象，包含以下主要属性：
+ *          - mutate/mutateAsync: 触发批量锁定操作的函数，需要传入 WebsiteBatchLockData 格式的数据
+ *          - isLoading: 批量锁定操作的加载状态
+ *          - isError: 是否发生错误
+ *          - error: 错误对象（如果有的话）
+ *          - data: 批量锁定成功后的网站数据（如果有的话）
+ *
+ * 注意事项：
+ * - 此 Hook 向 /websites/lock/ 端点发送PUT请求来批量锁定/解锁网站
+ * - 批量操作成功后会自动使 ['websites'] 列表查询缓存失效
+ * - 同时会使所有被操作的网站详情缓存失效，确保详情页显示最新状态
+ * - 适用于需要批量锁定或解锁多个网站的场景
+ * - 传入的参数必须符合 WebsiteBatchLockData 接口的结构要求，通常包含 website_ids 数组和 locked 布尔值
+ * - 代码会检查 variables.website_ids 是否存在且为数组，确保安全遍历并使对应缓存失效
+ */
+export const useBatchLockWebsitesMutation = () => {
+  const queryClient = useQueryClient()
+  const { getToken } = useAuth()
+
+  return useMutation({
+    mutationFn: async (variables: WebsiteBatchLockData) => {
+      const token = await getToken()
+      return batchLockWebsites(variables, token)
+    },
+    onSuccess: (_, variables) => {
+      // 批量锁定/解锁成功后使网站列表缓存失效，确保列表显示最新状态
+      queryClient.invalidateQueries({ queryKey: ['websites'] })
+      // 同时使单个网站详情缓存失效，确保详情页显示最新状态
+      if (variables.website_ids && Array.isArray(variables.website_ids)) {
+        variables.website_ids.forEach((website_id) => {
+          queryClient.invalidateQueries({ queryKey: ['website', website_id] })
+        })
+      }
+    },
+  })
+}
+
+/**
+ * 批量暂停/恢复网站的自定义 Mutation Hook
+ *
+ * 此 Hook 封装了批量暂停或恢复多个网站运行状态的逻辑，使用 TanStack Query 的 useMutation 来处理异步操作
+ * 允许前端通过 API 调用批量更改多个网站的暂停状态（paused），并自动处理相关的缓存更新
+ *
+ * 主要功能：
+ * - 向后端API发送批量暂停/恢复网站的请求
+ * - 自动处理缓存失效，确保UI显示最新的网站运行状态
+ * - 提供完整的状态管理（加载中、错误、成功等状态）
+ *
+ * @returns 返回 useMutation 的结果对象，包含以下主要属性：
+ *          - mutate/mutateAsync: 触发批量暂停/恢复操作的函数，需要传入 WebsiteBatchPauseData 格式的数据
+ *          - isLoading: 批量操作的加载状态
+ *          - isError: 是否发生错误
+ *          - error: 错误对象（如果有的话）
+ *          - data: 批量操作成功后的网站数据（如果有的话）
+ *
+ * 注意事项：
+ * - 此 Hook 向 /websites/pause/ 端点发送PUT请求来批量暂停/恢复网站
+ * - 批量操作成功后会自动使 ['websites'] 列表查询缓存失效
+ * - 同时会使所有被操作的网站详情缓存失效，确保详情页显示最新状态
+ * - 适用于需要批量暂停或恢复多个网站爬取任务的场景
+ * - 传入的参数必须符合 WebsiteBatchPauseData 接口的结构要求，通常包含 website_ids 数组和 paused 布尔值
+ * - 代码会检查 variables.website_ids 是否存在且为数组，确保安全遍历并使对应缓存失效
+ */
+export const useBatchPauseWebsitesMutation = () => {
+  const queryClient = useQueryClient()
+  const { getToken } = useAuth()
+
+  return useMutation({
+    mutationFn: async (variables: WebsiteBatchPauseData) => {
+      const token = await getToken()
+      return batchPauseWebsites(variables, token)
+    },
+    onSuccess: (_, variables) => {
+      // 批量暂停/恢复成功后使网站列表缓存失效，确保列表显示最新状态
+      queryClient.invalidateQueries({ queryKey: ['websites'] })
+      // 同时使单个网站详情缓存失效，确保详情页显示最新状态
+      if (variables.website_ids && Array.isArray(variables.website_ids)) {
+        variables.website_ids.forEach((website_id) => {
+          queryClient.invalidateQueries({ queryKey: ['website', website_id] })
+        })
+      }
+    },
+  })
+}
 
 /**
  * 同步网站数据的自定义 Mutation Hook
@@ -1080,13 +1343,12 @@ export const useSyncWebsitesMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async() => {
+    mutationFn: async (data: WebsiteSyncData) => {
       const token = await getToken()
-      return syncWebsites(token)
-    }
+      return syncWebsites(data, token)
+    },
   })
 }
-
 
 /**
  * 导出所有网站数据的自定义 Mutation Hook
@@ -1231,8 +1493,6 @@ export const useBatchExportWebsitesMutation = () => {
   })
 }
 
-
-
 /**
  * 删除网站的自定义 Mutation Hook
  *
@@ -1290,7 +1550,7 @@ export const useDeleteWebsiteMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { websiteId: number; }) => {
+    mutationFn: async (variables: { websiteId: number }) => {
       const token = await getToken()
       return deleteWebsite(variables.websiteId, token)
     },
@@ -1298,11 +1558,12 @@ export const useDeleteWebsiteMutation = () => {
       // 删除成功后使网站列表缓存失效，确保列表显示最新状态（已移除被删除的网站）
       queryClient.invalidateQueries({ queryKey: ['websites'] })
       // 同时使单个网站详情缓存失效，确保详情页不会显示已删除的网站信息
-      queryClient.invalidateQueries({ queryKey: ['website', variables.websiteId] })
+      queryClient.invalidateQueries({
+        queryKey: ['website', variables.websiteId],
+      })
     },
   })
 }
-
 
 export const useBatchDeleteWebsitesMutation = () => {
   const queryClient = useQueryClient()
@@ -1318,10 +1579,354 @@ export const useBatchDeleteWebsitesMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['websites'] })
       // 同时使单个网站详情缓存失效，确保详情页显示最新状态
       if (variables && Array.isArray(variables)) {
-        variables.forEach(websiteId => {
+        variables.forEach((websiteId) => {
           queryClient.invalidateQueries({ queryKey: ['website', websiteId] })
         })
       }
+    },
+  })
+}
+
+/**
+ * 单独更新网站爬虫配置
+ *
+ * 此函数用于单独更新指定网站的爬虫配置信息，使用 PUT 方法
+ * 只更新网站的爬虫配置，不影响其他字段
+ *
+ * @param websiteId - 需要更新爬虫配置的网站的唯一标识符（ID）
+ * @param data - 爬虫配置数据对象，符合 SpiderConfigData 接口定义
+ *              包含爬虫抓取、内容提取、并发控制等配置项
+ *
+ * @param token - 鉴权token
+ * @returns Promise<WebsiteData> - 返回更新后的完整网站数据对象的Promise
+ *
+ * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
+ *
+ * 使用示例:
+ * // 更新网站的爬虫配置
+ * const spiderConfig = {
+ *   max_list_pages: 5000,
+ *   max_article_pages: 50000,
+ *   desired_concurrency: 10,
+ *   remain_img: true
+ * }
+ * try {
+ *   const updatedSite = await updateWebsiteSpiderConfig(1, spiderConfig)
+ *   console.log("网站爬虫配置更新成功:", updatedSite)
+ * } catch (error) {
+ *   console.error("网站爬虫配置更新失败:", error)
+ * }
+ *
+ * 注意事项:
+ * - 该函数会向 /websites/config/{websiteId}/ 端点发送PUT请求
+ * - PUT方法会完全替换目标配置，请确保 data 参数包含需要更新的所有配置项
+ * - 传入的data参数必须符合SpiderConfigData接口的结构要求
+ * - 请求头设置为application/json格式
+ * - 确保websiteId是有效的数字ID，且对应网站存在于数据库中
+ */
+export const updateWebsiteSpiderConfig = async (
+  websiteId: number,
+  data: SpiderConfigData,
+  token: string | null
+): Promise<WebsiteData> => {
+  const response = await fetch(
+    `${API_BASE_URL}/websites/${websiteId}/config/`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  )
+  await handleResponse(response)
+  return response.json()
+}
+
+/**
+ * 单独更新网站爬虫配置的自定义 Mutation Hook
+ *
+ * 此 Hook 封装了单独更新网站爬虫配置的逻辑，使用 TanStack Query 的 useMutation 来处理异步操作
+ * 支持单独更新网站的爬虫配置（PUT 请求），只更新爬虫配置，不影响其他字段
+ * 包含自动的数据缓存更新功能，更新成功后会自动使相关缓存失效
+ *
+ * 主要功能：
+ * - 提交网站的爬虫配置更新数据（使用 PUT 方法）
+ * - 自动处理缓存失效，确保UI显示最新的网站信息
+ * - 提供完整的状态管理（加载中、错误、成功等状态）
+ *
+ * @returns 返回 useMutation 的结果对象，包含以下主要属性：
+ *          - mutate/mutateAsync: 触发更新操作的函数，需要传入 { websiteId: number, data: SpiderConfigData }
+ *          - isLoading: 更新操作的加载状态
+ *          - isError: 是否发生错误
+ *          - error: 错误对象（如果有的话）
+ *          - data: 更新成功的网站数据（如果有的话）
+ *
+ * 使用示例:
+ * const { mutateAsync, isLoading, error } = useUpdateWebsiteSpiderConfigMutation()
+ *
+ * const handleUpdateSpiderConfig = async (websiteId, spiderConfig) => {
+ *   try {
+ *     const params = {
+ *       websiteId: websiteId,
+ *       data: spiderConfig  // 符合 SpiderConfigData 接口的爬虫配置数据
+ *     }
+ *     const updatedWebsite = await mutateAsync(params)
+ *     console.log('网站爬虫配置更新成功:', updatedWebsite)
+ *   } catch (err) {
+ *     console.error('网站爬虫配置更新失败:', err)
+ *   }
+ * }
+ *
+ * 注意事项:
+ * - 此 Hook 使用 PUT 方法，会完全替换目标爬虫配置，请确保 data 参数包含所有需要的配置项
+ * - 更新成功后会自动使 ['websites'] 和 ['website', websiteId] 查询缓存失效
+ * - 适用于需要单独更新网站爬虫配置的场景
+ * - websiteId 必须是有效的数字ID，且对应网站存在于数据库中
+ * - data 参数必须符合 SpiderConfigData 接口的结构要求
+ * - 只更新爬虫配置，不影响网站的其他字段（如名称、URL等）
+ */
+export const useUpdateWebsiteSpiderConfigMutation = () => {
+  const queryClient = useQueryClient()
+  const { getToken } = useAuth()
+
+  return useMutation({
+    mutationFn: async (variables: {
+      websiteId: number
+      data: SpiderConfigData
+    }) => {
+      const token = await getToken()
+      return updateWebsiteSpiderConfig(
+        variables.websiteId,
+        variables.data,
+        token
+      )
+    },
+    onSuccess: (_, variables) => {
+      // 更新成功后使网站列表缓存失效，确保列表显示最新数据
+      queryClient.invalidateQueries({ queryKey: ['websites'] })
+      // 同时使单个网站详情缓存失效，确保详情页显示最新数据
+      queryClient.invalidateQueries({
+        queryKey: ['website', variables.websiteId],
+      })
+    },
+  })
+}
+
+/**
+ * 重置网站准任务
+ *
+ * 此函数用于向后端API发送请求重置指定网站的准任务
+ *
+ * @param websiteId - 需要重置准任务的网站的唯一标识符（ID）
+ *                   必须是有效的数字ID，对应数据库中存在的网站记录
+ *
+ * @param token - 鉴权token
+ *
+ * @returns Promise<Response> - 返回原始响应对象
+ *                如果重置成功，响应状态码通常为200
+ *                如果重置失败，会通过handleResponse抛出错误
+ *
+ * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
+ *                   可能的错误情况：网站ID不存在、权限不足、网络错误等
+ *
+ * 使用示例:
+ * // 重置ID为1的网站的准任务
+ * try {
+ *   const response = await resetWebsitePreTasks(1)
+ *   console.log("网站准任务重置成功")
+ * } catch (error) {
+ *   console.error("网站准任务重置失败:", error)
+ * }
+ *
+ * 注意事项:
+ * - 该函数会向 /pre_tasks/websites/{websiteId}/ 端点发送PUT请求
+ * - 重置操作会将指定网站的所有准任务状态重置
+ * - 函数内部使用handleResponse进行错误处理，确保错误被正确抛出
+ * - 成功重置后，后端通常返回200状态码和重置结果
+ * - 在UI中建议添加二次确认机制，防止误操作
+ * - 重置后需要手动使相关查询缓存失效，以确保UI显示最新数据
+ */
+export const resetWebsitePreTasks = async (
+  websiteId: number,
+  token: string | null
+): Promise<Response> => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/pre_tasks/websites/${websiteId}/`,
+    {
+      method: 'PUT',
+      headers,
+    }
+  )
+  return await handleResponse(response)
+}
+
+/**
+ * 清空网站准任务
+ *
+ * 此函数用于向后端API发送DELETE请求，清空指定网站的准任务
+ *
+ * @param websiteId - 需要清空准任务的网站的唯一标识符（ID）
+ *                   必须是有效的数字ID，对应数据库中存在的网站记录
+ *
+ * @param token - 鉴权token
+ *
+ * @returns Promise<Response> - 返回原始响应对象
+ *                如果清空成功，响应状态码通常为204 (No Content)
+ *                如果清空失败，会通过handleResponse抛出错误
+ *
+ * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
+ *                   可能的错误情况：网站ID不存在、权限不足、网络错误等
+ *
+ * 使用示例:
+ * // 清空ID为1的网站的准任务
+ * try {
+ *   const response = await clearWebsitePreTasks(1)
+ *   console.log("网站准任务清空成功")
+ * } catch (error) {
+ *   console.error("网站准任务清空失败:", error)
+ * }
+ *
+ * 注意事项:
+ * - 该函数会向 /pre_tasks/websites/{websiteId}/ 端点发送DELETE请求
+ * - 清空操作会永久删除指定网站的所有准任务，请谨慎操作
+ * - 函数内部使用handleResponse进行错误处理，确保错误被正确抛出
+ * - 成功清空后，后端通常返回204状态码，表示资源已成功删除且无响应体
+ * - 在UI中建议添加二次确认机制，防止误操作
+ * - 清空后需要手动使相关查询缓存失效，以确保UI显示最新数据
+ */
+export const clearWebsitePreTasks = async (
+  websiteId: number,
+  token: string | null
+): Promise<Response> => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/pre_tasks/websites/${websiteId}/`,
+    {
+      method: 'DELETE',
+      headers,
+    }
+  )
+  return await handleResponse(response)
+}
+
+/**
+ * 重置网站准任务的自定义 Mutation Hook
+ *
+ * 此 Hook 封装了重置网站准任务的逻辑，使用 TanStack Query 的 useMutation 来处理异步操作
+ * 允许前端通过 API 调用重置网站准任务，并自动处理缓存更新
+ *
+ * 主要功能：
+ * - 向后端API发送重置网站准任务的请求
+ * - 自动处理缓存失效，确保UI显示最新的准任务状态
+ * - 提供完整的状态管理（加载中、错误、成功等状态）
+ *
+ * @returns 返回 useMutation 的结果对象，包含以下主要属性：
+ *          - mutate/mutateAsync: 触发重置操作的函数，需要传入网站ID
+ *          - isLoading: 重置操作的加载状态
+ *          - isError: 是否发生错误
+ *          - error: 错误对象（如果有的话）
+ *          - data: 重置成功的响应数据（如果有的话）
+ *
+ * 使用示例:
+ * const { mutateAsync, isLoading, error } = useResetWebsitePreTasksMutation()
+ *
+ * const handleResetWebsite = async (websiteId) => {
+ *   try {
+ *     await mutateAsync(websiteId)
+ *     console.log('网站准任务重置成功')
+ *   } catch (err) {
+ *     console.error('网站准任务重置失败:', err)
+ *   }
+ * }
+ *
+ * 注意事项:
+ * - 此 Hook 向 /pre_tasks/websites/{websiteId}/ 端点发送PUT请求来重置网站准任务
+ * - 重置成功后会自动使 ['preTasks'] 查询缓存失效
+ * - 适用于需要重置特定网站准任务的场景
+ * - websiteId 必须是有效的数字ID，且对应网站存在于数据库中
+ * - 建议在UI中添加二次确认机制，防止误操作
+ */
+export const useResetWebsitePreTasksMutation = () => {
+  const queryClient = useQueryClient()
+  const { getToken } = useAuth()
+
+  return useMutation({
+    mutationFn: async (websiteId: number) => {
+      const token = await getToken()
+      return resetWebsitePreTasks(websiteId, token)
+    },
+    onSuccess: () => {
+      // 重置成功后使准任务列表缓存失效，确保列表显示最新状态
+      queryClient.invalidateQueries({ queryKey: ['preTasks'] })
+    },
+  })
+}
+
+/**
+ * 清空网站准任务的自定义 Mutation Hook
+ *
+ * 此 Hook 封装了清空网站准任务的逻辑，使用 TanStack Query 的 useMutation 来处理异步操作
+ * 允许前端通过 API 调用清空网站准任务，并自动处理缓存更新
+ *
+ * 主要功能：
+ * - 向后端API发送清空网站准任务的请求
+ * - 自动处理缓存失效，确保UI显示最新的准任务状态
+ * - 提供完整的状态管理（加载中、错误、成功等状态）
+ *
+ * @returns 返回 useMutation 的结果对象，包含以下主要属性：
+ *          - mutate/mutateAsync: 触发清空操作的函数，需要传入网站ID
+ *          - isLoading: 清空操作的加载状态
+ *          - isError: 是否发生错误
+ *          - error: 错误对象（如果有的话）
+ *          - data: 清空成功的响应数据（如果有的话）
+ *
+ * 使用示例:
+ * const { mutateAsync, isLoading, error } = useClearWebsitePreTasksMutation()
+ *
+ * const handleClearWebsite = async (websiteId) => {
+ *   try {
+ *     await mutateAsync(websiteId)
+ *     console.log('网站准任务清空成功')
+ *   } catch (err) {
+ *     console.error('网站准任务清空失败:', err)
+ *   }
+ * }
+ *
+ * 注意事项:
+ * - 此 Hook 向 /pre_tasks/websites/{websiteId}/ 端点发送DELETE请求来清空网站准任务
+ * - 清空成功后会自动使 ['preTasks'] 查询缓存失效
+ * - 适用于需要清空特定网站准任务的场景
+ * - websiteId 必须是有效的数字ID，且对应网站存在于数据库中
+ * - 清空操作会永久删除指定网站的所有准任务，请谨慎使用
+ * - 建议在UI中添加二次确认机制，防止误操作
+ */
+export const useClearWebsitePreTasksMutation = () => {
+  const queryClient = useQueryClient()
+  const { getToken } = useAuth()
+
+  return useMutation({
+    mutationFn: async (websiteId: number) => {
+      const token = await getToken()
+      return clearWebsitePreTasks(websiteId, token)
+    },
+    onSuccess: () => {
+      // 清空成功后使准任务列表缓存失效，确保列表显示最新状态
+      queryClient.invalidateQueries({ queryKey: ['preTasks'] })
     },
   })
 }

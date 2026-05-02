@@ -25,21 +25,50 @@ import { Route as AuthenticatedWebsitesIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTemplatesIndexRouteImport } from './routes/_authenticated/templates/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
+import { Route as AuthenticatedSpidersIndexRouteImport } from './routes/_authenticated/spiders/index'
+import { Route as AuthenticatedSpiderSessionsIndexRouteImport } from './routes/_authenticated/spider-sessions/index'
+import { Route as AuthenticatedSpiderPackagesIndexRouteImport } from './routes/_authenticated/spider-packages/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
+import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services/index'
+import { Route as AuthenticatedServersIndexRouteImport } from './routes/_authenticated/servers/index'
 import { Route as AuthenticatedReqsIndexRouteImport } from './routes/_authenticated/reqs/index'
+import { Route as AuthenticatedPrejobsIndexRouteImport } from './routes/_authenticated/prejobs/index'
 import { Route as AuthenticatedPreTasksIndexRouteImport } from './routes/_authenticated/pre-tasks/index'
 import { Route as AuthenticatedLinksIndexRouteImport } from './routes/_authenticated/links/index'
 import { Route as AuthenticatedJobsIndexRouteImport } from './routes/_authenticated/jobs/index'
+import { Route as AuthenticatedJobgroupsIndexRouteImport } from './routes/_authenticated/jobgroups/index'
+import { Route as AuthenticatedIndustriesIndexRouteImport } from './routes/_authenticated/industries/index'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
 import { Route as AuthenticatedEntrypointsIndexRouteImport } from './routes/_authenticated/entrypoints/index'
+import { Route as AuthenticatedClustersIndexRouteImport } from './routes/_authenticated/clusters/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
 import { Route as AuthenticatedBlackwordsIndexRouteImport } from './routes/_authenticated/blackwords/index'
 import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authenticated/articles/index'
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
+import { Route as AuthenticatedActorsIndexRouteImport } from './routes/_authenticated/actors/index'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedMaterialVideoRouteImport } from './routes/_authenticated/material/video'
+import { Route as AuthenticatedMaterialUnknownRouteImport } from './routes/_authenticated/material/unknown'
+import { Route as AuthenticatedMaterialTradeRouteImport } from './routes/_authenticated/material/trade'
+import { Route as AuthenticatedMaterialSubsRouteImport } from './routes/_authenticated/material/subs'
+import { Route as AuthenticatedMaterialSpeechRouteImport } from './routes/_authenticated/material/speech'
+import { Route as AuthenticatedMaterialShopRouteImport } from './routes/_authenticated/material/shop'
+import { Route as AuthenticatedMaterialRecruitRouteImport } from './routes/_authenticated/material/recruit'
+import { Route as AuthenticatedMaterialProductRouteImport } from './routes/_authenticated/material/product'
+import { Route as AuthenticatedMaterialNoteRouteImport } from './routes/_authenticated/material/note'
+import { Route as AuthenticatedMaterialNewsRouteImport } from './routes/_authenticated/material/news'
+import { Route as AuthenticatedMaterialImageRouteImport } from './routes/_authenticated/material/image'
+import { Route as AuthenticatedMaterialFileRouteImport } from './routes/_authenticated/material/file'
+import { Route as AuthenticatedMaterialCustomizeRouteImport } from './routes/_authenticated/material/customize'
+import { Route as AuthenticatedMaterialCompanyRouteImport } from './routes/_authenticated/material/company'
+import { Route as AuthenticatedMaterialBookRouteImport } from './routes/_authenticated/material/book'
+import { Route as AuthenticatedMaterialBidRouteImport } from './routes/_authenticated/material/bid'
+import { Route as AuthenticatedMaterialAudioRouteImport } from './routes/_authenticated/material/audio'
+import { Route as AuthenticatedMaterialArticleRouteImport } from './routes/_authenticated/material/article'
+import { Route as AuthenticatedMaterialAccountRouteImport } from './routes/_authenticated/material/account'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -124,17 +153,53 @@ const AuthenticatedTasksIndexRoute = AuthenticatedTasksIndexRouteImport.update({
   path: '/tasks/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSpidersIndexRoute =
+  AuthenticatedSpidersIndexRouteImport.update({
+    id: '/spiders/',
+    path: '/spiders/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSpiderSessionsIndexRoute =
+  AuthenticatedSpiderSessionsIndexRouteImport.update({
+    id: '/spider-sessions/',
+    path: '/spider-sessions/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSpiderPackagesIndexRoute =
+  AuthenticatedSpiderPackagesIndexRouteImport.update({
+    id: '/spider-packages/',
+    path: '/spider-packages/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsIndexRoute =
   AuthenticatedSettingsIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedServicesIndexRoute =
+  AuthenticatedServicesIndexRouteImport.update({
+    id: '/services/',
+    path: '/services/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedServersIndexRoute =
+  AuthenticatedServersIndexRouteImport.update({
+    id: '/servers/',
+    path: '/servers/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedReqsIndexRoute = AuthenticatedReqsIndexRouteImport.update({
   id: '/reqs/',
   path: '/reqs/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPrejobsIndexRoute =
+  AuthenticatedPrejobsIndexRouteImport.update({
+    id: '/prejobs/',
+    path: '/prejobs/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPreTasksIndexRoute =
   AuthenticatedPreTasksIndexRouteImport.update({
     id: '/pre-tasks/',
@@ -151,6 +216,18 @@ const AuthenticatedJobsIndexRoute = AuthenticatedJobsIndexRouteImport.update({
   path: '/jobs/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedJobgroupsIndexRoute =
+  AuthenticatedJobgroupsIndexRouteImport.update({
+    id: '/jobgroups/',
+    path: '/jobgroups/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedIndustriesIndexRoute =
+  AuthenticatedIndustriesIndexRouteImport.update({
+    id: '/industries/',
+    path: '/industries/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHelpCenterIndexRoute =
   AuthenticatedHelpCenterIndexRouteImport.update({
     id: '/help-center/',
@@ -161,6 +238,12 @@ const AuthenticatedEntrypointsIndexRoute =
   AuthenticatedEntrypointsIndexRouteImport.update({
     id: '/entrypoints/',
     path: '/entrypoints/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedClustersIndexRoute =
+  AuthenticatedClustersIndexRouteImport.update({
+    id: '/clusters/',
+    path: '/clusters/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedChatsIndexRoute = AuthenticatedChatsIndexRouteImport.update({
@@ -185,6 +268,12 @@ const AuthenticatedAppsIndexRoute = AuthenticatedAppsIndexRouteImport.update({
   path: '/apps/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedActorsIndexRoute =
+  AuthenticatedActorsIndexRouteImport.update({
+    id: '/actors/',
+    path: '/actors/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsNotificationsRoute =
   AuthenticatedSettingsNotificationsRouteImport.update({
     id: '/notifications',
@@ -209,6 +298,120 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedMaterialVideoRoute =
+  AuthenticatedMaterialVideoRouteImport.update({
+    id: '/material/video',
+    path: '/material/video',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialUnknownRoute =
+  AuthenticatedMaterialUnknownRouteImport.update({
+    id: '/material/unknown',
+    path: '/material/unknown',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialTradeRoute =
+  AuthenticatedMaterialTradeRouteImport.update({
+    id: '/material/trade',
+    path: '/material/trade',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialSubsRoute =
+  AuthenticatedMaterialSubsRouteImport.update({
+    id: '/material/subs',
+    path: '/material/subs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialSpeechRoute =
+  AuthenticatedMaterialSpeechRouteImport.update({
+    id: '/material/speech',
+    path: '/material/speech',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialShopRoute =
+  AuthenticatedMaterialShopRouteImport.update({
+    id: '/material/shop',
+    path: '/material/shop',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialRecruitRoute =
+  AuthenticatedMaterialRecruitRouteImport.update({
+    id: '/material/recruit',
+    path: '/material/recruit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialProductRoute =
+  AuthenticatedMaterialProductRouteImport.update({
+    id: '/material/product',
+    path: '/material/product',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialNoteRoute =
+  AuthenticatedMaterialNoteRouteImport.update({
+    id: '/material/note',
+    path: '/material/note',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialNewsRoute =
+  AuthenticatedMaterialNewsRouteImport.update({
+    id: '/material/news',
+    path: '/material/news',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialImageRoute =
+  AuthenticatedMaterialImageRouteImport.update({
+    id: '/material/image',
+    path: '/material/image',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialFileRoute =
+  AuthenticatedMaterialFileRouteImport.update({
+    id: '/material/file',
+    path: '/material/file',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialCustomizeRoute =
+  AuthenticatedMaterialCustomizeRouteImport.update({
+    id: '/material/customize',
+    path: '/material/customize',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialCompanyRoute =
+  AuthenticatedMaterialCompanyRouteImport.update({
+    id: '/material/company',
+    path: '/material/company',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialBookRoute =
+  AuthenticatedMaterialBookRouteImport.update({
+    id: '/material/book',
+    path: '/material/book',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialBidRoute =
+  AuthenticatedMaterialBidRouteImport.update({
+    id: '/material/bid',
+    path: '/material/bid',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialAudioRoute =
+  AuthenticatedMaterialAudioRouteImport.update({
+    id: '/material/audio',
+    path: '/material/audio',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialArticleRoute =
+  AuthenticatedMaterialArticleRouteImport.update({
+    id: '/material/article',
+    path: '/material/article',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaterialAccountRoute =
+  AuthenticatedMaterialAccountRouteImport.update({
+    id: '/material/account',
+    path: '/material/account',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedErrorsErrorRoute =
   AuthenticatedErrorsErrorRouteImport.update({
     id: '/errors/$error',
@@ -228,21 +431,50 @@ export interface FileRoutesByFullPath {
   '/user-management': typeof AuthenticatedUserManagementRoute
   '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/material/account': typeof AuthenticatedMaterialAccountRoute
+  '/material/article': typeof AuthenticatedMaterialArticleRoute
+  '/material/audio': typeof AuthenticatedMaterialAudioRoute
+  '/material/bid': typeof AuthenticatedMaterialBidRoute
+  '/material/book': typeof AuthenticatedMaterialBookRoute
+  '/material/company': typeof AuthenticatedMaterialCompanyRoute
+  '/material/customize': typeof AuthenticatedMaterialCustomizeRoute
+  '/material/file': typeof AuthenticatedMaterialFileRoute
+  '/material/image': typeof AuthenticatedMaterialImageRoute
+  '/material/news': typeof AuthenticatedMaterialNewsRoute
+  '/material/note': typeof AuthenticatedMaterialNoteRoute
+  '/material/product': typeof AuthenticatedMaterialProductRoute
+  '/material/recruit': typeof AuthenticatedMaterialRecruitRoute
+  '/material/shop': typeof AuthenticatedMaterialShopRoute
+  '/material/speech': typeof AuthenticatedMaterialSpeechRoute
+  '/material/subs': typeof AuthenticatedMaterialSubsRoute
+  '/material/trade': typeof AuthenticatedMaterialTradeRoute
+  '/material/unknown': typeof AuthenticatedMaterialUnknownRoute
+  '/material/video': typeof AuthenticatedMaterialVideoRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/actors': typeof AuthenticatedActorsIndexRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/articles': typeof AuthenticatedArticlesIndexRoute
   '/blackwords': typeof AuthenticatedBlackwordsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
+  '/clusters': typeof AuthenticatedClustersIndexRoute
   '/entrypoints': typeof AuthenticatedEntrypointsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
+  '/industries': typeof AuthenticatedIndustriesIndexRoute
+  '/jobgroups': typeof AuthenticatedJobgroupsIndexRoute
   '/jobs': typeof AuthenticatedJobsIndexRoute
   '/links': typeof AuthenticatedLinksIndexRoute
   '/pre-tasks': typeof AuthenticatedPreTasksIndexRoute
+  '/prejobs': typeof AuthenticatedPrejobsIndexRoute
   '/reqs': typeof AuthenticatedReqsIndexRoute
+  '/servers': typeof AuthenticatedServersIndexRoute
+  '/services': typeof AuthenticatedServicesIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
+  '/spider-packages': typeof AuthenticatedSpiderPackagesIndexRoute
+  '/spider-sessions': typeof AuthenticatedSpiderSessionsIndexRoute
+  '/spiders': typeof AuthenticatedSpidersIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/templates': typeof AuthenticatedTemplatesIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
@@ -259,21 +491,50 @@ export interface FileRoutesByTo {
   '/user-management': typeof AuthenticatedUserManagementRoute
   '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/material/account': typeof AuthenticatedMaterialAccountRoute
+  '/material/article': typeof AuthenticatedMaterialArticleRoute
+  '/material/audio': typeof AuthenticatedMaterialAudioRoute
+  '/material/bid': typeof AuthenticatedMaterialBidRoute
+  '/material/book': typeof AuthenticatedMaterialBookRoute
+  '/material/company': typeof AuthenticatedMaterialCompanyRoute
+  '/material/customize': typeof AuthenticatedMaterialCustomizeRoute
+  '/material/file': typeof AuthenticatedMaterialFileRoute
+  '/material/image': typeof AuthenticatedMaterialImageRoute
+  '/material/news': typeof AuthenticatedMaterialNewsRoute
+  '/material/note': typeof AuthenticatedMaterialNoteRoute
+  '/material/product': typeof AuthenticatedMaterialProductRoute
+  '/material/recruit': typeof AuthenticatedMaterialRecruitRoute
+  '/material/shop': typeof AuthenticatedMaterialShopRoute
+  '/material/speech': typeof AuthenticatedMaterialSpeechRoute
+  '/material/subs': typeof AuthenticatedMaterialSubsRoute
+  '/material/trade': typeof AuthenticatedMaterialTradeRoute
+  '/material/unknown': typeof AuthenticatedMaterialUnknownRoute
+  '/material/video': typeof AuthenticatedMaterialVideoRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/actors': typeof AuthenticatedActorsIndexRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/articles': typeof AuthenticatedArticlesIndexRoute
   '/blackwords': typeof AuthenticatedBlackwordsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
+  '/clusters': typeof AuthenticatedClustersIndexRoute
   '/entrypoints': typeof AuthenticatedEntrypointsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
+  '/industries': typeof AuthenticatedIndustriesIndexRoute
+  '/jobgroups': typeof AuthenticatedJobgroupsIndexRoute
   '/jobs': typeof AuthenticatedJobsIndexRoute
   '/links': typeof AuthenticatedLinksIndexRoute
   '/pre-tasks': typeof AuthenticatedPreTasksIndexRoute
+  '/prejobs': typeof AuthenticatedPrejobsIndexRoute
   '/reqs': typeof AuthenticatedReqsIndexRoute
+  '/servers': typeof AuthenticatedServersIndexRoute
+  '/services': typeof AuthenticatedServicesIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
+  '/spider-packages': typeof AuthenticatedSpiderPackagesIndexRoute
+  '/spider-sessions': typeof AuthenticatedSpiderSessionsIndexRoute
+  '/spiders': typeof AuthenticatedSpidersIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/templates': typeof AuthenticatedTemplatesIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
@@ -294,21 +555,50 @@ export interface FileRoutesById {
   '/_authenticated/user-management': typeof AuthenticatedUserManagementRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/_authenticated/material/account': typeof AuthenticatedMaterialAccountRoute
+  '/_authenticated/material/article': typeof AuthenticatedMaterialArticleRoute
+  '/_authenticated/material/audio': typeof AuthenticatedMaterialAudioRoute
+  '/_authenticated/material/bid': typeof AuthenticatedMaterialBidRoute
+  '/_authenticated/material/book': typeof AuthenticatedMaterialBookRoute
+  '/_authenticated/material/company': typeof AuthenticatedMaterialCompanyRoute
+  '/_authenticated/material/customize': typeof AuthenticatedMaterialCustomizeRoute
+  '/_authenticated/material/file': typeof AuthenticatedMaterialFileRoute
+  '/_authenticated/material/image': typeof AuthenticatedMaterialImageRoute
+  '/_authenticated/material/news': typeof AuthenticatedMaterialNewsRoute
+  '/_authenticated/material/note': typeof AuthenticatedMaterialNoteRoute
+  '/_authenticated/material/product': typeof AuthenticatedMaterialProductRoute
+  '/_authenticated/material/recruit': typeof AuthenticatedMaterialRecruitRoute
+  '/_authenticated/material/shop': typeof AuthenticatedMaterialShopRoute
+  '/_authenticated/material/speech': typeof AuthenticatedMaterialSpeechRoute
+  '/_authenticated/material/subs': typeof AuthenticatedMaterialSubsRoute
+  '/_authenticated/material/trade': typeof AuthenticatedMaterialTradeRoute
+  '/_authenticated/material/unknown': typeof AuthenticatedMaterialUnknownRoute
+  '/_authenticated/material/video': typeof AuthenticatedMaterialVideoRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/_authenticated/actors/': typeof AuthenticatedActorsIndexRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
   '/_authenticated/blackwords/': typeof AuthenticatedBlackwordsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
+  '/_authenticated/clusters/': typeof AuthenticatedClustersIndexRoute
   '/_authenticated/entrypoints/': typeof AuthenticatedEntrypointsIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
+  '/_authenticated/industries/': typeof AuthenticatedIndustriesIndexRoute
+  '/_authenticated/jobgroups/': typeof AuthenticatedJobgroupsIndexRoute
   '/_authenticated/jobs/': typeof AuthenticatedJobsIndexRoute
   '/_authenticated/links/': typeof AuthenticatedLinksIndexRoute
   '/_authenticated/pre-tasks/': typeof AuthenticatedPreTasksIndexRoute
+  '/_authenticated/prejobs/': typeof AuthenticatedPrejobsIndexRoute
   '/_authenticated/reqs/': typeof AuthenticatedReqsIndexRoute
+  '/_authenticated/servers/': typeof AuthenticatedServersIndexRoute
+  '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
+  '/_authenticated/spider-packages/': typeof AuthenticatedSpiderPackagesIndexRoute
+  '/_authenticated/spider-sessions/': typeof AuthenticatedSpiderSessionsIndexRoute
+  '/_authenticated/spiders/': typeof AuthenticatedSpidersIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/templates/': typeof AuthenticatedTemplatesIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
@@ -328,21 +618,50 @@ export interface FileRouteTypes {
     | '/user-management'
     | '/'
     | '/errors/$error'
+    | '/material/account'
+    | '/material/article'
+    | '/material/audio'
+    | '/material/bid'
+    | '/material/book'
+    | '/material/company'
+    | '/material/customize'
+    | '/material/file'
+    | '/material/image'
+    | '/material/news'
+    | '/material/note'
+    | '/material/product'
+    | '/material/recruit'
+    | '/material/shop'
+    | '/material/speech'
+    | '/material/subs'
+    | '/material/trade'
+    | '/material/unknown'
+    | '/material/video'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/actors'
     | '/apps'
     | '/articles'
     | '/blackwords'
     | '/chats'
+    | '/clusters'
     | '/entrypoints'
     | '/help-center'
+    | '/industries'
+    | '/jobgroups'
     | '/jobs'
     | '/links'
     | '/pre-tasks'
+    | '/prejobs'
     | '/reqs'
+    | '/servers'
+    | '/services'
     | '/settings/'
+    | '/spider-packages'
+    | '/spider-sessions'
+    | '/spiders'
     | '/tasks'
     | '/templates'
     | '/users'
@@ -359,21 +678,50 @@ export interface FileRouteTypes {
     | '/user-management'
     | '/'
     | '/errors/$error'
+    | '/material/account'
+    | '/material/article'
+    | '/material/audio'
+    | '/material/bid'
+    | '/material/book'
+    | '/material/company'
+    | '/material/customize'
+    | '/material/file'
+    | '/material/image'
+    | '/material/news'
+    | '/material/note'
+    | '/material/product'
+    | '/material/recruit'
+    | '/material/shop'
+    | '/material/speech'
+    | '/material/subs'
+    | '/material/trade'
+    | '/material/unknown'
+    | '/material/video'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/actors'
     | '/apps'
     | '/articles'
     | '/blackwords'
     | '/chats'
+    | '/clusters'
     | '/entrypoints'
     | '/help-center'
+    | '/industries'
+    | '/jobgroups'
     | '/jobs'
     | '/links'
     | '/pre-tasks'
+    | '/prejobs'
     | '/reqs'
+    | '/servers'
+    | '/services'
     | '/settings'
+    | '/spider-packages'
+    | '/spider-sessions'
+    | '/spiders'
     | '/tasks'
     | '/templates'
     | '/users'
@@ -393,21 +741,50 @@ export interface FileRouteTypes {
     | '/_authenticated/user-management'
     | '/_authenticated/'
     | '/_authenticated/errors/$error'
+    | '/_authenticated/material/account'
+    | '/_authenticated/material/article'
+    | '/_authenticated/material/audio'
+    | '/_authenticated/material/bid'
+    | '/_authenticated/material/book'
+    | '/_authenticated/material/company'
+    | '/_authenticated/material/customize'
+    | '/_authenticated/material/file'
+    | '/_authenticated/material/image'
+    | '/_authenticated/material/news'
+    | '/_authenticated/material/note'
+    | '/_authenticated/material/product'
+    | '/_authenticated/material/recruit'
+    | '/_authenticated/material/shop'
+    | '/_authenticated/material/speech'
+    | '/_authenticated/material/subs'
+    | '/_authenticated/material/trade'
+    | '/_authenticated/material/unknown'
+    | '/_authenticated/material/video'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
+    | '/_authenticated/actors/'
     | '/_authenticated/apps/'
     | '/_authenticated/articles/'
     | '/_authenticated/blackwords/'
     | '/_authenticated/chats/'
+    | '/_authenticated/clusters/'
     | '/_authenticated/entrypoints/'
     | '/_authenticated/help-center/'
+    | '/_authenticated/industries/'
+    | '/_authenticated/jobgroups/'
     | '/_authenticated/jobs/'
     | '/_authenticated/links/'
     | '/_authenticated/pre-tasks/'
+    | '/_authenticated/prejobs/'
     | '/_authenticated/reqs/'
+    | '/_authenticated/servers/'
+    | '/_authenticated/services/'
     | '/_authenticated/settings/'
+    | '/_authenticated/spider-packages/'
+    | '/_authenticated/spider-sessions/'
+    | '/_authenticated/spiders/'
     | '/_authenticated/tasks/'
     | '/_authenticated/templates/'
     | '/_authenticated/users/'
@@ -538,6 +915,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTasksIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/spiders/': {
+      id: '/_authenticated/spiders/'
+      path: '/spiders'
+      fullPath: '/spiders'
+      preLoaderRoute: typeof AuthenticatedSpidersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/spider-sessions/': {
+      id: '/_authenticated/spider-sessions/'
+      path: '/spider-sessions'
+      fullPath: '/spider-sessions'
+      preLoaderRoute: typeof AuthenticatedSpiderSessionsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/spider-packages/': {
+      id: '/_authenticated/spider-packages/'
+      path: '/spider-packages'
+      fullPath: '/spider-packages'
+      preLoaderRoute: typeof AuthenticatedSpiderPackagesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings/': {
       id: '/_authenticated/settings/'
       path: '/'
@@ -545,11 +943,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/services/': {
+      id: '/_authenticated/services/'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof AuthenticatedServicesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/servers/': {
+      id: '/_authenticated/servers/'
+      path: '/servers'
+      fullPath: '/servers'
+      preLoaderRoute: typeof AuthenticatedServersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/reqs/': {
       id: '/_authenticated/reqs/'
       path: '/reqs'
       fullPath: '/reqs'
       preLoaderRoute: typeof AuthenticatedReqsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prejobs/': {
+      id: '/_authenticated/prejobs/'
+      path: '/prejobs'
+      fullPath: '/prejobs'
+      preLoaderRoute: typeof AuthenticatedPrejobsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/pre-tasks/': {
@@ -573,6 +992,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJobsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/jobgroups/': {
+      id: '/_authenticated/jobgroups/'
+      path: '/jobgroups'
+      fullPath: '/jobgroups'
+      preLoaderRoute: typeof AuthenticatedJobgroupsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/industries/': {
+      id: '/_authenticated/industries/'
+      path: '/industries'
+      fullPath: '/industries'
+      preLoaderRoute: typeof AuthenticatedIndustriesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/help-center/': {
       id: '/_authenticated/help-center/'
       path: '/help-center'
@@ -585,6 +1018,13 @@ declare module '@tanstack/react-router' {
       path: '/entrypoints'
       fullPath: '/entrypoints'
       preLoaderRoute: typeof AuthenticatedEntrypointsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/clusters/': {
+      id: '/_authenticated/clusters/'
+      path: '/clusters'
+      fullPath: '/clusters'
+      preLoaderRoute: typeof AuthenticatedClustersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/chats/': {
@@ -615,6 +1055,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/actors/': {
+      id: '/_authenticated/actors/'
+      path: '/actors'
+      fullPath: '/actors'
+      preLoaderRoute: typeof AuthenticatedActorsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings/notifications': {
       id: '/_authenticated/settings/notifications'
       path: '/notifications'
@@ -642,6 +1089,139 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/account'
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/material/video': {
+      id: '/_authenticated/material/video'
+      path: '/material/video'
+      fullPath: '/material/video'
+      preLoaderRoute: typeof AuthenticatedMaterialVideoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/unknown': {
+      id: '/_authenticated/material/unknown'
+      path: '/material/unknown'
+      fullPath: '/material/unknown'
+      preLoaderRoute: typeof AuthenticatedMaterialUnknownRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/trade': {
+      id: '/_authenticated/material/trade'
+      path: '/material/trade'
+      fullPath: '/material/trade'
+      preLoaderRoute: typeof AuthenticatedMaterialTradeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/subs': {
+      id: '/_authenticated/material/subs'
+      path: '/material/subs'
+      fullPath: '/material/subs'
+      preLoaderRoute: typeof AuthenticatedMaterialSubsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/speech': {
+      id: '/_authenticated/material/speech'
+      path: '/material/speech'
+      fullPath: '/material/speech'
+      preLoaderRoute: typeof AuthenticatedMaterialSpeechRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/shop': {
+      id: '/_authenticated/material/shop'
+      path: '/material/shop'
+      fullPath: '/material/shop'
+      preLoaderRoute: typeof AuthenticatedMaterialShopRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/recruit': {
+      id: '/_authenticated/material/recruit'
+      path: '/material/recruit'
+      fullPath: '/material/recruit'
+      preLoaderRoute: typeof AuthenticatedMaterialRecruitRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/product': {
+      id: '/_authenticated/material/product'
+      path: '/material/product'
+      fullPath: '/material/product'
+      preLoaderRoute: typeof AuthenticatedMaterialProductRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/note': {
+      id: '/_authenticated/material/note'
+      path: '/material/note'
+      fullPath: '/material/note'
+      preLoaderRoute: typeof AuthenticatedMaterialNoteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/news': {
+      id: '/_authenticated/material/news'
+      path: '/material/news'
+      fullPath: '/material/news'
+      preLoaderRoute: typeof AuthenticatedMaterialNewsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/image': {
+      id: '/_authenticated/material/image'
+      path: '/material/image'
+      fullPath: '/material/image'
+      preLoaderRoute: typeof AuthenticatedMaterialImageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/file': {
+      id: '/_authenticated/material/file'
+      path: '/material/file'
+      fullPath: '/material/file'
+      preLoaderRoute: typeof AuthenticatedMaterialFileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/customize': {
+      id: '/_authenticated/material/customize'
+      path: '/material/customize'
+      fullPath: '/material/customize'
+      preLoaderRoute: typeof AuthenticatedMaterialCustomizeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/company': {
+      id: '/_authenticated/material/company'
+      path: '/material/company'
+      fullPath: '/material/company'
+      preLoaderRoute: typeof AuthenticatedMaterialCompanyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/book': {
+      id: '/_authenticated/material/book'
+      path: '/material/book'
+      fullPath: '/material/book'
+      preLoaderRoute: typeof AuthenticatedMaterialBookRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/bid': {
+      id: '/_authenticated/material/bid'
+      path: '/material/bid'
+      fullPath: '/material/bid'
+      preLoaderRoute: typeof AuthenticatedMaterialBidRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/audio': {
+      id: '/_authenticated/material/audio'
+      path: '/material/audio'
+      fullPath: '/material/audio'
+      preLoaderRoute: typeof AuthenticatedMaterialAudioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/article': {
+      id: '/_authenticated/material/article'
+      path: '/material/article'
+      fullPath: '/material/article'
+      preLoaderRoute: typeof AuthenticatedMaterialArticleRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/material/account': {
+      id: '/_authenticated/material/account'
+      path: '/material/account'
+      fullPath: '/material/account'
+      preLoaderRoute: typeof AuthenticatedMaterialAccountRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/errors/$error': {
       id: '/_authenticated/errors/$error'
@@ -695,16 +1275,45 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUserManagementRoute: typeof AuthenticatedUserManagementRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
+  AuthenticatedMaterialAccountRoute: typeof AuthenticatedMaterialAccountRoute
+  AuthenticatedMaterialArticleRoute: typeof AuthenticatedMaterialArticleRoute
+  AuthenticatedMaterialAudioRoute: typeof AuthenticatedMaterialAudioRoute
+  AuthenticatedMaterialBidRoute: typeof AuthenticatedMaterialBidRoute
+  AuthenticatedMaterialBookRoute: typeof AuthenticatedMaterialBookRoute
+  AuthenticatedMaterialCompanyRoute: typeof AuthenticatedMaterialCompanyRoute
+  AuthenticatedMaterialCustomizeRoute: typeof AuthenticatedMaterialCustomizeRoute
+  AuthenticatedMaterialFileRoute: typeof AuthenticatedMaterialFileRoute
+  AuthenticatedMaterialImageRoute: typeof AuthenticatedMaterialImageRoute
+  AuthenticatedMaterialNewsRoute: typeof AuthenticatedMaterialNewsRoute
+  AuthenticatedMaterialNoteRoute: typeof AuthenticatedMaterialNoteRoute
+  AuthenticatedMaterialProductRoute: typeof AuthenticatedMaterialProductRoute
+  AuthenticatedMaterialRecruitRoute: typeof AuthenticatedMaterialRecruitRoute
+  AuthenticatedMaterialShopRoute: typeof AuthenticatedMaterialShopRoute
+  AuthenticatedMaterialSpeechRoute: typeof AuthenticatedMaterialSpeechRoute
+  AuthenticatedMaterialSubsRoute: typeof AuthenticatedMaterialSubsRoute
+  AuthenticatedMaterialTradeRoute: typeof AuthenticatedMaterialTradeRoute
+  AuthenticatedMaterialUnknownRoute: typeof AuthenticatedMaterialUnknownRoute
+  AuthenticatedMaterialVideoRoute: typeof AuthenticatedMaterialVideoRoute
+  AuthenticatedActorsIndexRoute: typeof AuthenticatedActorsIndexRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedArticlesIndexRoute: typeof AuthenticatedArticlesIndexRoute
   AuthenticatedBlackwordsIndexRoute: typeof AuthenticatedBlackwordsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
+  AuthenticatedClustersIndexRoute: typeof AuthenticatedClustersIndexRoute
   AuthenticatedEntrypointsIndexRoute: typeof AuthenticatedEntrypointsIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
+  AuthenticatedIndustriesIndexRoute: typeof AuthenticatedIndustriesIndexRoute
+  AuthenticatedJobgroupsIndexRoute: typeof AuthenticatedJobgroupsIndexRoute
   AuthenticatedJobsIndexRoute: typeof AuthenticatedJobsIndexRoute
   AuthenticatedLinksIndexRoute: typeof AuthenticatedLinksIndexRoute
   AuthenticatedPreTasksIndexRoute: typeof AuthenticatedPreTasksIndexRoute
+  AuthenticatedPrejobsIndexRoute: typeof AuthenticatedPrejobsIndexRoute
   AuthenticatedReqsIndexRoute: typeof AuthenticatedReqsIndexRoute
+  AuthenticatedServersIndexRoute: typeof AuthenticatedServersIndexRoute
+  AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
+  AuthenticatedSpiderPackagesIndexRoute: typeof AuthenticatedSpiderPackagesIndexRoute
+  AuthenticatedSpiderSessionsIndexRoute: typeof AuthenticatedSpiderSessionsIndexRoute
+  AuthenticatedSpidersIndexRoute: typeof AuthenticatedSpidersIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedTemplatesIndexRoute: typeof AuthenticatedTemplatesIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
@@ -716,16 +1325,45 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedUserManagementRoute: AuthenticatedUserManagementRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
+  AuthenticatedMaterialAccountRoute: AuthenticatedMaterialAccountRoute,
+  AuthenticatedMaterialArticleRoute: AuthenticatedMaterialArticleRoute,
+  AuthenticatedMaterialAudioRoute: AuthenticatedMaterialAudioRoute,
+  AuthenticatedMaterialBidRoute: AuthenticatedMaterialBidRoute,
+  AuthenticatedMaterialBookRoute: AuthenticatedMaterialBookRoute,
+  AuthenticatedMaterialCompanyRoute: AuthenticatedMaterialCompanyRoute,
+  AuthenticatedMaterialCustomizeRoute: AuthenticatedMaterialCustomizeRoute,
+  AuthenticatedMaterialFileRoute: AuthenticatedMaterialFileRoute,
+  AuthenticatedMaterialImageRoute: AuthenticatedMaterialImageRoute,
+  AuthenticatedMaterialNewsRoute: AuthenticatedMaterialNewsRoute,
+  AuthenticatedMaterialNoteRoute: AuthenticatedMaterialNoteRoute,
+  AuthenticatedMaterialProductRoute: AuthenticatedMaterialProductRoute,
+  AuthenticatedMaterialRecruitRoute: AuthenticatedMaterialRecruitRoute,
+  AuthenticatedMaterialShopRoute: AuthenticatedMaterialShopRoute,
+  AuthenticatedMaterialSpeechRoute: AuthenticatedMaterialSpeechRoute,
+  AuthenticatedMaterialSubsRoute: AuthenticatedMaterialSubsRoute,
+  AuthenticatedMaterialTradeRoute: AuthenticatedMaterialTradeRoute,
+  AuthenticatedMaterialUnknownRoute: AuthenticatedMaterialUnknownRoute,
+  AuthenticatedMaterialVideoRoute: AuthenticatedMaterialVideoRoute,
+  AuthenticatedActorsIndexRoute: AuthenticatedActorsIndexRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedArticlesIndexRoute: AuthenticatedArticlesIndexRoute,
   AuthenticatedBlackwordsIndexRoute: AuthenticatedBlackwordsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
+  AuthenticatedClustersIndexRoute: AuthenticatedClustersIndexRoute,
   AuthenticatedEntrypointsIndexRoute: AuthenticatedEntrypointsIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,
+  AuthenticatedIndustriesIndexRoute: AuthenticatedIndustriesIndexRoute,
+  AuthenticatedJobgroupsIndexRoute: AuthenticatedJobgroupsIndexRoute,
   AuthenticatedJobsIndexRoute: AuthenticatedJobsIndexRoute,
   AuthenticatedLinksIndexRoute: AuthenticatedLinksIndexRoute,
   AuthenticatedPreTasksIndexRoute: AuthenticatedPreTasksIndexRoute,
+  AuthenticatedPrejobsIndexRoute: AuthenticatedPrejobsIndexRoute,
   AuthenticatedReqsIndexRoute: AuthenticatedReqsIndexRoute,
+  AuthenticatedServersIndexRoute: AuthenticatedServersIndexRoute,
+  AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
+  AuthenticatedSpiderPackagesIndexRoute: AuthenticatedSpiderPackagesIndexRoute,
+  AuthenticatedSpiderSessionsIndexRoute: AuthenticatedSpiderSessionsIndexRoute,
+  AuthenticatedSpidersIndexRoute: AuthenticatedSpidersIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedTemplatesIndexRoute: AuthenticatedTemplatesIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,

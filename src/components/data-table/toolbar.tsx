@@ -42,13 +42,13 @@ type DataTableToolbarProps<TData> = {
 
 /**
  * 数据表格工具栏组件
- * 
+ *
  * 此组件提供以下功能：
  * 1. 搜索功能：支持列搜索（单列或多列）或全局搜索
  * 2. 多选筛选：通过 faceted filter 实现多选项筛选
  * 3. 重置功能：清除所有筛选条件
  * 4. 视图选项：控制表格显示列等设置
- * 
+ *
  * 使用方法：
  * - 通过 searchKey 属性决定使用列搜索（单列或多列）还是全局搜索
  * - 通过 filters 属性配置多选筛选器
@@ -101,7 +101,7 @@ export function DataTableToolbar<TData>({
             className='h-8 w-[150px] lg:w-[250px]'
           />
         )}
-        
+
         {/* 面包屑筛选器：显示配置的筛选选项 */}
         <div className='flex gap-x-2'>
           {filters.map((filter) => {
@@ -120,7 +120,7 @@ export function DataTableToolbar<TData>({
             )
           })}
         </div>
-        
+
         {/* 重置按钮：仅在有筛选条件时显示 */}
         {isFiltered && (
           <Button
@@ -137,14 +137,14 @@ export function DataTableToolbar<TData>({
             <Cross2Icon className='ms-2 h-4 w-4' />
           </Button>
         )}
-        
+
         {/* 自定义左侧控件 */}
         {leftActions}
       </div>
 
       {/* 自定义右侧控件 */}
       {rightActions}
-      
+
       {/* 右侧工具栏：视图选项 */}
       <DataTableViewOptions table={table} />
     </div>

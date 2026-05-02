@@ -4,18 +4,30 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 // 表单处理
 import { useForm } from 'react-hook-form'
-// 用于同步后台数据
-import { useQueryClient } from '@tanstack/react-query'
 // 数据验证
 import { zodResolver } from '@hookform/resolvers/zod'
+// 用于同步后台数据
+import { useQueryClient } from '@tanstack/react-query'
+// 代码json插件
+import { json } from '@codemirror/lang-json'
+import { EditorView } from '@codemirror/view'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+// 代码编辑器
+import CodeMirror from '@uiw/react-codemirror'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// JSON编辑器
+import { JsonEditor, githubDarkTheme, githubLightTheme } from 'json-edit-react'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 图标
-import { Maximize2Icon, Minimize2Icon } from "lucide-react"
+import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-// 输入框控件
-import { Input } from '@/components/ui/input.tsx'
 // 表单控件
 import {
   Form,
@@ -25,6 +37,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form.tsx'
+// 输入框控件
+import { Input } from '@/components/ui/input.tsx'
 // 抽屉控件
 import {
   Sheet,
@@ -35,26 +49,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// 数据结构
-import { type WebsiteUpdateData, type WebsiteItemData, WebsiteUpdateSchema } from '../../data/schemas.ts'
 // 更新网站API调用
-import { useUpdateWebsiteMutation, useWebsiteQuery } from '../../api/websites.ts'
-// JSON编辑器
-import { JsonEditor, githubDarkTheme, githubLightTheme } from 'json-edit-react'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import { toast } from "sonner"
-// 代码编辑器
-import CodeMirror from '@uiw/react-codemirror'
-// 代码json插件
-import { json } from '@codemirror/lang-json'
-import { EditorView } from '@codemirror/view'
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
-
-
+import {
+  useUpdateWebsiteMutation,
+  useWebsiteQuery,
+} from '../../api/websites.ts'
+// 数据结构
+import {
+  type WebsiteUpdateData,
+  type WebsiteItemData,
+  WebsiteUpdateSchema,
+} from '../../data/schemas.ts'
 
 /**
  * 网站更新抽屉组件
@@ -82,16 +87,18 @@ type WebsiteUpdateDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function WebsiteUpdateDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: WebsiteUpdateDrawerProps)
-{
+export function WebsiteUpdateDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: WebsiteUpdateDrawerProps) {
   const queryClient = useQueryClient()
   // 添加查询钩子
-  const { data: latestWebsite, isLoading: isLatestDataLoading, refetch } = useWebsiteQuery(currentRow?.website_id || 0)
+  const {
+    data: latestWebsite,
+    isLoading: isLatestDataLoading,
+    refetch,
+  } = useWebsiteQuery(currentRow?.website_id || 0)
 
   // 添加状态管理
   const [, setShowConflictWarning] = useState(false)
@@ -114,7 +121,10 @@ export function WebsiteUpdateDrawer(
         form.reset({
           website_name: latestWebsite.website_name,
           website_slug: latestWebsite.website_slug,
+          website_avatar: latestWebsite.website_avatar || undefined,
           website_url: latestWebsite.website_url || undefined,
+          website_max_spider_task_count:
+            latestWebsite.website_max_spider_task_count || 0,
           website_config: latestWebsite.website_config,
           website_readme: latestWebsite.website_readme,
         })
@@ -142,6 +152,8 @@ export function WebsiteUpdateDrawer(
       website_name: '',
       // 网站URL标识符 - 用于路由和API请求的唯一标识符
       website_slug: '',
+      // 网站头像URL
+      website_avatar: undefined,
       // 网站访问URL - 网站的真实访问地址（可选字段）
       website_url: undefined,
       // 网站配置对象 - 存储网站特定配置信息的JSON对象
@@ -165,15 +177,18 @@ export function WebsiteUpdateDrawer(
     }
 
     // 使用 mutation 调用 API 更新网站
-    await updateWebsiteMutation.mutateAsync({
-      websiteId: currentRow.website_id,
-      data
-    }).then((res) => {
-      toast.success(`网站 ${res.website_name} 更新成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error(`网站 ${currentRow.website_name} 更新失败:`, error) // 记录错误日志
-      toast.error(`网站 ${currentRow.website_name} 更新失败`) // 操作失败提示
-    })
+    await updateWebsiteMutation
+      .mutateAsync({
+        websiteId: currentRow.website_id,
+        data,
+      })
+      .then((res) => {
+        toast.success(`网站 ${res.website_name} 更新成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error(`网站 ${currentRow.website_name} 更新失败:`, error) // 记录错误日志
+        toast.error(`网站 ${currentRow.website_name} 更新失败`) // 操作失败提示
+      })
 
     // 关闭抽屉
     onOpenChange(false)
@@ -192,7 +207,7 @@ export function WebsiteUpdateDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>更新网站</SheetTitle>
           <SheetDescription>
@@ -228,7 +243,47 @@ export function WebsiteUpdateDrawer(
                 <FormItem>
                   <FormLabel>网站标识</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='网站标识(字母、数字、连字符或下划线)' />
+                    <Input
+                      {...field}
+                      placeholder='网站标识(字母、数字、连字符或下划线)'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* 网站头像字段 - 可选，图片URL */}
+            <FormField
+              control={form.control}
+              name='website_avatar'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>网站头像</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value ?? ''}
+                      placeholder='https://example.com/avatar.png'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* 网站内在线爬虫任务数量限制 */}
+            <FormField
+              control={form.control}
+              name='website_max_spider_task_count'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>网站内最大任务数</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type='number'
+                      placeholder='0表示无限制'
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -243,7 +298,11 @@ export function WebsiteUpdateDrawer(
                   <FormLabel>URL</FormLabel>
                   <FormControl>
                     {/* 处理null值与空字符串的显示问题 */}
-                    <Input {...field} value={field.value ?? ''} placeholder='网站网址(https://www.example.com/)' />
+                    <Input
+                      {...field}
+                      value={field.value ?? ''}
+                      placeholder='网站网址(https://www.example.com/)'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -254,8 +313,14 @@ export function WebsiteUpdateDrawer(
               control={form.control}
               name='website_config'
               render={({ field }) => (
-                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background flex flex-col overflow-hidden' : ''}>
-                  <div className='flex items-center justify-between flex-shrink-0'>
+                <FormItem
+                  className={
+                    isFullscreen
+                      ? 'fixed inset-0 z-50 m-0 flex !h-screen !w-screen flex-col overflow-hidden rounded-none border-0 bg-background'
+                      : ''
+                  }
+                >
+                  <div className='flex flex-shrink-0 items-center justify-between'>
                     <FormLabel>网站配置</FormLabel>
                     <Button
                       type='button'
@@ -272,30 +337,36 @@ export function WebsiteUpdateDrawer(
                     </Button>
                   </div>
 
-                  <FormControl className="flex-1 min-h-0 overflow-y-auto">
+                  <FormControl className='min-h-0 flex-1 overflow-y-auto'>
                     {/* JSON编辑器，支持主题切换 */}
                     <JsonEditor
                       data={field.value}
                       setData={field.onChange}
                       rootFontSize={13}
-                      theme={resolvedTheme === 'light' ? githubLightTheme : githubDarkTheme}
+                      theme={
+                        resolvedTheme === 'light'
+                          ? githubLightTheme
+                          : githubDarkTheme
+                      }
                       minWidth={isFullscreen ? '100%' : '100%'}
                       maxWidth={isFullscreen ? '100%' : '100%'}
-                      TextEditor={
-                        (props) => {
-                          return (
-                            <CodeMirror
-                              {...props}
-                              theme={resolvedTheme === 'light' ? githubLight : githubDark}
-                              extensions={[json(), EditorView.lineWrapping]}
-                              height={isFullscreen ? '100%' : 'auto'}
-                            />
-                          )
-                        }
-                      }
+                      TextEditor={(props) => {
+                        return (
+                          <CodeMirror
+                            {...props}
+                            theme={
+                              resolvedTheme === 'light'
+                                ? githubLight
+                                : githubDark
+                            }
+                            extensions={[json(), EditorView.lineWrapping]}
+                            height={isFullscreen ? '100%' : 'auto'}
+                          />
+                        )
+                      }}
                     />
                   </FormControl>
-                  <FormMessage className='shrink-0'  />
+                  <FormMessage className='shrink-0' />
                 </FormItem>
               )}
             />
@@ -308,10 +379,7 @@ export function WebsiteUpdateDrawer(
                   <FormLabel>网站说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

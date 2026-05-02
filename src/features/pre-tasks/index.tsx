@@ -1,42 +1,42 @@
 // 引入依赖
-import { useEffect } from "react"
-// 用户认证
-// import { useAuth } from '@clerk/clerk-react'
-// 准任务查询
-import { usePreTasksQuery } from '@/features/pre-tasks/api/pre-tasks'
-// 表格组件
-import { PreTasksTable } from './components/pre-tasks-table.tsx'
+import { useEffect } from 'react'
+// 路由
+import { getRouteApi } from '@tanstack/react-router'
+// 用户按钮组件
+import { UserButton } from '@clerk/clerk-react'
+// 配置抽屉组件
+import { ConfigDrawer } from '@/components/config-drawer'
 // 头部组件
 import { Header } from '@/components/layout/header'
 // 主体区域
 import { Main } from '@/components/layout/main'
 // 日/夜主题切换组件
 import { ThemeSwitch } from '@/components/theme-switch'
-// 准任务管理对话框
-import { PreTasksDialogs } from './components/pre-tasks-dialogs'
+// 用户认证
+// import { useAuth } from '@clerk/clerk-react'
+// 准任务查询
+import { usePreTasksQuery } from '@/features/pre-tasks/api/pre-tasks'
+// 准任务独立操作按钮
+import { PreTasksPrimaryActions } from './components/actions/pre-tasks-primary-actions.tsx'
 // 准任务搜索框组件
 import { Search } from './components/actions/pre-tasks-search-actions.tsx'
-// 配置抽屉组件
-import { ConfigDrawer } from '@/components/config-drawer'
+// 准任务管理对话框
+import { PreTasksDialogs } from './components/pre-tasks-dialogs'
 // 准任务管理提供者
 import { PreTasksProvider, usePreTasks } from './components/pre-tasks-provider'
-// 用户按钮组件
-import { UserButton } from '@clerk/clerk-react'
-// 准任务独立操作按钮
-import { PreTasksPrimaryActions } from "./components/actions/pre-tasks-primary-actions.tsx"
-// 路由
-import { getRouteApi } from "@tanstack/react-router"
+// 表格组件
+import { PreTasksTable } from './components/pre-tasks-table.tsx'
 
 // 定义搜索参数记录类型
 const route = getRouteApi('/_authenticated/pre-tasks/')
 
 /**
  * 准任务管理页面内容组件
- * 
+ *
  * 该组件负责展示准任务列表、搜索功能和管理操作
  * 使用 usePreTasksQuery Hook 获取准任务数据
  * 通过 PreTasksProvider 提供上下文数据
- * 
+ *
  * 功能包括：
  * - 显示准任务列表表格
  * - 支持搜索和筛选
@@ -101,8 +101,8 @@ function PreTasksContent() {
   if (isError) {
     return (
       <Main>
-        <div className="flex items-center justify-center h-64">
-          <p className="text-lg text-red-500">无法获取准任务列表数据</p>
+        <div className='flex h-64 items-center justify-center'>
+          <p className='text-lg text-red-500'>无法获取准任务列表数据</p>
         </div>
       </Main>
     )
@@ -128,10 +128,10 @@ function PreTasksContent() {
         <div className='ms-auto flex items-center space-x-4 max-sm:space-x-0'>
           {/* 主题切换按钮，允许用户切换明暗主题 */}
           <ThemeSwitch />
-          
+
           {/* 配置抽屉，提供页面或应用的配置选项 */}
           <ConfigDrawer />
-          
+
           {/* 用户按钮，显示用户信息和账户操作菜单 */}
           <UserButton />
           {/*<button onClick={handleGetToken}>获取 JWT 令牌</button>*/}
@@ -150,22 +150,22 @@ function PreTasksContent() {
               管理所有排队准任务以及相关设置项
             </p>
           </div>
-          
+
           {/* 主要操作按钮，如重置、清空准任务等 */}
           <PreTasksPrimaryActions />
         </div>
-        
+
         {/* 准任务列表表格组件 */}
         {/* 传递参数说明： */}
         {/* - data: 从 API 获取的准任务列表数据 */}
         {/* - pager: 分页信息，用于控制分页导航 */}
         {/* - isLoading: 是否处于首次加载状态，显示加载动画 */}
         {/* - isFetching: 是否正在获取数据，用于显示更新状态 */}
-        <PreTasksTable 
-          data={data?.preTasks} 
-          pager={data?.pagination} 
-          isLoading={isLoading} 
-          isFetching={isFetching} 
+        <PreTasksTable
+          data={data?.preTasks}
+          pager={data?.pagination}
+          isLoading={isLoading}
+          isFetching={isFetching}
         />
       </Main>
 
@@ -179,16 +179,16 @@ function PreTasksContent() {
 
 /**
  * 准任务管理页面主组件
- * 
+ *
  * 该组件作为准任务管理页面的入口点
  * 使用 PreTasksProvider 为整个页面提供共享状态和上下文
- * 
+ *
  * PreTasksProvider 提供的功能：
  * - 搜索参数管理
  * - 对话框状态控制
  * - 选中准任务项的管理
  * - 分页状态管理
- * 
+ *
  * 开发者注意事项：
  * 1. 所有子组件都可以通过 usePreTasks() 访问上下文数据
  * 2. 如需修改搜索参数，使用 context 中的 setSearchParams 方法

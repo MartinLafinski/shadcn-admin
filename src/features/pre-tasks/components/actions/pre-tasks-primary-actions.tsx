@@ -1,11 +1,8 @@
 // 图标
+import { useState } from 'react'
 import { Download, Trash2, RotateCcw } from 'lucide-react'
-// 按钮控件
-import { Button } from '@/components/ui/button.tsx'
-// 准任务API调用
-import { useResetAllPreTasksMutation, useClearAllPreTasksMutation, useExportPreTasksMutation } from '../../api/pre-tasks.ts'
 // 操作结果提示框
-import { toast } from "sonner"
+import { toast } from 'sonner'
 // 确认对话框
 import {
   AlertDialog,
@@ -16,8 +13,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { useState } from "react"
+} from '@/components/ui/alert-dialog'
+// 按钮控件
+import { Button } from '@/components/ui/button.tsx'
+// 准任务API调用
+import {
+  useResetAllPreTasksMutation,
+  useClearAllPreTasksMutation,
+  useExportPreTasksMutation,
+} from '../../api/pre-tasks.ts'
 
 /**
  * 准任务管理页面的主要操作按钮组件
@@ -28,7 +32,7 @@ export function PreTasksPrimaryActions() {
   const exportAllMutation = useExportPreTasksMutation()
   const resetAllMutation = useResetAllPreTasksMutation()
   const clearAllMutation = useClearAllPreTasksMutation()
-  
+
   // 确认对话框状态
   const [resetDialogOpen, setResetDialogOpen] = useState(false)
   const [clearDialogOpen, setClearDialogOpen] = useState(false)
@@ -39,7 +43,8 @@ export function PreTasksPrimaryActions() {
    */
   const onExportAll = async () => {
     // 开始导出操作，显示加载状态
-    await exportAllMutation.mutateAsync()
+    await exportAllMutation
+      .mutateAsync()
       .then(() => {
         // 导出成功时的处理
         toast.success('准任务导出成功')
@@ -58,7 +63,8 @@ export function PreTasksPrimaryActions() {
   const onResetAll = async () => {
     setResetDialogOpen(false)
     // 开始重置操作
-    await resetAllMutation.mutateAsync()
+    await resetAllMutation
+      .mutateAsync()
       .then(() => {
         // 重置成功时的处理
         toast.success('所有准任务重置成功')
@@ -77,7 +83,8 @@ export function PreTasksPrimaryActions() {
   const onClearAll = async () => {
     setClearDialogOpen(false)
     // 开始清空操作
-    await clearAllMutation.mutateAsync()
+    await clearAllMutation
+      .mutateAsync()
       .then(() => {
         // 清空成功时的处理
         toast.success('所有准任务清空成功')
@@ -94,7 +101,7 @@ export function PreTasksPrimaryActions() {
       <div className='flex gap-2'>
         {/* 导出全部准任务按钮 - 触发导出所有准任务操作 */}
         <Button
-          className='space-x-1  bg-lime-600 text-white dark:bg-lime-700 hover:bg-lime-700/80 hover:text-white'
+          className='space-x-1 bg-lime-600 text-white hover:bg-lime-700/80 hover:text-white dark:bg-lime-700'
           onClick={() => onExportAll()}
           disabled={exportAllMutation.isPending} // 在导出过程中禁用按钮，避免重复操作
         >
@@ -104,13 +111,13 @@ export function PreTasksPrimaryActions() {
         {/* 重置所有准任务按钮 - 触发重置所有准任务操作 */}
         <Button
           variant='secondary'
-          className='space-x-1 bg-orange-500 text-white dark:bg-orange-600 hover:bg-orange-600/80'
+          className='space-x-1 bg-orange-500 text-white hover:bg-orange-600/80 dark:bg-orange-600'
           onClick={() => setResetDialogOpen(true)}
           disabled={resetAllMutation.isPending} // 在重置过程中禁用按钮，避免重复操作
         >
           <span>重置所有</span> <RotateCcw size={18} />
         </Button>
-        
+
         {/* 清空所有准任务按钮 - 触发清空所有准任务操作 */}
         <Button
           variant='destructive'
@@ -149,7 +156,10 @@ export function PreTasksPrimaryActions() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={onClearAll} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={onClearAll}
+              className='text-destructive-foreground bg-destructive hover:bg-destructive/90'
+            >
               确认清空
             </AlertDialogAction>
           </AlertDialogFooter>

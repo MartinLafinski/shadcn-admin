@@ -2,14 +2,28 @@
 import React, { useState, useEffect } from 'react'
 // 导入表单库
 import { useForm } from 'react-hook-form'
-// 用于同步后台数据
-import { useQueryClient } from '@tanstack/react-query'
 // 数据验证库
 import { zodResolver } from '@hookform/resolvers/zod'
+// 用于同步后台数据
+import { useQueryClient } from '@tanstack/react-query'
+// 代码json插件
+import { json } from '@codemirror/lang-json'
+import { EditorView } from '@codemirror/view'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+// 代码编辑器
+import CodeMirror from '@uiw/react-codemirror'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// JSON编辑器
+import { JsonEditor, githubDarkTheme, githubLightTheme } from 'json-edit-react'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 图标
 import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
 // 表单控件
@@ -31,24 +45,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// 数据结构
-import { type EntrypointConfigData, type EntrypointItemData, EntrypointConfigSchema } from '../../data/schemas.ts'
 // 配置入口点API调用
-import { usePatchEntrypointMutation, useEntrypointQuery } from '../../api/entrypoints.ts'
-// JSON编辑器
-import { JsonEditor, githubDarkTheme, githubLightTheme } from 'json-edit-react'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import { toast } from "sonner"
-// 代码编辑器
-import CodeMirror from '@uiw/react-codemirror'
-// 代码json插件
-import { json } from '@codemirror/lang-json'
-import { EditorView } from '@codemirror/view'
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+import {
+  usePatchEntrypointMutation,
+  useEntrypointQuery,
+} from '../../api/entrypoints.ts'
+// 数据结构
+import {
+  type EntrypointConfigData,
+  type EntrypointItemData,
+  EntrypointConfigSchema,
+} from '../../data/schemas.ts'
 
 /**
  * 入口点配置和说明抽屉组件
@@ -76,16 +83,18 @@ type EntrypointConfigDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function EntrypointConfigDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: EntrypointConfigDrawerProps)
-{
+export function EntrypointConfigDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: EntrypointConfigDrawerProps) {
   const queryClient = useQueryClient()
   // 添加查询钩子
-  const { data: latestEntrypoint, isLoading: isLatestDataLoading, refetch } = useEntrypointQuery(currentRow?.entrypoint_id || 0)
+  const {
+    data: latestEntrypoint,
+    isLoading: isLatestDataLoading,
+    refetch,
+  } = useEntrypointQuery(currentRow?.entrypoint_id || 0)
 
   // 添加状态管理
   const [, setShowConflictWarning] = useState(false)
@@ -128,17 +137,19 @@ export function EntrypointConfigDrawer(
   const form = useForm<EntrypointConfigData>({
     resolver: zodResolver(EntrypointConfigSchema),
     // 如果有currentRow则使用其值作为默认值，否则使用空值
-    defaultValues: currentRow ? {
-      // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
-      entrypoint_config: currentRow.entrypoint_config,
-      // 入口点说明文档 - 使用Markdown格式的说明文档内容
-      entrypoint_readme: currentRow.entrypoint_readme,
-    } : {
-      // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
-      entrypoint_config: {},
-      // 入口点说明文档 - 使用Markdown格式的说明文档内容
-      entrypoint_readme: '',
-    },
+    defaultValues: currentRow
+      ? {
+          // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
+          entrypoint_config: currentRow.entrypoint_config,
+          // 入口点说明文档 - 使用Markdown格式的说明文档内容
+          entrypoint_readme: currentRow.entrypoint_readme,
+        }
+      : {
+          // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
+          entrypoint_config: {},
+          // 入口点说明文档 - 使用Markdown格式的说明文档内容
+          entrypoint_readme: '',
+        },
   })
 
   /**
@@ -149,20 +160,26 @@ export function EntrypointConfigDrawer(
   const onSubmit = async (data: EntrypointConfigData) => {
     // 确保有 currentRow 和 entrypoint_id
     if (!currentRow?.entrypoint_id) {
-        console.error('缺少入口点ID，无法配置和说明')
-        return
+      console.error('缺少入口点ID，无法配置和说明')
+      return
     }
 
     // 使用 mutation 调用 API 配置和说明入口点
-    await configEntrypointMutation.mutateAsync({
+    await configEntrypointMutation
+      .mutateAsync({
         entrypointId: currentRow.entrypoint_id,
-        data
-    }).then((res) => {
-      toast.success(`入口点 ${res.entrypoint_name} 说明与配置编辑成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error(`入口点 ${currentRow.entrypoint_name} 说明与配置编辑失败:`, error) // 记录错误日志
-      toast.error(`入口点 ${currentRow.entrypoint_name} 说明与配置编辑失败`) // 操作失败提示
-    })
+        data,
+      })
+      .then((res) => {
+        toast.success(`入口点 ${res.entrypoint_name} 说明与配置编辑成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error(
+          `入口点 ${currentRow.entrypoint_name} 说明与配置编辑失败:`,
+          error
+        ) // 记录错误日志
+        toast.error(`入口点 ${currentRow.entrypoint_name} 说明与配置编辑失败`) // 操作失败提示
+      })
 
     // 关闭抽屉
     onOpenChange(false)
@@ -181,7 +198,7 @@ export function EntrypointConfigDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>配置和说明入口点</SheetTitle>
           <SheetDescription>
@@ -204,10 +221,7 @@ export function EntrypointConfigDrawer(
                   <FormLabel>入口点说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -218,8 +232,14 @@ export function EntrypointConfigDrawer(
               control={form.control}
               name='entrypoint_config'
               render={({ field }) => (
-                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 h-screen! w-screen! rounded-none border-0 bg-background flex flex-col overflow-hidden' : ''}>
-                  <div className='flex items-center justify-between shrink-0'>
+                <FormItem
+                  className={
+                    isFullscreen
+                      ? 'fixed inset-0 z-50 m-0 flex h-screen! w-screen! flex-col overflow-hidden rounded-none border-0 bg-background'
+                      : ''
+                  }
+                >
+                  <div className='flex shrink-0 items-center justify-between'>
                     <FormLabel>入口点配置</FormLabel>
                     <Button
                       type='button'
@@ -235,35 +255,40 @@ export function EntrypointConfigDrawer(
                       )}
                     </Button>
                   </div>
-                  <FormControl className="flex-1 min-h-0 overflow-y-auto">
+                  <FormControl className='min-h-0 flex-1 overflow-y-auto'>
                     {/* JSON编辑器，支持主题切换 */}
                     <JsonEditor
                       data={field.value}
                       setData={field.onChange}
                       rootFontSize={13}
-                      theme={resolvedTheme === 'light' ? githubLightTheme : githubDarkTheme}
+                      theme={
+                        resolvedTheme === 'light'
+                          ? githubLightTheme
+                          : githubDarkTheme
+                      }
                       minWidth={isFullscreen ? '100%' : '100%'}
                       maxWidth={isFullscreen ? '100%' : '100%'}
-                      TextEditor={
-                        (props) => {
-                          return (
-                            <CodeMirror
-                              {...props}
-                              theme={resolvedTheme === 'light' ? githubLight : githubDark}
-                              extensions={[json(), EditorView.lineWrapping]}
-                              height={isFullscreen ? '100%' : 'auto'}
-                              minHeight='300px'
-                            />
-                          )
-                        }
-                      }
+                      TextEditor={(props) => {
+                        return (
+                          <CodeMirror
+                            {...props}
+                            theme={
+                              resolvedTheme === 'light'
+                                ? githubLight
+                                : githubDark
+                            }
+                            extensions={[json(), EditorView.lineWrapping]}
+                            height={isFullscreen ? '100%' : 'auto'}
+                            minHeight='300px'
+                          />
+                        )
+                      }}
                     />
                   </FormControl>
                   <FormMessage className='shrink-0' />
                 </FormItem>
               )}
             />
-
           </form>
         </Form>
         <SheetFooter className='gap-2'>

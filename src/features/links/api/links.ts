@@ -1,9 +1,9 @@
 // 引入reactQuery依赖
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-// Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
+// Clerk 认证
+import { useAuth } from '@clerk/clerk-react'
 import {
   LinkBatchSwitchData,
   LinkBatchExportData,
@@ -12,13 +12,14 @@ import {
   LinkData,
   LinksData,
   LinkSwitchData,
-  LinkUpdateData
+  LinkUpdateData,
 } from '../data/schemas.ts'
-
 
 // API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8888'
-const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_LINKS_PAGE_SIZE || 50)
+const DEFAULT_PAGE_SIZE: number = Number(
+  import.meta.env.VITE_LINKS_PAGE_SIZE || 50
+)
 
 // 通用错误处理
 const handleResponse = async (response: Response) => {
@@ -64,7 +65,6 @@ export const fetchLinks = async (
   size: number = DEFAULT_PAGE_SIZE,
   token: string | null
 ): Promise<LinksData> => {
-
   // 构建基础URL，包含分页参数
   let url = `${API_BASE_URL}/links/?page=${page}&size=${size}`
 
@@ -96,10 +96,9 @@ export const fetchLinks = async (
 
   return {
     links,
-    pagination
+    pagination,
   }
 }
-
 
 /**
  * 根据ID获取友链详细信息
@@ -256,7 +255,6 @@ export const updateLink = async (
   return response.json()
 }
 
-
 /**
  * 部分更新友链配置
  *
@@ -316,7 +314,6 @@ export const patchLink = async (
   return response.json()
 }
 
-
 /**
  * 切换友链启用状态
  *
@@ -361,8 +358,6 @@ export const switchLink = async (
   return response.json()
 }
 
-
-
 /**
  * 删除指定友链
  *
@@ -374,7 +369,7 @@ export const switchLink = async (
  *                   删除操作不可逆，请谨慎操作
  *
  * @param token - 鉴权token
- * 
+ *
  * @returns Promise<Response> - 返回原始响应对象
  *                如果删除成功，响应状态码通常为204 (No Content)
  *                如果删除失败，会通过handleResponse抛出错误
@@ -425,7 +420,6 @@ export const deleteLink = async (
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 批量切换友链启用状态
@@ -478,12 +472,11 @@ export const batchSwitchLinks = async (
   return response.json()
 }
 
-
 export const batchDeleteLinks = async (
   linkIds: number[],
   token: string | null
 ): Promise<Response> => {
-  const params = linkIds.map(id => `links_ids=${id}`).join('&')
+  const params = linkIds.map((id) => `links_ids=${id}`).join('&')
   const response = await fetch(`${API_BASE_URL}/links/?${params}`, {
     method: 'DELETE',
     headers: {
@@ -493,7 +486,6 @@ export const batchDeleteLinks = async (
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 同步友链数据
@@ -628,7 +620,6 @@ export const batchExportLinks = async (
   return await handleResponse(response)
 }
 
-
 /**
  * 获取友链列表的自定义 Hook
  *
@@ -725,15 +716,14 @@ export const useLinkQuery = (linkId: number) => {
   const { getToken } = useAuth()
 
   return useQuery({
-    queryKey: ['link', linkId],  // 查询键包含友链ID，确保不同ID有独立缓存
+    queryKey: ['link', linkId], // 查询键包含友链ID，确保不同ID有独立缓存
     queryFn: async () => {
-      const token = await getToken()  // 获取认证token
-      return fetchLinkById(linkId, token)  // 调用API获取友链详情
+      const token = await getToken() // 获取认证token
+      return fetchLinkById(linkId, token) // 调用API获取友链详情
     },
-    enabled: !!linkId,  // 只有当 linkId 存在且不为0时才启用查询
+    enabled: !!linkId, // 只有当 linkId 存在且不为0时才启用查询
   })
 }
-
 
 /**
  * 创建友链的自定义 Mutation Hook
@@ -786,7 +776,6 @@ export const useCreateLinkMutation = () => {
     },
   })
 }
-
 
 /**
  * 更新友链信息的自定义 Mutation Hook
@@ -847,7 +836,6 @@ export const useUpdateLinkMutation = () => {
     },
   })
 }
-
 
 /**
  * 部分更新友链信息的自定义 Mutation Hook
@@ -914,7 +902,6 @@ export const usePatchLinkMutation = () => {
   })
 }
 
-
 /**
  * 切换友链启用状态的自定义 Mutation Hook
  *
@@ -975,7 +962,6 @@ export const useSwitchLinkMutation = () => {
   })
 }
 
-
 /**
  * 批量切换友链启用状态的自定义 Mutation Hook
  *
@@ -1032,14 +1018,13 @@ export const useBatchSwitchLinksMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['links'] })
       // 同时使单个友链详情缓存失效，确保详情页显示最新状态
       if (variables.links_ids && Array.isArray(variables.links_ids)) {
-        variables.links_ids.forEach(link_id => {
+        variables.links_ids.forEach((link_id) => {
           queryClient.invalidateQueries({ queryKey: ['link', link_id] })
         })
       }
     },
   })
 }
-
 
 /**
  * 同步友链数据的自定义 Mutation Hook
@@ -1080,13 +1065,12 @@ export const useSyncLinksMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async() => {
+    mutationFn: async () => {
       const token = await getToken()
       return syncLinks(token)
-    }
+    },
   })
 }
-
 
 /**
  * 导出所有友链数据的自定义 Mutation Hook
@@ -1128,7 +1112,7 @@ export const useExportLinksMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async() => {
+    mutationFn: async () => {
       const token = await getToken()
       return exportLinks(token)
     },
@@ -1144,7 +1128,7 @@ export const useExportLinksMutation = () => {
       }
 
       // 将响应转换为blob并创建下载链接
-      data.blob().then(blob => {
+      data.blob().then((blob) => {
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
@@ -1152,7 +1136,7 @@ export const useExportLinksMutation = () => {
         a.click()
         window.URL.revokeObjectURL(url)
       })
-    }
+    },
   })
 }
 
@@ -1208,7 +1192,7 @@ export const useBatchDeleteLinksMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['links'] })
       // 同时使单个友链详情缓存失效，确保详情页显示最新状态
       if (variables && Array.isArray(variables)) {
-        variables.forEach(linkId => {
+        variables.forEach((linkId) => {
           queryClient.invalidateQueries({ queryKey: ['link', linkId] })
         })
       }
@@ -1332,7 +1316,7 @@ export const useDeleteLinkMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { linkId: number; }) => {
+    mutationFn: async (variables: { linkId: number }) => {
       const token = await getToken()
       return deleteLink(variables.linkId, token)
     },

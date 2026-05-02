@@ -1,10 +1,10 @@
 // 引入reactQuery依赖
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-// Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
-import {
+// Clerk 认证
+import { useAuth } from '@clerk/clerk-react'
+import type {
   EntrypointBatchSwitchData,
   EntrypointBatchExportData,
   EntrypointConfigData,
@@ -12,13 +12,20 @@ import {
   EntrypointData,
   EntrypointsData,
   EntrypointSwitchData,
-  EntrypointUpdateData
+  EntrypointUpdateData,
+  EntrypointSpiderConfigData,
+  EntrypointPeriodData,
+  EntrypointBatchLockData,
+  EntrypointBatchPauseData,
+  CreatePrejobByEntrypointData,
+  SyncEntrypointsData,
 } from '../data/schemas.ts'
-
 
 // API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8888'
-const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_ENTRYPOINT_PAGE_SIZE || 50)
+const DEFAULT_PAGE_SIZE: number = Number(
+  import.meta.env.VITE_ENTRYPOINT_PAGE_SIZE || 50
+)
 
 // 通用错误处理
 const handleResponse = async (response: Response) => {
@@ -35,11 +42,15 @@ const handleResponse = async (response: Response) => {
  * 此函数用于从后端API获取入口点列表，支持关键词搜索、启用状态过滤和分页功能
  *
  * @param website_id - 可选参数，用于按网站ID过滤入口点
+ * @param industry_id - 可选参数，用于按行业ID过滤入口点
  * @param entrypoint_keyword - 可选参数，用于按关键词搜索入口点（例如入口点名称或URL）
  * @param entrypoint_enabled - 可选参数，用于过滤入口点的启用状态
  *                    true: 只返回启用的入口点
  *                    false: 只返回禁用的入口点
  *                    undefined: 返回所有入口点（不考虑启用状态）
+ * @param entrypoint_locked
+ * @param entrypoint_paused
+ * @param entrypoint_limited
  * @param page - 页码，从1开始，默认为1
  * @param size - 每页返回的数据量，默认为 DEFAULT_PAGE_SIZE 条
  *
@@ -60,19 +71,28 @@ const handleResponse = async (response: Response) => {
  */
 export const fetchEntrypoints = async (
   website_id: number | undefined = undefined,
+  industry_id: number | undefined = undefined,
   entrypoint_keyword: string | undefined = undefined,
   entrypoint_enabled: boolean | undefined = undefined,
+  entrypoint_locked: boolean | undefined = undefined,
+  entrypoint_paused: boolean | undefined = undefined,
+  entrypoint_limited: boolean | undefined = undefined,
+  deeply_search: boolean | undefined = undefined,
   page: number = 1,
   size: number = DEFAULT_PAGE_SIZE,
   token: string | null
 ): Promise<EntrypointsData> => {
-
   // 构建基础URL，包含分页参数
   let url = `${API_BASE_URL}/entrypoints/?page=${page}&size=${size}`
 
   // 如果提供了网站ID参数，则添加到查询字符串中
   if (website_id) {
     url += `&website_id=${website_id}`
+  }
+
+  // 如果提供了行业ID参数，则添加到查询字符串中
+  if (industry_id) {
+    url += `&industry_id=${industry_id}`
   }
 
   // 如果提供了关键词参数，则添加到查询字符串中
@@ -83,6 +103,26 @@ export const fetchEntrypoints = async (
   // 如果提供了启用状态参数（注意：undefined !== 某个布尔值），则添加到查询字符串中
   if (entrypoint_enabled !== undefined) {
     url += `&entrypoint_enabled=${entrypoint_enabled}`
+  }
+
+  // 如果提供了锁定状态参数，则添加到查询字符串中
+  if (entrypoint_locked !== undefined) {
+    url += `&entrypoint_locked=${entrypoint_locked}`
+  }
+
+  // 如果提供了暂停状态参数，则添加到查询字符串中
+  if (entrypoint_paused !== undefined) {
+    url += `&entrypoint_paused=${entrypoint_paused}`
+  }
+
+  // 如果提供了受限状态参数，则添加到查询字符串中
+  if (entrypoint_limited !== undefined) {
+    url += `&entrypoint_limited=${entrypoint_limited}`
+  }
+
+  // 如果提供了深度搜索参数，则添加到查询字符串中
+  if (deeply_search !== undefined && deeply_search !== null) {
+    url += `&deeply_search=${deeply_search}`
   }
 
   // 发送GET请求获取数据
@@ -103,10 +143,9 @@ export const fetchEntrypoints = async (
 
   return {
     entrypoints,
-    pagination
+    pagination,
   }
 }
-
 
 /**
  * 根据ID获取入口点详细信息
@@ -266,7 +305,6 @@ export const updateEntrypoint = async (
   return response.json()
 }
 
-
 /**
  * 部分更新入口点配置
  *
@@ -328,7 +366,6 @@ export const patchEntrypoint = async (
   return response.json()
 }
 
-
 /**
  * 切换入口点启用状态
  *
@@ -361,19 +398,20 @@ export const switchEntrypoint = async (
   data: EntrypointSwitchData,
   token: string | null
 ): Promise<EntrypointData> => {
-  const response = await fetch(`${API_BASE_URL}/entrypoints/${entrypointId}/switch/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  })
+  const response = await fetch(
+    `${API_BASE_URL}/entrypoints/${entrypointId}/switch/`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  )
   await handleResponse(response)
   return response.json()
 }
-
-
 
 /**
  * 删除指定入口点
@@ -386,7 +424,7 @@ export const switchEntrypoint = async (
  *                   删除操作不可逆，请谨慎操作
  *
  * @param token - 鉴权token
- * 
+ *
  * @returns Promise<Response> - 返回原始响应对象
  *                如果删除成功，响应状态码通常为204 (No Content)
  *                如果删除失败，会通过handleResponse抛出错误
@@ -437,7 +475,6 @@ export const deleteEntrypoint = async (
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 批量切换入口点启用状态
@@ -490,12 +527,11 @@ export const batchSwitchEntrypoints = async (
   return response.json()
 }
 
-
 export const batchDeleteEntrypoints = async (
   entrypointIds: number[],
   token: string | null
 ): Promise<Response> => {
-  const params = entrypointIds.map(id => `entrypoint_ids=${id}`).join('&')
+  const params = entrypointIds.map((id) => `entrypoint_ids=${id}`).join('&')
   const response = await fetch(`${API_BASE_URL}/entrypoints/?${params}`, {
     method: 'DELETE',
     headers: {
@@ -505,7 +541,6 @@ export const batchDeleteEntrypoints = async (
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 同步入口点数据
@@ -535,12 +570,17 @@ export const batchDeleteEntrypoints = async (
  * - 操作完成后，可能需要手动刷新入口点列表以显示最新数据
  * - 根据后端实现，同步可能包括添加新入口点、更新现有入口点或删除不存在的入口点
  */
-export const syncEntrypoints = async (token: string | null): Promise<void> => {
+export const syncEntrypoints = async (
+  token: string | null,
+  data: SyncEntrypointsData
+): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/entrypoints/sync/`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
     },
+    body: JSON.stringify(data),
   })
   await handleResponse(response)
 }
@@ -580,7 +620,9 @@ export const syncEntrypoints = async (token: string | null): Promise<void> => {
  * - 可能需要处理大文件下载，注意浏览器内存限制
  * - 导出的文件格式取决于后端实现，通常为JSON格式
  */
-export const exportEntrypoints = async (token: string | null): Promise<Response> => {
+export const exportEntrypoints = async (
+  token: string | null
+): Promise<Response> => {
   const response = await fetch(`${API_BASE_URL}/entrypoints/export/`, {
     method: 'POST',
     headers: {
@@ -640,6 +682,81 @@ export const batchExportEntrypoints = async (
   return await handleResponse(response)
 }
 
+/**
+ * 批量锁定/解锁入口点
+ *
+ * 此函数用于批量切换多个入口点的锁定状态，通过向后端API发送PUT请求来更改多个入口点的锁定/解锁状态
+ *
+ * @param data - 包含批量锁定状态的数据对象，符合 EntrypointBatchLockData 接口定义
+ *              通常包含以下字段：
+ *              - entrypoint_ids: number[] - 需要切换状态的入口点ID数组
+ *              - is_locked: boolean - 目标锁定状态，true为锁定，false为解锁
+ *
+ * @param token - 鉴权token
+ * @returns Promise<EntrypointData> - 返回操作结果的Promise
+ *                                注意：根据API设计，可能返回最后一个处理的入口点数据或操作结果摘要
+ *
+ * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
+ *
+ * 注意事项:
+ * - 该函数会向 /entrypoints/lock/ 端点发送PUT请求
+ * - 确保传入的entrypoint_ids数组中的ID都是有效的入口点ID
+ * - data参数需要符合EntrypointBatchLockData接口定义的结构
+ * - 此操作是批量操作，会影响多个入口点的状态，请谨慎使用
+ */
+export const batchLockEntrypoints = async (
+  data: EntrypointBatchLockData,
+  token: string | null
+): Promise<EntrypointData> => {
+  const response = await fetch(`${API_BASE_URL}/entrypoints/lock/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+  await handleResponse(response)
+  return response.json()
+}
+
+/**
+ * 批量暂停/恢复入口点
+ *
+ * 此函数用于批量切换多个入口点的暂停状态，通过向后端API发送PUT请求来更改多个入口点的暂停/恢复状态
+ *
+ * @param data - 包含批量暂停状态的数据对象，符合 EntrypointBatchPauseData 接口定义
+ *              通常包含以下字段：
+ *              - entrypoint_ids: number[] - 需要切换状态的入口点ID数组
+ *              - is_paused: boolean - 目标暂停状态，true为暂停，false为恢复
+ *
+ * @param token - 鉴权token
+ * @returns Promise<EntrypointData> - 返回操作结果的Promise
+ *                                注意：根据API设计，可能返回最后一个处理的入口点数据或操作结果摘要
+ *
+ * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
+ *
+ * 注意事项:
+ * - 该函数会向 /entrypoints/pause/ 端点发送PUT请求
+ * - 确保传入的entrypoint_ids数组中的ID都是有效的入口点ID
+ * - data参数需要符合EntrypointBatchPauseData接口定义的结构
+ * - 此操作是批量操作，会影响多个入口点的状态，请谨慎使用
+ */
+export const batchPauseEntrypoints = async (
+  data: EntrypointBatchPauseData,
+  token: string | null
+): Promise<EntrypointData> => {
+  const response = await fetch(`${API_BASE_URL}/entrypoints/pause/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+  await handleResponse(response)
+  return response.json()
+}
 
 /**
  * 获取入口点列表的自定义 Hook
@@ -649,6 +766,8 @@ export const batchExportEntrypoints = async (
  *
  * @param website_id - 可选参数，用于按网站ID过滤入口点
  *                        当值为 undefined 时，不进行网站ID过滤
+ * @param industry_id - 可选参数，用于按行业ID过滤入口点
+ *                        当值为 undefined 时，不进行行业ID过滤
  * @param entrypoint_keyword - 可选参数，用于按关键词搜索入口点（例如入口点名称或URL）
  *                        当值为 undefined 时，不进行关键词过滤
  * @param entrypoint_enabled - 可选参数，用于过滤入口点的启用状态
@@ -682,17 +801,46 @@ export const batchExportEntrypoints = async (
  */
 export const useEntrypointsQuery = (
   website_id: number | undefined = undefined,
+  industry_id: number | undefined = undefined,
   entrypoint_keyword: string | undefined = undefined,
   entrypoint_enabled: boolean | undefined = undefined,
+  entrypoint_locked: boolean | undefined = undefined,
+  entrypoint_paused: boolean | undefined = undefined,
+  entrypoint_limited: boolean | undefined = undefined,
+  deeply_search: boolean | undefined = undefined,
   page: number = 1,
   size: number = DEFAULT_PAGE_SIZE
 ) => {
   const { getToken } = useAuth()
   return useQuery({
-    queryKey: ['entrypoints', website_id, entrypoint_keyword, entrypoint_enabled, page, size],
+    queryKey: [
+      'entrypoints',
+      website_id,
+      industry_id,
+      entrypoint_keyword,
+      entrypoint_enabled,
+      entrypoint_locked,
+      entrypoint_paused,
+      entrypoint_limited,
+      deeply_search,
+      page,
+      size,
+    ],
     queryFn: async () => {
       const token = await getToken()
-      return fetchEntrypoints(website_id, entrypoint_keyword, entrypoint_enabled, page, size, token)
+      return fetchEntrypoints(
+        website_id,
+        industry_id,
+        entrypoint_keyword,
+        entrypoint_enabled,
+        entrypoint_locked,
+        entrypoint_paused,
+        entrypoint_limited,
+        deeply_search,
+        page,
+        size,
+        token
+      )
     },
     placeholderData: (previousData) => previousData,
   })
@@ -740,15 +888,14 @@ export const useEntrypointQuery = (entrypointId: number) => {
   const { getToken } = useAuth()
 
   return useQuery({
-    queryKey: ['entrypoint', entrypointId],  // 查询键包含入口点ID，确保不同ID有独立缓存
+    queryKey: ['entrypoint', entrypointId], // 查询键包含入口点ID，确保不同ID有独立缓存
     queryFn: async () => {
-      const token = await getToken()  // 获取认证token
-      return fetchEntrypointById(entrypointId, token)  // 调用API获取入口点详情
+      const token = await getToken() // 获取认证token
+      return fetchEntrypointById(entrypointId, token) // 调用API获取入口点详情
     },
-    enabled: !!entrypointId,  // 只有当 entrypointId 存在且不为0时才启用查询
+    enabled: !!entrypointId, // 只有当 entrypointId 存在且不为0时才启用查询
   })
 }
-
 
 /**
  * 创建入口点的自定义 Mutation Hook
@@ -802,7 +949,6 @@ export const useCreateEntrypointMutation = () => {
   })
 }
 
-
 /**
  * 更新入口点信息的自定义 Mutation Hook
  *
@@ -850,7 +996,10 @@ export const useUpdateEntrypointMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { entrypointId: number; data: EntrypointUpdateData }) => {
+    mutationFn: async (variables: {
+      entrypointId: number
+      data: EntrypointUpdateData
+    }) => {
       const token = await getToken()
       return updateEntrypoint(variables.entrypointId, variables.data, token)
     },
@@ -858,11 +1007,12 @@ export const useUpdateEntrypointMutation = () => {
       // 更新成功后使入口点列表缓存失效，确保列表显示最新数据
       queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
       // 同时使单个入口点详情缓存失效，确保详情页显示最新数据
-      queryClient.invalidateQueries({ queryKey: ['entrypoint', variables.entrypointId] })
+      queryClient.invalidateQueries({
+        queryKey: ['entrypoint', variables.entrypointId],
+      })
     },
   })
 }
-
 
 /**
  * 部分更新入口点信息的自定义 Mutation Hook
@@ -916,7 +1066,10 @@ export const usePatchEntrypointMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { entrypointId: number; data: EntrypointConfigData }) => {
+    mutationFn: async (variables: {
+      entrypointId: number
+      data: EntrypointConfigData
+    }) => {
       const token = await getToken()
       return patchEntrypoint(variables.entrypointId, variables.data, token)
     },
@@ -924,11 +1077,12 @@ export const usePatchEntrypointMutation = () => {
       // 更新成功后使入口点列表缓存失效，确保列表显示最新数据
       queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
       // 同时使单个入口点详情缓存失效，确保详情页显示最新数据
-      queryClient.invalidateQueries({ queryKey: ['entrypoint', variables.entrypointId] })
+      queryClient.invalidateQueries({
+        queryKey: ['entrypoint', variables.entrypointId],
+      })
     },
   })
 }
-
 
 /**
  * 切换入口点启用状态的自定义 Mutation Hook
@@ -976,7 +1130,10 @@ export const useSwitchEntrypointMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { entrypointId: number; data: EntrypointSwitchData }) => {
+    mutationFn: async (variables: {
+      entrypointId: number
+      data: EntrypointSwitchData
+    }) => {
       const token = await getToken()
       return switchEntrypoint(variables.entrypointId, variables.data, token)
     },
@@ -984,11 +1141,12 @@ export const useSwitchEntrypointMutation = () => {
       // 状态切换成功后使入口点列表缓存失效，确保列表显示最新状态
       queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
       // 同时使单个入口点详情缓存失效，确保详情页显示最新状态
-      queryClient.invalidateQueries({ queryKey: ['entrypoint', variables.entrypointId] })
+      queryClient.invalidateQueries({
+        queryKey: ['entrypoint', variables.entrypointId],
+      })
     },
   })
 }
-
 
 /**
  * 批量切换入口点启用状态的自定义 Mutation Hook
@@ -1046,14 +1204,113 @@ export const useBatchSwitchEntrypointsMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
       // 同时使单个入口点详情缓存失效，确保详情页显示最新状态
       if (variables.entrypoint_ids && Array.isArray(variables.entrypoint_ids)) {
-        variables.entrypoint_ids.forEach(entrypoint_id => {
-          queryClient.invalidateQueries({ queryKey: ['entrypoint', entrypoint_id] })
+        variables.entrypoint_ids.forEach((entrypoint_id) => {
+          queryClient.invalidateQueries({
+            queryKey: ['entrypoint', entrypoint_id],
+          })
         })
       }
     },
   })
 }
 
+/**
+ * 批量锁定/解锁入口点的自定义 Mutation Hook
+ *
+ * 此 Hook 封装了批量锁定或解锁多个入口点的逻辑，使用 TanStack Query 的 useMutation 来处理异步操作
+ * 允许前端通过 API 调用批量更改多个入口点的锁定状态（锁定或解锁），并自动处理缓存更新
+ *
+ * 主要功能：
+ * - 向后端API发送批量锁定/解锁入口点的请求
+ * - 自动处理缓存失效，确保UI显示最新的入口点锁定状态
+ * - 提供完整的状态管理（加载中、错误、成功等状态）
+ *
+ * @returns 返回 useMutation 的结果对象，包含以下主要属性：
+ *          - mutate/mutateAsync: 触发批量锁定/解锁操作的函数，需要传入 EntrypointBatchLockData 格式的数据
+ *          - isLoading: 批量锁定/解锁操作的加载状态
+ *          - isError: 是否发生错误
+ *          - error: 错误对象（如果有的话）
+ *          - data: 批量锁定/解锁成功后的入口点数据（如果有的话）
+ *
+ * 注意事项:
+ * - 此 Hook 向 /entrypoints/lock/ 端点发送PUT请求来批量切换入口点锁定状态
+ * - 批量操作成功后会自动使 ['entrypoints'] 列表查询缓存失效
+ * - 同时会使所有被操作的入口点详情缓存失效，确保详情页显示最新状态
+ * - 适用于需要批量锁定或解锁多个入口点的场景
+ * - 传入的参数必须符合 EntrypointBatchLockData 接口的结构要求，通常包含 entrypoint_ids 数组和 is_locked 布尔值
+ */
+export const useBatchLockEntrypointsMutation = () => {
+  const queryClient = useQueryClient()
+  const { getToken } = useAuth()
+
+  return useMutation({
+    mutationFn: async (variables: EntrypointBatchLockData) => {
+      const token = await getToken()
+      return batchLockEntrypoints(variables, token)
+    },
+    onSuccess: (_, variables) => {
+      // 批量锁定/解锁成功后使入口点列表缓存失效，确保列表显示最新状态
+      queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
+      // 同时使单个入口点详情缓存失效，确保详情页显示最新状态
+      if (variables.entrypoint_ids && Array.isArray(variables.entrypoint_ids)) {
+        variables.entrypoint_ids.forEach((entrypoint_id) => {
+          queryClient.invalidateQueries({
+            queryKey: ['entrypoint', entrypoint_id],
+          })
+        })
+      }
+    },
+  })
+}
+
+/**
+ * 批量暂停/恢复入口点的自定义 Mutation Hook
+ *
+ * 此 Hook 封装了批量暂停或恢复多个入口点的逻辑，使用 TanStack Query 的 useMutation 来处理异步操作
+ * 允许前端通过 API 调用批量更改多个入口点的暂停状态（暂停或恢复），并自动处理缓存更新
+ *
+ * 主要功能：
+ * - 向后端API发送批量暂停/恢复入口点的请求
+ * - 自动处理缓存失效，确保UI显示最新的入口点暂停状态
+ * - 提供完整的状态管理（加载中、错误、成功等状态）
+ *
+ * @returns 返回 useMutation 的结果对象，包含以下主要属性：
+ *          - mutate/mutateAsync: 触发批量暂停/恢复操作的函数，需要传入 EntrypointBatchPauseData 格式的数据
+ *          - isLoading: 批量暂停/恢复操作的加载状态
+ *          - isError: 是否发生错误
+ *          - error: 错误对象（如果有的话）
+ *          - data: 批量暂停/恢复成功后的入口点数据（如果有的话）
+ *
+ * 注意事项:
+ * - 此 Hook 向 /entrypoints/pause/ 端点发送PUT请求来批量切换入口点暂停状态
+ * - 批量操作成功后会自动使 ['entrypoints'] 列表查询缓存失效
+ * - 同时会使所有被操作的入口点详情缓存失效，确保详情页显示最新状态
+ * - 适用于需要批量暂停或恢复多个入口点的场景
+ * - 传入的参数必须符合 EntrypointBatchPauseData 接口的结构要求，通常包含 entrypoint_ids 数组和 is_paused 布尔值
+ */
+export const useBatchPauseEntrypointsMutation = () => {
+  const queryClient = useQueryClient()
+  const { getToken } = useAuth()
+
+  return useMutation({
+    mutationFn: async (variables: EntrypointBatchPauseData) => {
+      const token = await getToken()
+      return batchPauseEntrypoints(variables, token)
+    },
+    onSuccess: (_, variables) => {
+      // 批量暂停/恢复成功后使入口点列表缓存失效，确保列表显示最新状态
+      queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
+      // 同时使单个入口点详情缓存失效，确保详情页显示最新状态
+      if (variables.entrypoint_ids && Array.isArray(variables.entrypoint_ids)) {
+        variables.entrypoint_ids.forEach((entrypoint_id) => {
+          queryClient.invalidateQueries({
+            queryKey: ['entrypoint', entrypoint_id],
+          })
+        })
+      }
+    },
+  })
+}
 
 /**
  * 同步入口点数据的自定义 Mutation Hook
@@ -1094,13 +1351,12 @@ export const useSyncEntrypointsMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async() => {
+    mutationFn: async (data: SyncEntrypointsData) => {
       const token = await getToken()
-      return syncEntrypoints(token)
-    }
+      return syncEntrypoints(token, data)
+    },
   })
 }
-
 
 /**
  * 导出所有入口点数据的自定义 Mutation Hook
@@ -1142,7 +1398,7 @@ export const useExportEntrypointsMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async() => {
+    mutationFn: async () => {
       const token = await getToken()
       return exportEntrypoints(token)
     },
@@ -1158,7 +1414,7 @@ export const useExportEntrypointsMutation = () => {
       }
 
       // 将响应转换为blob并创建下载链接
-      data.blob().then(blob => {
+      data.blob().then((blob) => {
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
@@ -1166,7 +1422,7 @@ export const useExportEntrypointsMutation = () => {
         a.click()
         window.URL.revokeObjectURL(url)
       })
-    }
+    },
   })
 }
 
@@ -1286,7 +1542,7 @@ export const useDeleteEntrypointMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { entrypointId: number; }) => {
+    mutationFn: async (variables: { entrypointId: number }) => {
       const token = await getToken()
       return deleteEntrypoint(variables.entrypointId, token)
     },
@@ -1294,7 +1550,9 @@ export const useDeleteEntrypointMutation = () => {
       // 删除成功后使入口点列表缓存失效，确保列表显示最新状态（已移除被删除的入口点）
       queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
       // 同时使单个入口点详情缓存失效，确保详情页不会显示已删除的入口点信息
-      queryClient.invalidateQueries({ queryKey: ['entrypoint', variables.entrypointId] })
+      queryClient.invalidateQueries({
+        queryKey: ['entrypoint', variables.entrypointId],
+      })
     },
   })
 }
@@ -1351,10 +1609,235 @@ export const useBatchDeleteEntrypointsMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
       // 同时使单个入口点详情缓存失效，确保详情页显示最新状态
       if (variables && Array.isArray(variables)) {
-        variables.forEach(entrypointId => {
-          queryClient.invalidateQueries({ queryKey: ['entrypoint', entrypointId] })
+        variables.forEach((entrypointId) => {
+          queryClient.invalidateQueries({
+            queryKey: ['entrypoint', entrypointId],
+          })
         })
       }
+    },
+  })
+}
+
+/**
+ * 获取入口点爬虫配置
+ *
+ * 此函数用于从后端API获取指定入口点的爬虫配置信息
+ *
+ * @param entrypointId - 入口点ID
+ * @param token - 鉴权token
+ * @returns Promise<EntrypointSpiderConfigData> - 返回爬虫配置数据
+ */
+export const fetchEntrypointSpiderConfig = async (
+  entrypointId: number,
+  token: string | null
+): Promise<EntrypointSpiderConfigData> => {
+  const response = await fetch(
+    `${API_BASE_URL}/entrypoints/${entrypointId}/config/`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
+  await handleResponse(response)
+  return response.json()
+}
+
+/**
+ * 更新入口点爬虫配置
+ *
+ * 此函数用于更新指定入口点的爬虫配置信息
+ *
+ * @param entrypointId - 入口点ID
+ * @param data - 爬虫配置数据
+ * @param token - 鉴权token
+ * @returns Promise<EntrypointData> - 返回更新后的入口点数据
+ */
+export const updateEntrypointSpiderConfig = async (
+  entrypointId: number,
+  data: EntrypointSpiderConfigData,
+  token: string | null
+): Promise<EntrypointData> => {
+  const response = await fetch(
+    `${API_BASE_URL}/entrypoints/${entrypointId}/config/`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  )
+  await handleResponse(response)
+  return response.json()
+}
+
+/**
+ * 更新入口点日期区间
+ *
+ * 此函数用于更新指定入口点的日期区间
+ *
+ * @param entrypointId - 入口点ID
+ * @param data - 日期区间数据
+ * @param token - 鉴权token
+ * @returns Promise<Response> - 返回响应
+ */
+export const updateEntrypointPeriod = async (
+  entrypointId: number,
+  data: EntrypointPeriodData,
+  token: string | null
+): Promise<Response> => {
+  const response = await fetch(
+    `${API_BASE_URL}/entrypoints/${entrypointId}/period/`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  )
+  await handleResponse(response)
+  return response
+}
+
+/**
+ * 获取入口点爬虫配置的自定义 Hook
+ *
+ * @param entrypointId - 入口点ID
+ * @returns 返回 useQuery 的结果对象
+ */
+export const useEntrypointSpiderConfigQuery = (entrypointId: number) => {
+  const { getToken } = useAuth()
+  return useQuery({
+    queryKey: ['entrypoint', entrypointId, 'config'],
+    queryFn: async () => {
+      const token = await getToken()
+      return fetchEntrypointSpiderConfig(entrypointId, token)
+    },
+    enabled: !!entrypointId,
+  })
+}
+
+/**
+ * 更新入口点爬虫配置的自定义 Mutation Hook
+ *
+ * @returns 返回 useMutation 的结果对象
+ */
+export const useUpdateEntrypointSpiderConfigMutation = () => {
+  const queryClient = useQueryClient()
+  const { getToken } = useAuth()
+
+  return useMutation({
+    mutationFn: async (variables: {
+      entrypointId: number
+      data: EntrypointSpiderConfigData
+    }) => {
+      const token = await getToken()
+      return updateEntrypointSpiderConfig(
+        variables.entrypointId,
+        variables.data,
+        token
+      )
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['entrypoint', variables.entrypointId, 'config'],
+      })
+      queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
+    },
+  })
+}
+
+/**
+ * 更新入口点日期区间的自定义 Mutation Hook
+ *
+ * @returns 返回 useMutation 的结果对象
+ */
+export const useUpdateEntrypointPeriodMutation = () => {
+  const queryClient = useQueryClient()
+  const { getToken } = useAuth()
+
+  return useMutation({
+    mutationFn: async (variables: {
+      entrypointId: number
+      data: EntrypointPeriodData
+    }) => {
+      const token = await getToken()
+      return updateEntrypointPeriod(
+        variables.entrypointId,
+        variables.data,
+        token
+      )
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['entrypoint', variables.entrypointId],
+      })
+      queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
+    },
+  })
+}
+
+/**
+ * 通过入口点创建预备作业
+ *
+ * @param entrypoint_id - 入口点ID
+ * @param prelog_slug_suffix - 预备作业标识后缀
+ * @param prelog_name_suffix - 预备作业名称后缀
+ * @param token - 认证令牌
+ * @returns 返回创建的预备作业数据
+ */
+export const createPrejobByEntrypoint = async (
+  entrypoint_id: number,
+  prelog_slug_suffix: string,
+  prelog_name_suffix: string,
+  token: string | null
+) => {
+  const url = `${API_BASE_URL}/prejobs/entrypoints/`
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      entrypoint_id,
+      prelog_slug_suffix,
+      prelog_name_suffix,
+    }),
+  })
+
+  await handleResponse(response)
+  return response.json()
+}
+
+/**
+ * 通过入口点创建预备作业的自定义 Mutation Hook
+ *
+ * @returns 返回 useMutation 的结果对象
+ */
+export const useCreatePrejobByEntrypointMutation = () => {
+  const queryClient = useQueryClient()
+  const { getToken } = useAuth()
+
+  return useMutation({
+    mutationFn: async (variables: CreatePrejobByEntrypointData) => {
+      const token = await getToken()
+      return createPrejobByEntrypoint(
+        variables.entrypoint_id,
+        variables.prelog_slug_suffix,
+        variables.prelog_name_suffix,
+        token
+      )
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['prejobs'] })
+      queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
     },
   })
 }

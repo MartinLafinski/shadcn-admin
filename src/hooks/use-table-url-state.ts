@@ -66,15 +66,15 @@ type UseTableUrlStateReturn = {
   // 全局过滤器相关
   globalFilter?: string // 当前全局过滤值
   onGlobalFilterChange?: OnChangeFn<string> // 更新全局过滤值的回调函数
-  
+
   // 列过滤器相关
   columnFilters: ColumnFiltersState // 当前列过滤状态
   onColumnFiltersChange: OnChangeFn<ColumnFiltersState> // 更新列过滤状态的回调函数
-  
+
   // 分页相关
   pagination: PaginationState // 当前分页状态
   onPaginationChange: OnChangeFn<PaginationState> // 更新分页状态的回调函数
-  
+
   // 辅助函数
   ensurePageInRange: (
     pageCount: number, // 总页数
@@ -85,7 +85,7 @@ type UseTableUrlStateReturn = {
 /**
  * 表格 URL 状态管理 Hook
  * 将表格的分页、过滤状态与 URL 参数进行双向同步
- * 
+ *
  * @param params - 配置参数
  * @returns 表格状态和更新函数
  */
@@ -117,7 +117,7 @@ export function useTableUrlState(
     for (const cfg of columnFiltersCfg) {
       const raw = (search as SearchRecord)[cfg.searchKey]
       const deserialize = cfg.deserialize ?? ((v: unknown) => v)
-      
+
       if (cfg.type === 'string') {
         // 处理字符串类型的过滤值
         const value = (deserialize(raw) as string) ?? ''
@@ -155,7 +155,7 @@ export function useTableUrlState(
     const next = typeof updater === 'function' ? updater(pagination) : updater
     const nextPage = next.pageIndex + 1
     const nextPageSize = next.pageSize
-    
+
     // 更新 URL 参数，如果值为默认值则清除参数
     navigate({
       search: (prev) => ({
@@ -207,7 +207,7 @@ export function useTableUrlState(
     for (const cfg of columnFiltersCfg) {
       const found = next.find((f) => f.id === cfg.columnId)
       const serialize = cfg.serialize ?? ((v: unknown) => v)
-      
+
       if (cfg.type === 'string') {
         // 处理字符串类型的过滤值
         const value =

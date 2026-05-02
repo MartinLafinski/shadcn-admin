@@ -1,19 +1,20 @@
 // 引入reactQuery依赖
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-// Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
+// Clerk 认证
+import { useAuth } from '@clerk/clerk-react'
 import {
   PreTaskData,
   PreTasksData,
-  PreTaskBatchExportData
+  PreTaskBatchExportData,
 } from '../data/schemas.ts'
-
 
 // API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8888'
-const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_PRE_TASK_PAGE_SIZE || 50)
+const DEFAULT_PAGE_SIZE: number = Number(
+  import.meta.env.VITE_PRE_TASK_PAGE_SIZE || 50
+)
 
 // 通用错误处理
 const handleResponse = async (response: Response) => {
@@ -56,7 +57,6 @@ export const fetchPreTasks = async (
   size: number = DEFAULT_PAGE_SIZE,
   token: string | null = null
 ): Promise<PreTasksData> => {
-
   // 构建基础URL，包含分页参数
   let url = `${API_BASE_URL}/pre_tasks/?page=${page}&size=${size}`
 
@@ -86,10 +86,9 @@ export const fetchPreTasks = async (
 
   return {
     preTasks,
-    pagination
+    pagination,
   }
 }
-
 
 /**
  * 重置所有准任务
@@ -137,7 +136,6 @@ export const resetAllPreTasks = async (
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 清空所有准任务
@@ -187,7 +185,6 @@ export const clearAllPreTasks = async (
   return await handleResponse(response)
 }
 
-
 /**
  * 重置网站准任务
  *
@@ -233,13 +230,15 @@ export const resetWebsitePreTasks = async (
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  const response = await fetch(`${API_BASE_URL}/pre_tasks/websites/${website_id}/`, {
-    method: 'PUT',
-    headers,
-  })
+  const response = await fetch(
+    `${API_BASE_URL}/pre_tasks/websites/${website_id}/`,
+    {
+      method: 'PUT',
+      headers,
+    }
+  )
   return await handleResponse(response)
 }
-
 
 /**
  * 清空网站准任务
@@ -286,13 +285,15 @@ export const clearWebsitePreTasks = async (
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  const response = await fetch(`${API_BASE_URL}/pre_tasks/websites/${website_id}/`, {
-    method: 'DELETE',
-    headers,
-  })
+  const response = await fetch(
+    `${API_BASE_URL}/pre_tasks/websites/${website_id}/`,
+    {
+      method: 'DELETE',
+      headers,
+    }
+  )
   return await handleResponse(response)
 }
-
 
 /**
  * 获取准任务列表的自定义 Hook
@@ -337,10 +338,9 @@ export const usePreTasksQuery = (
       const token = await getToken()
       return fetchPreTasks(website_id, page, size, token)
     },
-    placeholderData: (previousData) => previousData,  // 保持上一次的数据
+    placeholderData: (previousData) => previousData, // 保持上一次的数据
   })
 }
-
 
 /**
  * 重置所有准任务的自定义 Mutation Hook
@@ -396,7 +396,6 @@ export const useResetAllPreTasksMutation = () => {
   })
 }
 
-
 /**
  * 清空所有准任务的自定义 Mutation Hook
  *
@@ -451,7 +450,6 @@ export const useClearAllPreTasksMutation = () => {
   })
 }
 
-
 /**
  * 重置网站准任务的自定义 Mutation Hook
  *
@@ -505,7 +503,6 @@ export const useResetWebsitePreTasksMutation = () => {
     },
   })
 }
-
 
 /**
  * 清空网站准任务的自定义 Mutation Hook
@@ -562,7 +559,6 @@ export const useClearWebsitePreTasksMutation = () => {
   })
 }
 
-
 /**
  * 导出所有准任务数据
  *
@@ -599,7 +595,9 @@ export const useClearWebsitePreTasksMutation = () => {
  * - 导出的文件格式取决于后端实现，通常为JSON格式
  * - pre-tasks API 可能不需要认证，但为了兼容性，仍然集成了 Clerk 认证
  */
-export const exportPreTasks = async (token: string | null = null): Promise<Response> => {
+export const exportPreTasks = async (
+  token: string | null = null
+): Promise<Response> => {
   const headers: Record<string, string> = {}
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
@@ -611,7 +609,6 @@ export const exportPreTasks = async (token: string | null = null): Promise<Respo
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 批量导出指定准任务数据
@@ -668,7 +665,6 @@ export const batchExportPreTasks = async (
   return await handleResponse(response)
 }
 
-
 /**
  * 导出所有准任务数据的自定义 Mutation Hook
  *
@@ -715,7 +711,7 @@ export const useExportPreTasksMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async() => {
+    mutationFn: async () => {
       const token = await getToken()
       const response = await exportPreTasks(token)
       const blob = await response.blob()
@@ -741,7 +737,6 @@ export const useExportPreTasksMutation = () => {
     },
   })
 }
-
 
 /**
  * 批量导出指定准任务数据的自定义 Mutation Hook

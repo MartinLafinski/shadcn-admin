@@ -1,44 +1,45 @@
 // 引入依赖
-import { useEffect } from "react"
-// 用户认证
-// import { useAuth } from '@clerk/clerk-react'
-// 模板查询
-import { useTemplatesQuery } from '@/features/templates/api/templates'
-// 表格组件
-import { TemplatesTable } from './components/templates-table.tsx'
+import { useEffect } from 'react'
+// 路由
+import { getRouteApi } from '@tanstack/react-router'
+// 用户按钮组件
+import { UserButton } from '@clerk/clerk-react'
+// 配置抽屉组件
+import { ConfigDrawer } from '@/components/config-drawer'
 // 头部组件
 import { Header } from '@/components/layout/header'
 // 主体区域
 import { Main } from '@/components/layout/main'
 // 日/夜主题切换组件
 import { ThemeSwitch } from '@/components/theme-switch'
-// 模板管理对话框
-import { TemplatesDialogs } from './components/templates-dialogs'
+// 用户认证
+// import { useAuth } from '@clerk/clerk-react'
+// 模板查询
+import { useTemplatesQuery } from '@/features/templates/api/templates'
+// 模板独立操作按钮
+import { TemplatesPrimaryActions } from './components/actions/templates-primary-actions.tsx'
 // 模板搜索框组件
 import { Search } from './components/actions/templates-search-actions.tsx'
-// 配置抽屉组件
-import { ConfigDrawer } from '@/components/config-drawer'
+// 模板管理对话框
+import { TemplatesDialogs } from './components/templates-dialogs'
 // 模板管理提供者
-import { TemplatesProvider, useTemplates } from './components/templates-provider'
-// 用户按钮组件
-import { UserButton } from '@clerk/clerk-react'
-// 模板独立操作按钮
-import { TemplatesPrimaryActions } from "./components/actions/templates-primary-actions.tsx"
-// 路由
-import { getRouteApi } from "@tanstack/react-router"
-
-
+import {
+  TemplatesProvider,
+  useTemplates,
+} from './components/templates-provider'
+// 表格组件
+import { TemplatesTable } from './components/templates-table.tsx'
 
 // 定义搜索参数记录类型
 const route = getRouteApi('/_authenticated/templates/')
 
 /**
  * 模板管理页面内容组件
- * 
+ *
  * 该组件负责展示模板列表、搜索功能和管理操作
  * 使用 useTemplatesQuery Hook 获取模板数据
  * 通过 TemplatesProvider 提供上下文数据
- * 
+ *
  * 功能包括：
  * - 显示模板列表表格
  * - 支持搜索和筛选
@@ -103,8 +104,8 @@ function TemplatesContent() {
   if (isError) {
     return (
       <Main>
-        <div className="flex items-center justify-center h-64">
-          <p className="text-lg text-red-500">无法获取模板列表数据</p>
+        <div className='flex h-64 items-center justify-center'>
+          <p className='text-lg text-red-500'>无法获取模板列表数据</p>
         </div>
       </Main>
     )
@@ -130,10 +131,10 @@ function TemplatesContent() {
         <div className='ms-auto flex items-center space-x-4 max-sm:space-x-0'>
           {/* 主题切换按钮，允许用户切换明暗主题 */}
           <ThemeSwitch />
-          
+
           {/* 配置抽屉，提供页面或应用的配置选项 */}
           <ConfigDrawer />
-          
+
           {/* 用户按钮，显示用户信息和账户操作菜单 */}
           <UserButton />
           {/*<button onClick={handleGetToken}>获取 JWT 令牌</button>*/}
@@ -148,26 +149,24 @@ function TemplatesContent() {
           {/* 页面标题和描述信息 */}
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>模板管理</h2>
-            <p className='text-muted-foreground'>
-              管理所有模板以及相关设置项
-            </p>
+            <p className='text-muted-foreground'>管理所有模板以及相关设置项</p>
           </div>
-          
+
           {/* 主要操作按钮，如新建模板等 */}
           <TemplatesPrimaryActions />
         </div>
-        
+
         {/* 模板列表表格组件 */}
         {/* 传递参数说明： */}
         {/* - data: 从 API 获取的模板列表数据 */}
         {/* - pager: 分页信息，用于控制分页导航 */}
         {/* - isLoading: 是否处于首次加载状态，显示加载动画 */}
         {/* - isFetching: 是否正在获取数据，用于显示更新状态 */}
-        <TemplatesTable 
-          data={data?.templates} 
-          pager={data?.pagination} 
-          isLoading={isLoading} 
-          isFetching={isFetching} 
+        <TemplatesTable
+          data={data?.templates}
+          pager={data?.pagination}
+          isLoading={isLoading}
+          isFetching={isFetching}
         />
       </Main>
 
@@ -181,16 +180,16 @@ function TemplatesContent() {
 
 /**
  * 模板管理页面主组件
- * 
+ *
  * 该组件作为模板管理页面的入口点
  * 使用 TemplatesProvider 为整个页面提供共享状态和上下文
- * 
+ *
  * TemplatesProvider 提供的功能：
  * - 搜索参数管理
  * - 对话框状态控制
  * - 选中模板项的管理
  * - 分页状态管理
- * 
+ *
  * 开发者注意事项：
  * 1. 所有子组件都可以通过 useTemplates() 访问上下文数据
  * 2. 如需修改搜索参数，使用 context 中的 setSearchParams 方法

@@ -1,17 +1,15 @@
 // 图标
-import { InfoIcon } from 'lucide-react'
 // 表格列
 import { ColumnDef } from '@tanstack/react-table'
+import { InfoIcon } from 'lucide-react'
+import { cn } from '@/lib/utils.ts'
+import { Badge } from '@/components/ui/badge.tsx'
 // 按钮控件
-import { Button } from "@/components/ui/button.tsx"
+import { Button } from '@/components/ui/button.tsx'
 // 复选框控件
-import { Checkbox } from "@/components/ui/checkbox.tsx"
+import { Checkbox } from '@/components/ui/checkbox.tsx'
 // 自定义时间控件
-import { SmartDatetime } from "@/components/smart/datetime.tsx"
-// // 自定义行操作控件
-// import { JobsRowActions } from './actions/jobs-row-actions.tsx'
-// 任务状态
-import { useJobs } from './jobs-provider'
+import { SmartDatetime } from '@/components/smart/datetime.tsx'
 // 状态结构
 import { taskStatusDetailDict } from '@/features/jobs/data/labels'
 // 任务数据结构
@@ -20,13 +18,14 @@ import { JobData } from '@/features/jobs/data/schemas'
 import { EntrypointItemData } from '@/features/jobs/data/schemas'
 // 网站数据结构
 import { WebsiteItemData } from '@/features/jobs/data/schemas'
-import {Badge} from "@/components/ui/badge.tsx";
-import {cn} from "@/lib/utils.ts";
-
+// // 自定义行操作控件
+// import { JobsRowActions } from './actions/jobs-row-actions.tsx'
+// 任务状态
+import { useJobs } from './jobs-provider'
 
 /**
  * 任务列表表格列定义
- * 
+ *
  * 定义了任务管理页面表格的所有列，包括：
  * - 选择列：支持全选和单选
  * - 基础信息列：任务ID、任务名称、任务标识
@@ -34,7 +33,7 @@ import {cn} from "@/lib/utils.ts";
  * - 状态列：任务结果状态
  * - 时间列：创建时间、采集开始时间、采集结束时间
  * - 操作列：信息查看和行操作
- * 
+ *
  * 使用 TanStack Table 的 ColumnDef 类型定义
  */
 export const jobsColumns: ColumnDef<JobData>[] = [
@@ -45,26 +44,26 @@ export const jobsColumns: ColumnDef<JobData>[] = [
   {
     id: 'select',
     header: ({ table }) => (
-        <Checkbox
-            checked={
-                table.getIsAllPageRowsSelected() ||
-                (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label='全选'
-            className='translate-y-[2px]'
-        />
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label='全选'
+        className='translate-y-[2px]'
+      />
     ),
     cell: ({ row }) => (
-        <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label='行选择'
-            className='translate-y-[2px]'
-        />
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label='行选择'
+        className='translate-y-[2px]'
+      />
     ),
     enableSorting: false, // 选择列不支持排序
-    enableHiding: false,  // 选择列不允许隐藏
+    enableHiding: false, // 选择列不允许隐藏
   },
   /**
    * 任务ID列 - 显示任务的唯一标识符
@@ -74,7 +73,7 @@ export const jobsColumns: ColumnDef<JobData>[] = [
     accessorKey: 'task_id',
     header: '任务ID',
     cell: ({ row }) => (
-        <div className="text-center">{row.getValue('task_id') || '-'}</div>
+      <div className='text-center'>{row.getValue('task_id') || '-'}</div>
     ),
   },
   /**
@@ -84,7 +83,7 @@ export const jobsColumns: ColumnDef<JobData>[] = [
     accessorKey: 'task_name',
     header: '任务名称',
     cell: ({ row }) => (
-      <div className="font-semibold">{row.getValue('task_name') || '-'}</div>
+      <div className='font-semibold'>{row.getValue('task_name') || '-'}</div>
     ),
   },
   /**
@@ -108,20 +107,20 @@ export const jobsColumns: ColumnDef<JobData>[] = [
       const job = row.original // 获取当前行的原始数据
       const { setOpen, setCurrentRow } = useJobs() // 使用任务上下文状态
       if (!website) {
-        return (<span>-</span>)
+        return <span>-</span>
       }
       return (
         <>
           <span>[ {website?.website_name || websiteSlug || '-'} ]</span>
           <Button
-            variant="ghost"
-            size="icon"
+            variant='ghost'
+            size='icon'
             onClick={() => {
               setCurrentRow(job) // 设置当前选中的行数据
               setOpen('viewWebsite') // 打开配置信息对话框
             }}
           >
-            <InfoIcon className="h-4 w-4" />
+            <InfoIcon className='h-4 w-4' />
           </Button>
         </>
       )
@@ -138,20 +137,20 @@ export const jobsColumns: ColumnDef<JobData>[] = [
       const job = row.original // 获取当前行的原始数据
       const { setOpen, setCurrentRow } = useJobs() // 使用任务上下文状态
       if (!entrypoint) {
-        return (<span>-</span>)
+        return <span>-</span>
       }
       return (
         <>
           <span>[ {entrypoint?.entrypoint_name || '-'} ]</span>
           <Button
-            variant="ghost"
-            size="icon"
+            variant='ghost'
+            size='icon'
             onClick={() => {
               setCurrentRow(job) // 设置当前选中的行数据
               setOpen('viewEntrypoint') // 打开配置信息对话框
             }}
           >
-            <InfoIcon className="h-4 w-4" />
+            <InfoIcon className='h-4 w-4' />
           </Button>
         </>
       )
@@ -170,17 +169,17 @@ export const jobsColumns: ColumnDef<JobData>[] = [
       const { setOpen, setCurrentRow } = useJobs() // 使用任务上下文状态
       return (
         <Button
-          variant="ghost"
-          size="icon"
+          variant='ghost'
+          size='icon'
           onClick={() => {
             setCurrentRow(job) // 设置当前选中的行数据
             setOpen('view') // 打开配置信息对话框
           }}
         >
-          <InfoIcon className="h-4 w-4" />
+          <InfoIcon className='h-4 w-4' />
         </Button>
       )
-    }
+    },
   },
   /**
    * 任务结果状态列 - 显示任务的执行结果状态
@@ -194,16 +193,21 @@ export const jobsColumns: ColumnDef<JobData>[] = [
     cell: ({ row }) => {
       // const job = row.original // 获取当前行的原始数据
       const taskStatus = row.getValue('task_status') as string | null
-      const taskStatusDetail = !!taskStatus ? taskStatusDetailDict[taskStatus] : {
-        value: undefined,
-        label: '未知',
-        icon: InfoIcon,
-        className: 'bg-blue-600 text-white',
-      }
+      const taskStatusDetail = !!taskStatus
+        ? taskStatusDetailDict[taskStatus]
+        : {
+            value: undefined,
+            label: '未知',
+            icon: InfoIcon,
+            className: 'bg-blue-600 text-white',
+          }
 
       return (
         <div className='flex space-x-2'>
-          <Badge variant='outline' className={cn('capitalize', taskStatusDetail.className)}>
+          <Badge
+            variant='outline'
+            className={cn('capitalize', taskStatusDetail.className)}
+          >
             {taskStatusDetail.label}
           </Badge>
         </div>
@@ -223,9 +227,9 @@ export const jobsColumns: ColumnDef<JobData>[] = [
     cell: ({ row }) => {
       const beginAt = row.getValue('begin_at') as string
       return beginAt ? (
-        <SmartDatetime date={beginAt} timezone="Asia/Shanghai" />
+        <SmartDatetime date={beginAt} timezone='Asia/Shanghai' />
       ) : (
-        <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
+        <span className='text-gray-400'>-</span> // 如果没有时间则显示占位符
       )
     },
   },
@@ -239,9 +243,9 @@ export const jobsColumns: ColumnDef<JobData>[] = [
     cell: ({ row }) => {
       const endAt = row.getValue('end_at') as string
       return endAt ? (
-        <SmartDatetime date={endAt} timezone="Asia/Shanghai" />
+        <SmartDatetime date={endAt} timezone='Asia/Shanghai' />
       ) : (
-        <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
+        <span className='text-gray-400'>-</span> // 如果没有时间则显示占位符
       )
     },
   },
@@ -254,11 +258,7 @@ export const jobsColumns: ColumnDef<JobData>[] = [
     header: 'Actor ID',
     cell: ({ row }) => {
       const uid = row.getValue('uid') as string
-      return uid ? (
-        <div>{uid}</div>
-      ) : (
-        <span className="text-gray-400">-</span>
-      )
+      return uid ? <div>{uid}</div> : <span className='text-gray-400'>-</span>
     },
   },
   /**
@@ -271,14 +271,14 @@ export const jobsColumns: ColumnDef<JobData>[] = [
       const address = row.getValue('address') as string
       return address ? (
         <div>
-          {address.split(':')[0]}:<span className="text-sky-500">{address.split(':')[1]}</span>
+          {address.split(':')[0]}:
+          <span className='text-sky-500'>{address.split(':')[1]}</span>
         </div>
       ) : (
-        <span className="text-gray-400">-</span>
+        <span className='text-gray-400'>-</span>
       )
     },
   },
-
 
   /**
    * 节点ID列 - 显示执行任务的节点ID
@@ -291,7 +291,7 @@ export const jobsColumns: ColumnDef<JobData>[] = [
       return nodeId ? (
         <div>{nodeId}</div>
       ) : (
-        <span className="text-gray-400">-</span>
+        <span className='text-gray-400'>-</span>
       )
     },
   },
@@ -305,10 +305,11 @@ export const jobsColumns: ColumnDef<JobData>[] = [
       const nodeAddress = row.getValue('node_address') as string
       return nodeAddress ? (
         <div>
-          {nodeAddress.split(':')[0]}:<span className="text-sky-500">{nodeAddress.split(':')[1]}</span>
+          {nodeAddress.split(':')[0]}:
+          <span className='text-sky-500'>{nodeAddress.split(':')[1]}</span>
         </div>
       ) : (
-        <span className="text-gray-400">-</span>
+        <span className='text-gray-400'>-</span>
       )
     },
   },
@@ -321,9 +322,9 @@ export const jobsColumns: ColumnDef<JobData>[] = [
     cell: ({ row }) => {
       const triggeredAt = row.getValue('triggered_at') as string
       return triggeredAt ? (
-        <SmartDatetime date={triggeredAt} timezone="Asia/Shanghai" />
+        <SmartDatetime date={triggeredAt} timezone='Asia/Shanghai' />
       ) : (
-        <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
+        <span className='text-gray-400'>-</span> // 如果没有时间则显示占位符
       )
     },
   },
@@ -338,9 +339,9 @@ export const jobsColumns: ColumnDef<JobData>[] = [
     cell: ({ row }) => {
       const createAt = row.getValue('create_at') as string
       return createAt ? (
-        <SmartDatetime date={createAt} timezone="Asia/Shanghai" />
+        <SmartDatetime date={createAt} timezone='Asia/Shanghai' />
       ) : (
-        <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
+        <span className='text-gray-400'>-</span> // 如果没有时间则显示占位符
       )
     },
   },

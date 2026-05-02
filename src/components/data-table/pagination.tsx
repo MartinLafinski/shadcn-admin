@@ -15,7 +15,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-
 /**
  * 数据表格分页组件的属性接口
  * @template TData - 表格数据的类型
@@ -33,14 +32,14 @@ type DataTablePaginationProps<TData> = {
 
 /**
  * 数据表格分页组件
- * 
+ *
  * 该组件提供完整的分页功能，包括：
  * - 页码选择器（可选择每页显示的项目数量）
  * - 首页、上一页、下一页、末页按钮
  * - 当前页码显示
  * - 智能页码导航（显示当前页及附近的页码，中间用省略号表示连续页码）
  * - 响应式设计，适配不同屏幕尺寸
- * 
+ *
  * @template TData - 表格数据的类型
  * @param {DataTablePaginationProps<TData>} props - 组件属性
  * @param {Table<TData>} props.table - 表格实例
@@ -59,7 +58,8 @@ export function DataTablePagination<TData>({
   const totalItemCount = table.getRowCount()
   // 生成页码数组，用于显示页码按钮（如 [1, 2, 3, '...', 10]）
   // const pageNumbers = getPageNumbers(currentPage, totalPages)
-  const pageNumbers = totalPages > 0 ? getPageNumbers(currentPage, totalPages) : []
+  const pageNumbers =
+    totalPages > 0 ? getPageNumbers(currentPage, totalPages) : []
 
   // console.log(currentPage, totalPages, totalItemCount, pageNumbers)
 
@@ -88,30 +88,45 @@ export function DataTablePagination<TData>({
               table.setPageSize(Number(value))
             }}
           >
-            <SelectTrigger className='h-8 w-[70px]'> {/* 选择器触发器样式 */}
-              <SelectValue placeholder={table.getState().pagination.pageSize} /> {/* 显示当前值 */}
+            <SelectTrigger className='h-8 w-[70px]'>
+              {' '}
+              {/* 选择器触发器样式 */}
+              <SelectValue
+                placeholder={table.getState().pagination.pageSize}
+              />{' '}
+              {/* 显示当前值 */}
             </SelectTrigger>
-            <SelectContent side='top'> {/* 选择器内容，显示在上方 */}
+            <SelectContent side='top'>
+              {' '}
+              {/* 选择器内容，显示在上方 */}
               {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}> {/* 每个选项 */}
+                <SelectItem key={pageSize} value={`${pageSize}`}>
+                  {' '}
+                  {/* 每个选项 */}
                   {pageSize}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           {/* 显示每页项目数和总数，仅在小屏幕上隐藏 */}
-          <p className='hidden text-sm font-medium sm:block'>条/页 总数 {totalItemCount}</p>
+          <p className='hidden text-sm font-medium sm:block'>
+            条/页 总数 {totalItemCount}
+          </p>
         </div>
       </div>
 
       {/* 右侧内容：分页按钮 */}
-      <div className='flex items-center sm:space-x-6 lg:space-x-8'> {/* 在不同屏幕尺寸上调整间距 */}
+      <div className='flex items-center sm:space-x-6 lg:space-x-8'>
+        {' '}
+        {/* 在不同屏幕尺寸上调整间距 */}
         {/* 在小屏幕上隐藏的页码显示 */}
         <div className='flex w-[120px] items-center justify-center text-sm font-medium @max-3xl/content:hidden'>
           页码 {currentPage} / {totalPages}
         </div>
         {/* 分页按钮组 */}
-        <div className='flex items-center space-x-2'> {/* 按钮之间的间距 */}
+        <div className='flex items-center space-x-2'>
+          {' '}
+          {/* 按钮之间的间距 */}
           {/* 首页按钮 - 跳转到第一页 */}
           <Button
             variant='outline'
@@ -122,7 +137,6 @@ export function DataTablePagination<TData>({
             <span className='sr-only'>首页</span> {/* 屏幕阅读器专用文本 */}
             <DoubleArrowLeftIcon className='h-4 w-4' /> {/* 首页图标 */}
           </Button>
-          
           {/* 上一页按钮 */}
           <Button
             variant='outline'
@@ -133,25 +147,25 @@ export function DataTablePagination<TData>({
             <span className='sr-only'>上页</span>
             <ChevronLeftIcon className='h-4 w-4' /> {/* 上一页图标 */}
           </Button>
-
           {/* 页码按钮 - 显示当前页和附近的页码 */}
           {pageNumbers.map((pageNumber, index) => (
             <div key={`${pageNumber}-${index}`} className='flex items-center'>
               {pageNumber === '...' ? ( // 如果是省略号，显示为文本
                 <span className='px-1 text-sm text-muted-foreground'>...</span>
-              ) : ( // 否则显示为按钮
+              ) : (
+                // 否则显示为按钮
                 <Button
                   variant={currentPage === pageNumber ? 'default' : 'outline'} // 当前页按钮使用默认样式，其他页码使用轮廓样式
                   className='h-8 min-w-8 px-2' // 按钮尺寸
                   onClick={() => table.setPageIndex((pageNumber as number) - 1)} // 点击时跳转到指定页（pageIndex从0开始）
                 >
-                  <span className='sr-only'>跳转到 {pageNumber}</span> {/* 屏幕阅读器文本 */}
+                  <span className='sr-only'>跳转到 {pageNumber}</span>{' '}
+                  {/* 屏幕阅读器文本 */}
                   {pageNumber} {/* 显示页码 */}
                 </Button>
               )}
             </div>
           ))}
-
           {/* 下一页按钮 */}
           <Button
             variant='outline'
@@ -162,7 +176,6 @@ export function DataTablePagination<TData>({
             <span className='sr-only'>下页</span>
             <ChevronRightIcon className='h-4 w-4' /> {/* 下一页图标 */}
           </Button>
-          
           {/* 末页按钮 - 跳转到最后一页 */}
           <Button
             variant='outline'

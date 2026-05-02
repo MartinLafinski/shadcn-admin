@@ -2,17 +2,20 @@
 import { useState, useEffect } from 'react'
 // 表单处理
 import { useForm } from 'react-hook-form'
-// 用于同步后台数据
-import { useQueryClient } from '@tanstack/react-query'
 // 数据验证
 import { zodResolver } from '@hookform/resolvers/zod'
+// 用于同步后台数据
+import { useQueryClient } from '@tanstack/react-query'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-// 输入框控件
-import { Input } from '@/components/ui/input.tsx'
-import { Textarea } from '@/components/ui/textarea'
 // 表单控件
 import {
   Form,
@@ -22,6 +25,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form.tsx'
+// 输入框控件
+import { Input } from '@/components/ui/input.tsx'
 // 抽屉控件
 import {
   Sheet,
@@ -32,17 +37,15 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// 数据结构
-import { type LinkUpdateData, type LinkItemData, LinkUpdateSchema } from '../../data/schemas.ts'
+import { Textarea } from '@/components/ui/textarea'
 // 更新友链API调用
 import { useUpdateLinkMutation, useLinkQuery } from '../../api/links.ts'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import { toast } from "sonner"
-
+// 数据结构
+import {
+  type LinkUpdateData,
+  type LinkItemData,
+  LinkUpdateSchema,
+} from '../../data/schemas.ts'
 
 /**
  * 友链更新抽屉组件
@@ -70,16 +73,18 @@ type LinkUpdateDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function LinkUpdateDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: LinkUpdateDrawerProps)
-{
+export function LinkUpdateDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: LinkUpdateDrawerProps) {
   const queryClient = useQueryClient()
   // 添加查询钩子
-  const { data: latestLink, isLoading: isLatestDataLoading, refetch } = useLinkQuery(currentRow?.links_id || 0)
+  const {
+    data: latestLink,
+    isLoading: isLatestDataLoading,
+    refetch,
+  } = useLinkQuery(currentRow?.links_id || 0)
 
   // 添加状态管理
   const [, setShowConflictWarning] = useState(false)
@@ -147,15 +152,18 @@ export function LinkUpdateDrawer(
     }
 
     // 使用 mutation 调用 API 更新友链
-    await updateLinkMutation.mutateAsync({
-      linkId: currentRow.links_id,
-      data
-    }).then((res) => {
-      toast.success(`友链 ${res.links_name} 更新成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error(`友链 ${currentRow.links_name} 更新失败:`, error) // 记录错误日志
-      toast.error(`友链 ${currentRow.links_name} 更新失败`) // 操作失败提示
-    })
+    await updateLinkMutation
+      .mutateAsync({
+        linkId: currentRow.links_id,
+        data,
+      })
+      .then((res) => {
+        toast.success(`友链 ${res.links_name} 更新成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error(`友链 ${currentRow.links_name} 更新失败:`, error) // 记录错误日志
+        toast.error(`友链 ${currentRow.links_name} 更新失败`) // 操作失败提示
+      })
 
     // 关闭抽屉
     onOpenChange(false)
@@ -174,7 +182,7 @@ export function LinkUpdateDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>更新友链</SheetTitle>
           <SheetDescription>
@@ -210,7 +218,10 @@ export function LinkUpdateDrawer(
                 <FormItem>
                   <FormLabel>友链标识</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='友链标识(字母、数字、连字符或下划线)' />
+                    <Input
+                      {...field}
+                      placeholder='友链标识(字母、数字、连字符或下划线)'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -265,10 +276,7 @@ export function LinkUpdateDrawer(
                   <FormLabel>友链说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

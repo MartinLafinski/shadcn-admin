@@ -2,10 +2,23 @@
 import React, { useState, useEffect } from 'react'
 // 导入表单库
 import { useForm } from 'react-hook-form'
-// 用于同步后台数据
-import { useQueryClient } from '@tanstack/react-query'
 // 数据验证库
 import { zodResolver } from '@hookform/resolvers/zod'
+// 用于同步后台数据
+import { useQueryClient } from '@tanstack/react-query'
+import { html } from '@codemirror/lang-html'
+import { EditorView } from '@codemirror/view'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+// CodeMirror 编辑器
+import CodeMirror from '@uiw/react-codemirror'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// 图标
+import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
@@ -29,23 +42,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// 数据结构
-import { type TemplateConfigData, type TemplateItemData, TemplateConfigSchema } from '../../data/schemas.ts'
 // 配置模板API调用
-import { usePatchTemplateMutation, useTemplateQuery } from '../../api/templates.ts'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import { toast } from "sonner"
-// CodeMirror 编辑器
-import CodeMirror from '@uiw/react-codemirror'
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
-import { html } from '@codemirror/lang-html'
-// 图标
-import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
-import { EditorView } from "@codemirror/view"
+import {
+  usePatchTemplateMutation,
+  useTemplateQuery,
+} from '../../api/templates.ts'
+// 数据结构
+import {
+  type TemplateConfigData,
+  type TemplateItemData,
+  TemplateConfigSchema,
+} from '../../data/schemas.ts'
 
 /**
  * 模板配置和说明抽屉组件
@@ -73,16 +80,18 @@ type TemplateConfigDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function TemplateConfigDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: TemplateConfigDrawerProps)
-{
+export function TemplateConfigDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: TemplateConfigDrawerProps) {
   const queryClient = useQueryClient()
   // 添加查询钩子
-  const { data: latestTemplate, isLoading: isLatestDataLoading, refetch } = useTemplateQuery(currentRow?.template_id || 0)
+  const {
+    data: latestTemplate,
+    isLoading: isLatestDataLoading,
+    refetch,
+  } = useTemplateQuery(currentRow?.template_id || 0)
 
   // 添加状态管理
   const [, setShowConflictWarning] = useState(false)
@@ -125,17 +134,19 @@ export function TemplateConfigDrawer(
   const form = useForm<TemplateConfigData>({
     resolver: zodResolver(TemplateConfigSchema),
     // 如果有currentRow则使用其值作为默认值，否则使用空值
-    defaultValues: currentRow ? {
-      // 模板内容 - 模板的主要内容
-      template_content: currentRow.template_content || '',
-      // 模板说明文档 - 使用Markdown格式的说明文档内容
-      template_readme: currentRow.template_readme || '',
-    } : {
-      // 模板内容 - 模板的主要内容
-      template_content: '',
-      // 模板说明文档 - 使用Markdown格式的说明文档内容
-      template_readme: '',
-    },
+    defaultValues: currentRow
+      ? {
+          // 模板内容 - 模板的主要内容
+          template_content: currentRow.template_content || '',
+          // 模板说明文档 - 使用Markdown格式的说明文档内容
+          template_readme: currentRow.template_readme || '',
+        }
+      : {
+          // 模板内容 - 模板的主要内容
+          template_content: '',
+          // 模板说明文档 - 使用Markdown格式的说明文档内容
+          template_readme: '',
+        },
   })
 
   /**
@@ -146,20 +157,26 @@ export function TemplateConfigDrawer(
   const onSubmit = async (data: TemplateConfigData) => {
     // 确保有 currentRow 和 template_id
     if (!currentRow?.template_id) {
-        console.error('缺少模板ID，无法配置和说明')
-        return
+      console.error('缺少模板ID，无法配置和说明')
+      return
     }
 
     // 使用 mutation 调用 API 配置和说明模板
-    await configTemplateMutation.mutateAsync({
+    await configTemplateMutation
+      .mutateAsync({
         templateId: currentRow.template_id,
-        data
-    }).then((res) => {
-      toast.success(`模板 ${res.template_name} 说明与配置编辑成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error(`模板 ${currentRow.template_name} 说明与配置编辑失败:`, error) // 记录错误日志
-      toast.error(`模板 ${currentRow.template_name} 说明与配置编辑失败`) // 操作失败提示
-    })
+        data,
+      })
+      .then((res) => {
+        toast.success(`模板 ${res.template_name} 说明与配置编辑成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error(
+          `模板 ${currentRow.template_name} 说明与配置编辑失败:`,
+          error
+        ) // 记录错误日志
+        toast.error(`模板 ${currentRow.template_name} 说明与配置编辑失败`) // 操作失败提示
+      })
 
     // 关闭抽屉
     onOpenChange(false)
@@ -178,7 +195,7 @@ export function TemplateConfigDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>配置和说明模板</SheetTitle>
           <SheetDescription>
@@ -197,7 +214,13 @@ export function TemplateConfigDrawer(
               control={form.control}
               name='template_content'
               render={({ field }) => (
-                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background' : ''}>
+                <FormItem
+                  className={
+                    isFullscreen
+                      ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background'
+                      : ''
+                  }
+                >
                   <div className='flex items-center justify-between'>
                     <FormLabel>模板内容</FormLabel>
                     <Button
@@ -219,7 +242,9 @@ export function TemplateConfigDrawer(
                       extensions={[html(), EditorView.lineWrapping]}
                       value={field.value}
                       onChange={field.onChange}
-                      theme={resolvedTheme === 'light' ? githubLight : githubDark}
+                      theme={
+                        resolvedTheme === 'light' ? githubLight : githubDark
+                      }
                       placeholder='请输入模板内容...'
                       height={isFullscreen ? 'calc(100vh - 60px)' : 'auto'}
                       minHeight='300px'
@@ -261,16 +286,12 @@ export function TemplateConfigDrawer(
                   <FormLabel>模板说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
           </form>
         </Form>
         <SheetFooter className='gap-2'>

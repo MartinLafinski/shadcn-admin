@@ -2,19 +2,25 @@
 import React, { useState, useEffect } from 'react'
 // 表单处理
 import { useForm } from 'react-hook-form'
-// 用于同步后台数据
-import { useQueryClient } from '@tanstack/react-query'
 // 数据验证
 import { zodResolver } from '@hookform/resolvers/zod'
+// 用于同步后台数据
+import { useQueryClient } from '@tanstack/react-query'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+// CodeMirror 编辑器
+import CodeMirror from '@uiw/react-codemirror'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// 图标
+import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-// 输入框控件
-import { Input } from '@/components/ui/input.tsx'
-// CodeMirror 编辑器
-import CodeMirror from '@uiw/react-codemirror'
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
 // 表单控件
 import {
   Form,
@@ -24,6 +30,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form.tsx'
+// 输入框控件
+import { Input } from '@/components/ui/input.tsx'
 // 抽屉控件
 import {
   Sheet,
@@ -34,19 +42,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// 数据结构
-import { type BlackwordUpdateData, type BlackwordItemData, BlackwordUpdateSchema } from '../../data/schemas.ts'
 // 更新敏感词API调用
-import { useUpdateBlackwordMutation, useBlackwordQuery } from '../../api/blackwords.ts'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import { toast } from "sonner"
-// 图标
-import { Maximize2Icon, Minimize2Icon } from "lucide-react"
-
+import {
+  useUpdateBlackwordMutation,
+  useBlackwordQuery,
+} from '../../api/blackwords.ts'
+// 数据结构
+import {
+  type BlackwordUpdateData,
+  type BlackwordItemData,
+  BlackwordUpdateSchema,
+} from '../../data/schemas.ts'
 
 /**
  * 敏感词更新抽屉组件
@@ -74,19 +80,21 @@ type BlackwordUpdateDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function BlackwordUpdateDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: BlackwordUpdateDrawerProps)
-{
+export function BlackwordUpdateDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: BlackwordUpdateDrawerProps) {
   // 全屏状态管理
   const [isFullscreen, setIsFullscreen] = React.useState(false)
 
   // 添加查询钩子
   const queryClient = useQueryClient()
-  const { data: latestBlackword, isLoading: isLatestDataLoading, refetch } = useBlackwordQuery(currentRow?.blackwords_id || 0)
+  const {
+    data: latestBlackword,
+    isLoading: isLatestDataLoading,
+    refetch,
+  } = useBlackwordQuery(currentRow?.blackwords_id || 0)
 
   // 添加状态管理
   const [, setShowConflictWarning] = useState(false)
@@ -154,15 +162,18 @@ export function BlackwordUpdateDrawer(
     }
 
     // 使用 mutation 调用 API 更新敏感词
-    await updateBlackwordMutation.mutateAsync({
-      blackwordsId: currentRow.blackwords_id,
-      data
-    }).then((res) => {
-      toast.success(`敏感词 ${res.blackwords_name} 更新成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error(`敏感词 ${currentRow.blackwords_name} 更新失败:`, error) // 记录错误日志
-      toast.error(`敏感词 ${currentRow.blackwords_name} 更新失败`) // 操作失败提示
-    })
+    await updateBlackwordMutation
+      .mutateAsync({
+        blackwordsId: currentRow.blackwords_id,
+        data,
+      })
+      .then((res) => {
+        toast.success(`敏感词 ${res.blackwords_name} 更新成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error(`敏感词 ${currentRow.blackwords_name} 更新失败:`, error) // 记录错误日志
+        toast.error(`敏感词 ${currentRow.blackwords_name} 更新失败`) // 操作失败提示
+      })
 
     // 关闭抽屉
     onOpenChange(false)
@@ -181,7 +192,7 @@ export function BlackwordUpdateDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>更新敏感词</SheetTitle>
           <SheetDescription>
@@ -217,7 +228,10 @@ export function BlackwordUpdateDrawer(
                 <FormItem>
                   <FormLabel>敏感词标识</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='敏感词标识(字母、数字、连字符或下划线)' />
+                    <Input
+                      {...field}
+                      placeholder='敏感词标识(字母、数字、连字符或下划线)'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -228,7 +242,13 @@ export function BlackwordUpdateDrawer(
               control={form.control}
               name='blackwords_collection'
               render={({ field }) => (
-                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background' : ''}>
+                <FormItem
+                  className={
+                    isFullscreen
+                      ? 'fixed inset-0 z-50 m-0 !h-screen !w-screen rounded-none border-0 bg-background'
+                      : ''
+                  }
+                >
                   <div className='flex items-center justify-between'>
                     <FormLabel>敏感词集合</FormLabel>
                     <Button
@@ -262,7 +282,9 @@ export function BlackwordUpdateDrawer(
                         })
                         field.onChange(filteredLines)
                       }}
-                      theme={resolvedTheme === 'light' ? githubLight : githubDark}
+                      theme={
+                        resolvedTheme === 'light' ? githubLight : githubDark
+                      }
                       placeholder='每行输入一个敏感词'
                       height={isFullscreen ? 'calc(100vh - 60px)' : '200px'}
                       basicSetup={{
@@ -303,10 +325,7 @@ export function BlackwordUpdateDrawer(
                   <FormLabel>敏感词说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

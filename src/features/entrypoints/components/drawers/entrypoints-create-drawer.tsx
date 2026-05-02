@@ -4,12 +4,41 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 // 数据验证
 import { zodResolver } from '@hookform/resolvers/zod'
+// 代码json插件
+import { json } from '@codemirror/lang-json'
+import { EditorView } from '@codemirror/view'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+// 代码编辑器
+import CodeMirror from '@uiw/react-codemirror'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// JSON编辑器
+import { JsonEditor, githubDarkTheme, githubLightTheme } from 'json-edit-react'
+// 图标
+import {
+  CheckIcon,
+  ChevronsUpDownIcon,
+  Maximize2Icon,
+  Minimize2Icon,
+} from 'lucide-react'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 工具函数
+import { cn } from '@/lib/utils'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-// 输入框控件
-import { Input } from '@/components/ui/input.tsx'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command.tsx'
 // 表单控件
 import {
   Form,
@@ -19,6 +48,22 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form.tsx'
+// 输入框控件
+import { Input } from '@/components/ui/input.tsx'
+// Popover 和 Command 控件
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover.tsx'
+// 选择控件
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select.tsx'
 // 抽屉控件
 import {
   Sheet,
@@ -29,46 +74,27 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// Popover 和 Command 控件
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover.tsx'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command.tsx'
-// 图标
-import { CheckIcon, ChevronsUpDownIcon, Maximize2Icon, Minimize2Icon } from 'lucide-react'
-// 数据结构
-import { type EntrypointCreateData, type EntrypointItemData, EntrypointCreateSchema } from '../../data/schemas.ts'
-// API调用
-import { useCreateEntrypointMutation } from '../../api/entrypoints.ts'
+// 行业数据查询
+import { useIndustriesQuery } from '@/features/industries/api/industries.ts'
 // 网站数据查询
 import { useWebsitesQuery } from '@/features/websites/api/websites.ts'
-// JSON编辑器
-import { JsonEditor, githubDarkTheme, githubLightTheme } from 'json-edit-react'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import {toast} from "sonner"
-// 工具函数
-import { cn } from '@/lib/utils'
-// 代码编辑器
-import CodeMirror from '@uiw/react-codemirror'
-// 代码json插件
-import { json } from '@codemirror/lang-json'
-import { EditorView } from '@codemirror/view'
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+// API调用
+import { useCreateEntrypointMutation } from '../../api/entrypoints.ts'
+// 标签数据
+import { materialLabels } from '../../data/labels.tsx'
+// 数据结构
+import {
+  type EntrypointCreateData,
+  type EntrypointItemData,
+  EntrypointCreateSchema,
+} from '../../data/schemas.ts'
 
-const WEBSITE_SEARCH_SIZE: number = Number(import.meta.env.VITE_WEBSITE_SEARCH_SIZE || 50)
+const WEBSITE_SEARCH_SIZE: number = Number(
+  import.meta.env.VITE_WEBSITE_SEARCH_SIZE || 50
+)
+const INDUSTRY_SEARCH_SIZE: number = Number(
+  import.meta.env.VITE_INDUSTRY_SEARCH_SIZE || 50
+)
 
 /**
  * 入口点创建抽屉组件
@@ -87,7 +113,7 @@ type EntrypointCreateDrawerProps = {
 /**
  * 入口点创建抽屉组件
  * 提供创建或编辑入口点的表单界面
- * 
+ *
  * 功能特性：
  * - 使用 react-hook-form 进行表单管理
  * - 集成 Zod 验证 schema
@@ -96,13 +122,11 @@ type EntrypointCreateDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function EntrypointCreateDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: EntrypointCreateDrawerProps)
-{
+export function EntrypointCreateDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: EntrypointCreateDrawerProps) {
   // 获取当前主题（用于JSON编辑器和MD编辑器主题适配）
   const { resolvedTheme } = useTheme()
   // 全屏状态管理
@@ -111,48 +135,86 @@ export function EntrypointCreateDrawer(
   const [websiteKeyword, setWebsiteKeyword] = React.useState<string>('')
   // 控制网站下拉框的打开状态
   const [websitePopoverOpen, setWebsitePopoverOpen] = React.useState(false)
-  
+  // 行业搜索关键词状态
+  const [industryKeyword, setIndustryKeyword] = React.useState<string>('')
+  // 控制行业下拉框的打开状态
+  const [industryPopoverOpen, setIndustryPopoverOpen] = React.useState(false)
+
   // 获取网站列表数据（支持搜索）
-  const { data: websitesData, isLoading: websitesLoading } = useWebsitesQuery(websiteKeyword, undefined, 1, WEBSITE_SEARCH_SIZE)
-  
+  const { data: websitesData, isLoading: websitesLoading } = useWebsitesQuery(
+    websiteKeyword,
+    undefined,
+    1,
+    WEBSITE_SEARCH_SIZE
+  )
+  // 获取行业列表数据（支持搜索）
+  const { data: industriesData, isLoading: industriesLoading } =
+    useIndustriesQuery(industryKeyword, 1, INDUSTRY_SEARCH_SIZE)
+
   // 初始化创建入口点的mutation
   const createEntrypointMutation = useCreateEntrypointMutation()
-  
+
   // 初始化表单，设置验证规则和默认值
   const form = useForm<EntrypointCreateData>({
     resolver: zodResolver(EntrypointCreateSchema),
     // 如果有currentRow则使用其值作为默认值，否则使用空值
-    defaultValues: currentRow ? {
-      // 网站ID - 用于关联入口点到特定网站
-      website_id: currentRow.website_id ?? undefined,
-      // 入口点显示名称 - 用于界面展示的可读名称
-      entrypoint_name: currentRow.entrypoint_name,
-      // 入口点URL标识符 - 用于路由和API请求的唯一标识符
-      entrypoint_slug: currentRow.entrypoint_slug,
-      // 入口点访问URL - 入口点的真实访问地址（可选字段）
-      entrypoint_url: currentRow.entrypoint_url || undefined,
-      // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
-      entrypoint_config: currentRow.entrypoint_config,
-      // 入口点说明文档 - 使用Markdown格式的说明文档内容
-      entrypoint_readme: currentRow.entrypoint_readme,
-    } : {
-      // 网站ID - 用于关联入口点到特定网站
-      website_id: undefined,
-      // 入口点显示名称 - 用于界面展示的可读名称
-      entrypoint_name: '',
-      // 入口点URL标识符 - 用于路由和API请求的唯一标识符
-      entrypoint_slug: '',
-      // 入口点访问URL - 入口点的真实访问地址（可选字段）
-      entrypoint_url: undefined,
-      // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
-      entrypoint_config: {},
-      // 入口点说明文档 - 使用Markdown格式的说明文档内容
-      entrypoint_readme: '',
-    },
+    defaultValues: currentRow
+      ? {
+          // 网站ID - 用于关联入口点到特定网站
+          website_id: currentRow.website_id ?? undefined,
+          // 行业ID - 用于关联入口点到特定行业
+          industry_id: currentRow.industry_id ?? undefined,
+          // 入口点头像URL
+          entrypoint_avatar: currentRow.entrypoint_avatar || undefined,
+          // 入口点显示名称 - 用于界面展示的可读名称
+          entrypoint_name: currentRow.entrypoint_name,
+          // 入口点URL标识符 - 用于路由和API请求的唯一标识符
+          entrypoint_slug: currentRow.entrypoint_slug,
+          // 入口点访问URL - 入口点的真实访问地址（可选字段）
+          entrypoint_url: currentRow.entrypoint_url || undefined,
+          // 入口点在线任务上限
+          entrypoint_max_spider_task_count:
+            currentRow.entrypoint_max_spider_task_count || 0,
+          // 材料类型 - 入口点的材料类型
+          material_type: currentRow.material_type || 'unknown',
+          // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
+          entrypoint_config: currentRow.entrypoint_config,
+          // 入口点说明文档 - 使用Markdown格式的说明文档内容
+          entrypoint_readme: currentRow.entrypoint_readme,
+        }
+      : {
+          // 网站ID - 用于关联入口点到特定网站
+          website_id: undefined,
+          // 行业ID - 用于关联入口点到特定行业
+          industry_id: undefined,
+          // 入口点头像URL
+          entrypoint_avatar: undefined,
+          // 入口点显示名称 - 用于界面展示的可读名称
+          entrypoint_name: '',
+          // 入口点URL标识符 - 用于路由和API请求的唯一标识符
+          entrypoint_slug: '',
+          // 入口点访问URL - 入口点的真实访问地址（可选字段）
+          entrypoint_url: undefined,
+          // 入口点在线任务上限
+          entrypoint_max_spider_task_count: 0,
+          // 材料类型 - 入口点的材料类型
+          material_type: 'unknown',
+          // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
+          entrypoint_config: {},
+          // 入口点说明文档 - 使用Markdown格式的说明文档内容
+          entrypoint_readme: '',
+        },
   })
-  
+
   // 获取当前选中的网站
-  const selectedWebsite = websitesData?.websites?.find(w => w.website_id === form.watch('website_id'))
+  const selectedWebsite = websitesData?.websites?.find(
+    (w) => w.website_id === form.watch('website_id')
+  )
+
+  // 获取当前选中的行业
+  const selectedIndustry = industriesData?.industries?.find(
+    (w) => w.industry_id === form.watch('industry_id')
+  )
 
   /**
    * 表单提交处理函数
@@ -161,14 +223,15 @@ export function EntrypointCreateDrawer(
    */
   const onSubmit = async (data: EntrypointCreateData) => {
     // 使用 mutation 调用 API 创建入口点
-    await createEntrypointMutation.mutateAsync(
-      data
-    ).then((res) => {
-      toast.success(`入口点 ${res.entrypoint_name} 创建成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error('入口点创建失败:', error) // 记录错误日志
-      toast.error('入口点创建失败') // 操作失败提示
-    })
+    await createEntrypointMutation
+      .mutateAsync(data)
+      .then((res) => {
+        toast.success(`入口点 ${res.entrypoint_name} 创建成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error('入口点创建失败:', error) // 记录错误日志
+        toast.error('入口点创建失败') // 操作失败提示
+      })
     // 关闭抽屉
     onOpenChange(false)
     // 重置表单到默认状态
@@ -186,12 +249,10 @@ export function EntrypointCreateDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>创建入口点</SheetTitle>
-          <SheetDescription>
-            创建新的入口点
-          </SheetDescription>
+          <SheetDescription>创建新的入口点</SheetDescription>
         </SheetHeader>
         {/* 将表单与react-hook-form实例连接 */}
         <Form {...form}>
@@ -207,7 +268,10 @@ export function EntrypointCreateDrawer(
               render={({ field }) => (
                 <FormItem className='flex flex-col'>
                   <FormLabel>所属网站</FormLabel>
-                  <Popover open={websitePopoverOpen} onOpenChange={setWebsitePopoverOpen}>
+                  <Popover
+                    open={websitePopoverOpen}
+                    onOpenChange={setWebsitePopoverOpen}
+                  >
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -228,7 +292,7 @@ export function EntrypointCreateDrawer(
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className='w-full p-0' align='start'>
-                      <Command  shouldFilter={false} className='w-full'>
+                      <Command shouldFilter={false} className='w-full'>
                         <CommandInput
                           className='w-full'
                           placeholder='搜索网站...'
@@ -236,20 +300,29 @@ export function EntrypointCreateDrawer(
                           onValueChange={setWebsiteKeyword}
                         />
                         <CommandList className='w-full'>
-                          {!websitesLoading && (!websitesData?.websites || websitesData.websites.length === 0) && (
-                            <CommandEmpty>未找到网站</CommandEmpty>
-                          )}
+                          {!websitesLoading &&
+                            (!websitesData?.websites ||
+                              websitesData.websites.length === 0) && (
+                              <CommandEmpty>未找到网站</CommandEmpty>
+                            )}
                           {websitesLoading && (
                             <CommandEmpty>加载中...</CommandEmpty>
                           )}
-                          {websitesData?.websites && websitesData.websites.length > 0 && (
-                              <CommandGroup key={websitesData?.websites.length.toString()}>
+                          {websitesData?.websites &&
+                            websitesData.websites.length > 0 && (
+                              <CommandGroup
+                                key={websitesData?.websites.length.toString()}
+                              >
                                 {websitesData.websites.map((website) => (
                                   <CommandItem
                                     key={website.website_id.toString()}
                                     value={`${website.website_id}`}
                                     onSelect={() => {
-                                      form.setValue('website_id', website.website_id, { shouldValidate: true })
+                                      form.setValue(
+                                        'website_id',
+                                        website.website_id,
+                                        { shouldValidate: true }
+                                      )
                                       setWebsitePopoverOpen(false)
                                     }}
                                   >
@@ -261,14 +334,16 @@ export function EntrypointCreateDrawer(
                                           : 'opacity-0'
                                       )}
                                     />
-                                    <span className="font-semibold">{website.website_name}</span>
-                                    <span className="ml-2 text-muted-foreground text-xs">
+                                    <span className='font-semibold'>
+                                      {website.website_name}
+                                    </span>
+                                    <span className='ml-2 text-xs text-muted-foreground'>
                                       [{website.website_slug}]
                                     </span>
                                   </CommandItem>
                                 ))}
                               </CommandGroup>
-                          )}
+                            )}
                         </CommandList>
                       </Command>
                     </PopoverContent>
@@ -277,6 +352,157 @@ export function EntrypointCreateDrawer(
                 </FormItem>
               )}
             />
+            {/* 行业选择字段 - 用于关联入口点到特定行业 */}
+            <FormField
+              control={form.control}
+              name='industry_id'
+              render={({ field }) => (
+                <FormItem className='flex flex-col'>
+                  <FormLabel>所在行业</FormLabel>
+                  <Popover
+                    open={industryPopoverOpen}
+                    onOpenChange={setIndustryPopoverOpen}
+                  >
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant='outline'
+                          role='combobox'
+                          className={cn(
+                            'w-full justify-between',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value
+                            ? selectedIndustry
+                              ? `${selectedIndustry.industry_name} [${selectedIndustry.industry_slug}]`
+                              : '选择一个行业'
+                            : '选择一个行业'}
+                          <ChevronsUpDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className='w-full p-0' align='start'>
+                      <Command shouldFilter={false} className='w-full'>
+                        <CommandInput
+                          className='w-full'
+                          placeholder='搜索行业...'
+                          value={industryKeyword}
+                          onValueChange={setIndustryKeyword}
+                        />
+                        <CommandList className='w-full'>
+                          {!industriesLoading &&
+                            (!industriesData?.industries ||
+                              industriesData.industries.length === 0) && (
+                              <CommandEmpty>未找到行业</CommandEmpty>
+                            )}
+                          {industriesLoading && (
+                            <CommandEmpty>加载中...</CommandEmpty>
+                          )}
+                          {industriesData?.industries &&
+                            industriesData.industries.length > 0 && (
+                              <CommandGroup
+                                key={industriesData?.industries.length.toString()}
+                              >
+                                {industriesData.industries.map((industry) => (
+                                  <CommandItem
+                                    key={industry.industry_id.toString()}
+                                    value={`${industry.industry_id}`}
+                                    onSelect={() => {
+                                      form.setValue(
+                                        'industry_id',
+                                        industry.industry_id,
+                                        { shouldValidate: true }
+                                      )
+                                      setIndustryPopoverOpen(false)
+                                    }}
+                                  >
+                                    <CheckIcon
+                                      className={cn(
+                                        'mr-2 h-4 w-4',
+                                        field.value === industry.industry_id
+                                          ? 'opacity-100'
+                                          : 'opacity-0'
+                                      )}
+                                    />
+                                    <span className='font-semibold'>
+                                      {industry.industry_name}
+                                    </span>
+                                    <span className='ml-2 text-xs text-muted-foreground'>
+                                      [{industry.industry_slug}]
+                                    </span>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            )}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 入口点头像字段 - 可选，图片URL */}
+            <FormField
+              control={form.control}
+              name='entrypoint_avatar'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>入口点头像</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder='入口点头像URL'
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 材料类型字段 - 可选，选择入口点的材料类型 */}
+            <FormField
+              control={form.control}
+              name='material_type'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>材料类型</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || 'unknown'}
+                  >
+                    <FormControl
+                      className={cn(
+                        'w-full justify-between',
+                        !field.value && 'text-muted-foreground'
+                      )}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder='选择材料类型' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {materialLabels.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          <div className='flex items-center space-x-2'>
+                            <item.icon className='h-4 w-4' />
+                            <span className='font-semibold'>{item.label}</span>
+                            <span className='text-muted-foreground'>
+                              [ {item.value} ]
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* 入口点名称字段 - 必填，用于显示 */}
             <FormField
               control={form.control}
@@ -299,7 +525,29 @@ export function EntrypointCreateDrawer(
                 <FormItem>
                   <FormLabel>入口点标识</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='入口点标识(字母、数字、连字符或下划线)' />
+                    <Input
+                      {...field}
+                      placeholder='入口点标识(字母、数字、连字符或下划线)'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* 网站内在线爬虫任务数量限制 */}
+            <FormField
+              control={form.control}
+              name='entrypoint_max_task_count'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>入口点最大任务数</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type='number'
+                      placeholder='0表示无限制'
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -314,19 +562,30 @@ export function EntrypointCreateDrawer(
                   <FormLabel>URL</FormLabel>
                   <FormControl>
                     {/* 处理null值与空字符串的显示问题 */}
-                    <Input {...field} value={field.value ?? ''} placeholder='入口点网址(https://www.example.com/)' />
+                    <Input
+                      {...field}
+                      value={field.value ?? ''}
+                      placeholder='入口点网址(https://www.example.com/)'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             {/* 入口点配置字段 - JSON格式的配置信息 */}
             <FormField
               control={form.control}
               name='entrypoint_config'
               render={({ field }) => (
-                <FormItem className={isFullscreen ? 'fixed inset-0 z-50 m-0 h-screen! w-screen! rounded-none border-0 bg-background flex flex-col overflow-hidden' : ''}>
-                  <div className='flex items-center justify-between shrink-0'>
+                <FormItem
+                  className={
+                    isFullscreen
+                      ? 'fixed inset-0 z-50 m-0 flex h-screen! w-screen! flex-col overflow-hidden rounded-none border-0 bg-background'
+                      : ''
+                  }
+                >
+                  <div className='flex shrink-0 items-center justify-between'>
                     <FormLabel>入口点配置</FormLabel>
                     <Button
                       type='button'
@@ -342,28 +601,34 @@ export function EntrypointCreateDrawer(
                       )}
                     </Button>
                   </div>
-                  <FormControl className="flex-1 min-h-0 overflow-y-auto">
+                  <FormControl className='min-h-0 flex-1 overflow-y-auto'>
                     {/* JSON编辑器，支持主题切换 */}
                     <JsonEditor
                       data={field.value}
                       setData={field.onChange}
                       rootFontSize={13}
-                      theme={resolvedTheme === 'light' ? githubLightTheme : githubDarkTheme}
+                      theme={
+                        resolvedTheme === 'light'
+                          ? githubLightTheme
+                          : githubDarkTheme
+                      }
                       minWidth={isFullscreen ? '100%' : '100%'}
                       maxWidth={isFullscreen ? '100%' : '100%'}
-                      TextEditor={
-                        (props) => {
-                          return (
-                            <CodeMirror
-                              {...props}
-                              theme={resolvedTheme === 'light' ? githubLight : githubDark}
-                              extensions={[json(), EditorView.lineWrapping]}
-                              height={isFullscreen ? '100%' : 'auto'}
-                              minHeight='300px'
-                            />
-                          )
-                        }
-                      }
+                      TextEditor={(props) => {
+                        return (
+                          <CodeMirror
+                            {...props}
+                            theme={
+                              resolvedTheme === 'light'
+                                ? githubLight
+                                : githubDark
+                            }
+                            extensions={[json(), EditorView.lineWrapping]}
+                            height={isFullscreen ? '100%' : 'auto'}
+                            minHeight='300px'
+                          />
+                        )
+                      }}
                     />
                   </FormControl>
                   <FormMessage className='shrink-0' />
@@ -379,10 +644,7 @@ export function EntrypointCreateDrawer(
                   <FormLabel>入口点说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

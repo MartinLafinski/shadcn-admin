@@ -1,26 +1,25 @@
 // 图标
-import { InfoIcon } from 'lucide-react'
 // 表格列
 import { ColumnDef } from '@tanstack/react-table'
+import { InfoIcon } from 'lucide-react'
+import { cn } from '@/lib/utils.ts'
+import { Badge } from '@/components/ui/badge.tsx'
 // 按钮控件
-import { Button } from "@/components/ui/button.tsx"
+import { Button } from '@/components/ui/button.tsx'
 // 复选框控件
-import { Checkbox } from "@/components/ui/checkbox.tsx"
+import { Checkbox } from '@/components/ui/checkbox.tsx'
 // 自定义时间控件
-import { SmartDatetime } from "@/components/smart/datetime.tsx"
-// 请求状态
-import { useReqs } from './reqs-provider'
+import { SmartDatetime } from '@/components/smart/datetime.tsx'
 // 状态结构
 import { reqResultTypeDict } from '@/features/reqs/data/labels'
 // 请求数据结构
 import { ReqData } from '@/features/reqs/data/schemas'
-import {Badge} from "@/components/ui/badge.tsx";
-import {cn} from "@/lib/utils.ts";
-
+// 请求状态
+import { useReqs } from './reqs-provider'
 
 /**
  * 请求列表表格列定义
- * 
+ *
  * 定义了请求管理页面表格的所有列，包括：
  * - 选择列：支持全选和单选
  * - 基础信息列：请求ID、任务ID、标题
@@ -30,7 +29,7 @@ import {cn} from "@/lib/utils.ts";
  * - 错误信息列：异常类型、异常消息
  * - 弃用信息列：弃用类型、弃用消息
  * - 操作列：信息查看
- * 
+ *
  * 使用 TanStack Table 的 ColumnDef 类型定义
  */
 export const reqsColumns: ColumnDef<ReqData>[] = [
@@ -41,26 +40,26 @@ export const reqsColumns: ColumnDef<ReqData>[] = [
   {
     id: 'select',
     header: ({ table }) => (
-        <Checkbox
-            checked={
-                table.getIsAllPageRowsSelected() ||
-                (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label='全选'
-            className='translate-y-[2px]'
-        />
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label='全选'
+        className='translate-y-[2px]'
+      />
     ),
     cell: ({ row }) => (
-        <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label='行选择'
-            className='translate-y-[2px]'
-        />
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label='行选择'
+        className='translate-y-[2px]'
+      />
     ),
     enableSorting: false, // 选择列不支持排序
-    enableHiding: false,  // 选择列不允许隐藏
+    enableHiding: false, // 选择列不允许隐藏
   },
   /**
    * 请求ID列 - 显示请求的唯一标识符
@@ -70,7 +69,7 @@ export const reqsColumns: ColumnDef<ReqData>[] = [
     accessorKey: 'req_id',
     header: '请求ID',
     cell: ({ row }) => (
-        <div className="text-center">{row.getValue('req_id') || '-'}</div>
+      <div className='text-center'>{row.getValue('req_id') || '-'}</div>
     ),
   },
   /**
@@ -80,7 +79,7 @@ export const reqsColumns: ColumnDef<ReqData>[] = [
     accessorKey: 'task_id',
     header: '任务ID',
     cell: ({ row }) => (
-        <div className="text-center">{row.getValue('task_id') || '-'}</div>
+      <div className='text-center'>{row.getValue('task_id') || '-'}</div>
     ),
   },
   /**
@@ -92,24 +91,22 @@ export const reqsColumns: ColumnDef<ReqData>[] = [
     cell: ({ row }) => {
       const req = row.original // 获取当前行的原始数据
       const url = req.url as string
-      const title = row.getValue('title') as string || '-'
+      const title = (row.getValue('title') as string) || '-'
       return (
-        <div className="flex flex-col">
-          <div className="font-semibold">
-            {title}
-          </div>
+        <div className='flex flex-col'>
+          <div className='font-semibold'>{title}</div>
           {url ? (
             <a
               href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="max-w-sm truncate text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer block"
+              target='_blank'
+              rel='noopener noreferrer'
+              className='block max-w-sm cursor-pointer truncate text-sm text-blue-600 hover:text-blue-800 hover:underline'
               title={url}
             >
               {url}
             </a>
           ) : (
-            <span className="text-gray-400">-</span>
+            <span className='text-gray-400'>-</span>
           )}
         </div>
       )
@@ -152,17 +149,17 @@ export const reqsColumns: ColumnDef<ReqData>[] = [
       const { setOpen, setCurrentRow } = useReqs() // 使用请求上下文状态
       return (
         <Button
-          variant="ghost"
-          size="icon"
+          variant='ghost'
+          size='icon'
           onClick={() => {
             setCurrentRow(req) // 设置当前选中的行数据
             setOpen('view') // 打开配置信息对话框
           }}
         >
-          <InfoIcon className="h-4 w-4" />
+          <InfoIcon className='h-4 w-4' />
         </Button>
       )
-    }
+    },
   },
   /**
    * HTTP方法列 - 显示请求的HTTP方法
@@ -175,7 +172,7 @@ export const reqsColumns: ColumnDef<ReqData>[] = [
       return method ? (
         <Badge variant='outline'>{method}</Badge>
       ) : (
-        <span className="text-gray-400">-</span>
+        <span className='text-gray-400'>-</span>
       )
     },
   },
@@ -187,36 +184,59 @@ export const reqsColumns: ColumnDef<ReqData>[] = [
     header: '结果类型',
     cell: ({ row }) => {
       const req = row.original // 获取当前行的原始数据
-      const resultTypeValue = req.succeed ? 'succeed' : (req.exp_type ? 'failed' : (req.discard_type ? 'discarded' : undefined))
+      const resultTypeValue = req.succeed
+        ? 'succeed'
+        : req.exp_type
+          ? 'failed'
+          : req.discard_type
+            ? 'discarded'
+            : undefined
       const resultType = reqResultTypeDict[resultTypeValue || 'succeed']
       return (
         <Badge variant='outline' className={cn('mr-2', resultType.className)}>
-          {<resultType.icon className='size-8'/>}
+          {<resultType.icon className='size-8' />}
           {resultType.label}
         </Badge>
       )
     },
   },
   /**
-   * 未入库原因列 - 显示请求未入库的原因
+   * 结果分类 - 显示请求结果分类
    */
   {
     accessorKey: 'result_category',
-    header: '未入库原因',
+    header: '结果分类',
     cell: ({ row }) => {
       const req = row.original // 获取当前行的原始数据
-      const discardType = req.discard_type as string
+      // if (req.succeed) {
+      //   return (
+      //     <span className="text-gray-400">{req.page_type as string}</span>
+      //   )
+      // }
       const expType = req.exp_type as string
-      if (!discardType && !expType) {
+      const discardType = req.discard_type as string
+      const pageType = req.page_type as string
+
+      if (expType) {
+        return <Badge variant='destructive'>{expType}</Badge>
+      }
+
+      if (discardType) {
         return (
-          <span className="text-gray-400">-</span>
+          <Badge variant='secondary' className='text-amber-600'>
+            {discardType}
+          </Badge>
         )
       }
-      return discardType ? (
-        <Badge variant='secondary'>{discardType}</Badge>
-      ) : (
-        <Badge variant='destructive'>{expType}</Badge>
-      )
+
+      if (pageType) {
+        return (
+          <Badge className='bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300'>
+            {pageType}
+          </Badge>
+        )
+      }
+      return <span className='text-gray-400'>-</span>
     },
   },
 
@@ -303,18 +323,18 @@ export const reqsColumns: ColumnDef<ReqData>[] = [
    */
   {
     accessorKey: 'msg',
-    header: '未入库详情',
+    header: '详情',
     cell: ({ row }) => {
       const req = row.original // 获取当前行的原始数据
       const discardMsg = req.discard_msg as string
       const expMsg = req.exp_msg as string
       const msg = expMsg || discardMsg
       return msg ? (
-        <div className="max-w-sm text-sm text-amber-600 whitespace-pre-wrap">
+        <div className='max-w-sm text-sm whitespace-pre-wrap text-amber-600'>
           {msg}
         </div>
       ) : (
-        <span className="text-gray-400">-</span>
+        <span className='text-gray-400'>-</span>
       )
     },
   },
@@ -328,9 +348,9 @@ export const reqsColumns: ColumnDef<ReqData>[] = [
     cell: ({ row }) => {
       const publishedAt = row.getValue('published_at') as string
       return publishedAt ? (
-        <SmartDatetime date={publishedAt} timezone="Asia/Shanghai" />
+        <SmartDatetime date={publishedAt} timezone='Asia/Shanghai' />
       ) : (
-        <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
+        <span className='text-gray-400'>-</span> // 如果没有时间则显示占位符
       )
     },
   },
@@ -344,9 +364,9 @@ export const reqsColumns: ColumnDef<ReqData>[] = [
     cell: ({ row }) => {
       const occurredAt = row.getValue('occurred_at') as string
       return occurredAt ? (
-        <SmartDatetime date={occurredAt} timezone="Asia/Shanghai" />
+        <SmartDatetime date={occurredAt} timezone='Asia/Shanghai' />
       ) : (
-        <span className="text-gray-400">-</span> // 如果没有时间则显示占位符
+        <span className='text-gray-400'>-</span> // 如果没有时间则显示占位符
       )
     },
   },

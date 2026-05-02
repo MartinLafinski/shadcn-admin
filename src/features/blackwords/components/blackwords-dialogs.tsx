@@ -1,36 +1,40 @@
 // import { showSubmittedData } from '@/lib/show-submitted-data'
+// 操作结果提示框
+import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/confirm-dialog'
-import { BlackwordUpdateDrawer } from './drawers/blackwords-update-drawer'
-import { BlackwordCreateDrawer} from "./drawers/blackwords-create-drawer"
-import { BlackwordConfigDrawer} from "./drawers/blackwords-config-drawer"
+import { useDeleteBlackwordMutation } from '@/features/blackwords/api/blackwords.ts'
 import { useBlackwords } from './blackwords-provider'
 import { BlackwordsInfoDialog } from './dialogs/blackwords-info-dialog.tsx'
-import { useDeleteBlackwordMutation } from "@/features/blackwords/api/blackwords.ts"
-// 操作结果提示框
-import { toast } from "sonner"
+import { BlackwordConfigDrawer } from './drawers/blackwords-config-drawer'
+import { BlackwordCreateDrawer } from './drawers/blackwords-create-drawer'
+import { BlackwordUpdateDrawer } from './drawers/blackwords-update-drawer'
 
 export function BlackwordsDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useBlackwords()
 
   const deleteMutation = useDeleteBlackwordMutation()
   const handleDelete = async () => {
-    await deleteMutation.mutateAsync({
-      blackwordsId: currentRow?.blackwords_id || 0,
-    }).then((_) => {
-      toast.success(`敏感词 ${currentRow?.blackwords_name} 删除成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error(`敏感词 ${currentRow?.blackwords_name} 删除失败:`, error) // 记录错误日志
-      toast.error(`敏感词 ${currentRow?.blackwords_name} 删除失败`) // 操作失败提示
-    }).finally(() => {
-      setOpen(null)
-      setTimeout(() => {
-        setCurrentRow(null)
-      }, 500)
-      // showSubmittedData(
-      //   currentRow,
-      //   '提示的数据：'
-      // )
-    })
+    await deleteMutation
+      .mutateAsync({
+        blackwordsId: currentRow?.blackwords_id || 0,
+      })
+      .then((_) => {
+        toast.success(`敏感词 ${currentRow?.blackwords_name} 删除成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error(`敏感词 ${currentRow?.blackwords_name} 删除失败:`, error) // 记录错误日志
+        toast.error(`敏感词 ${currentRow?.blackwords_name} 删除失败`) // 操作失败提示
+      })
+      .finally(() => {
+        setOpen(null)
+        setTimeout(() => {
+          setCurrentRow(null)
+        }, 500)
+        // showSubmittedData(
+        //   currentRow,
+        //   '提示的数据：'
+        // )
+      })
   }
 
   return (
@@ -105,7 +109,9 @@ export function BlackwordsDialogs() {
             title={`删除此敏感词 [${currentRow.blackwords_name}] ?`}
             desc={
               <>
-                您即将删除 ID 为 <strong>{currentRow.blackwords_id}</strong> 的敏感词！<br />
+                您即将删除 ID 为 <strong>{currentRow.blackwords_id}</strong>{' '}
+                的敏感词！
+                <br />
                 此操作无法撤销。
               </>
             }

@@ -2,16 +2,20 @@
 import { useState, useEffect } from 'react'
 // 导入表单库
 import { useForm } from 'react-hook-form'
-// 用于同步后台数据
-import { useQueryClient } from '@tanstack/react-query'
 // 数据验证库
 import { zodResolver } from '@hookform/resolvers/zod'
+// 用于同步后台数据
+import { useQueryClient } from '@tanstack/react-query'
+// Markdown编辑器
+import MDEditor from '@uiw/react-md-editor'
+// 操作结果提示框
+import { toast } from 'sonner'
+// 日/夜主题
+import { useTheme } from '@/context/theme-provider.tsx'
 // 显示提交数据
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-// 文本区域控件
-import { Textarea } from "@/components/ui/textarea.tsx"
 // 表单控件
 import {
   Form,
@@ -31,17 +35,16 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
-// 数据结构
-import { type LinkConfigData, type LinkItemData, LinkConfigSchema } from '../../data/schemas.ts'
+// 文本区域控件
+import { Textarea } from '@/components/ui/textarea.tsx'
 // 配置友链API调用
 import { usePatchLinkMutation, useLinkQuery } from '../../api/links.ts'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// 日/夜主题
-import { useTheme } from '@/context/theme-provider.tsx'
-// 操作结果提示框
-import { toast } from "sonner"
-
+// 数据结构
+import {
+  type LinkConfigData,
+  type LinkItemData,
+  LinkConfigSchema,
+} from '../../data/schemas.ts'
 
 /**
  * 友链配置和说明抽屉组件
@@ -69,16 +72,18 @@ type LinkConfigDrawerProps = {
  * - 主题适配（亮色/暗色模式）
  * - 响应式设计
  */
-export function LinkConfigDrawer(
-  {
-    open,
-    onOpenChange,
-    currentRow,
-  }: LinkConfigDrawerProps)
-{
+export function LinkConfigDrawer({
+  open,
+  onOpenChange,
+  currentRow,
+}: LinkConfigDrawerProps) {
   const queryClient = useQueryClient()
   // 添加查询钩子
-  const { data: latestLink, isLoading: isLatestDataLoading, refetch } = useLinkQuery(currentRow?.links_id || 0)
+  const {
+    data: latestLink,
+    isLoading: isLatestDataLoading,
+    refetch,
+  } = useLinkQuery(currentRow?.links_id || 0)
 
   // 添加状态管理
   const [, setShowConflictWarning] = useState(false)
@@ -134,20 +139,26 @@ export function LinkConfigDrawer(
   const onSubmit = async (data: LinkConfigData) => {
     // 确保有 currentRow 和 links_id
     if (!currentRow?.links_id) {
-        console.error('缺少友链ID，无法配置和说明')
-        return
+      console.error('缺少友链ID，无法配置和说明')
+      return
     }
 
     // 使用 mutation 调用 API 配置和说明友链
-    await configLinkMutation.mutateAsync({
+    await configLinkMutation
+      .mutateAsync({
         linkId: currentRow.links_id,
-        data
-    }).then((res) => {
-      toast.success(`友链 ${res.links_name} 说明与配置编辑成功`) // 操作成功提示
-    }).catch((error) => {
-      console.error(`友链 ${currentRow.links_name} 说明与配置编辑失败:`, error) // 记录错误日志
-      toast.error(`友链 ${currentRow.links_name} 说明与配置编辑失败`) // 操作失败提示
-    })
+        data,
+      })
+      .then((res) => {
+        toast.success(`友链 ${res.links_name} 说明与配置编辑成功`) // 操作成功提示
+      })
+      .catch((error) => {
+        console.error(
+          `友链 ${currentRow.links_name} 说明与配置编辑失败:`,
+          error
+        ) // 记录错误日志
+        toast.error(`友链 ${currentRow.links_name} 说明与配置编辑失败`) // 操作失败提示
+      })
 
     // 关闭抽屉
     onOpenChange(false)
@@ -166,7 +177,7 @@ export function LinkConfigDrawer(
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col min-w-1/3'>
+      <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
           <SheetTitle>配置和说明友链</SheetTitle>
           <SheetDescription>
@@ -189,10 +200,7 @@ export function LinkConfigDrawer(
                   <FormLabel>友链说明</FormLabel>
                   <FormControl data-color-mode={resolvedTheme}>
                     {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <MDEditor value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -238,7 +246,6 @@ export function LinkConfigDrawer(
                 </FormItem>
               )}
             />
-
           </form>
         </Form>
         <SheetFooter className='gap-2'>

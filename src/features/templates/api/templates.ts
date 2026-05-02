@@ -1,9 +1,9 @@
 // 引入reactQuery依赖
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-// Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
+// Clerk 认证
+import { useAuth } from '@clerk/clerk-react'
 import {
   TemplateBatchSwitchData,
   TemplateBatchExportData,
@@ -12,13 +12,14 @@ import {
   TemplateData,
   TemplatesData,
   TemplateSwitchData,
-  TemplateUpdateData
+  TemplateUpdateData,
 } from '../data/schemas.ts'
-
 
 // API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8888'
-const DEFAULT_PAGE_SIZE: number = Number(import.meta.env.VITE_TEMPLATE_PAGE_SIZE || 50)
+const DEFAULT_PAGE_SIZE: number = Number(
+  import.meta.env.VITE_TEMPLATE_PAGE_SIZE || 50
+)
 
 // 通用错误处理
 const handleResponse = async (response: Response) => {
@@ -64,7 +65,6 @@ export const fetchTemplates = async (
   size: number = DEFAULT_PAGE_SIZE,
   token: string | null
 ): Promise<TemplatesData> => {
-
   // 构建基础URL，包含分页参数
   let url = `${API_BASE_URL}/templates/?page=${page}&size=${size}`
 
@@ -96,10 +96,9 @@ export const fetchTemplates = async (
 
   return {
     templates,
-    pagination
+    pagination,
   }
 }
-
 
 /**
  * 根据ID获取模板详细信息
@@ -255,7 +254,6 @@ export const updateTemplate = async (
   return response.json()
 }
 
-
 /**
  * 部分更新模板配置
  *
@@ -315,7 +313,6 @@ export const patchTemplate = async (
   return response.json()
 }
 
-
 /**
  * 切换模板启用状态
  *
@@ -348,19 +345,20 @@ export const switchTemplate = async (
   data: TemplateSwitchData,
   token: string | null
 ): Promise<TemplateData> => {
-  const response = await fetch(`${API_BASE_URL}/templates/${templateId}/switch/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  })
+  const response = await fetch(
+    `${API_BASE_URL}/templates/${templateId}/switch/`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  )
   await handleResponse(response)
   return response.json()
 }
-
-
 
 /**
  * 删除指定模板
@@ -373,7 +371,7 @@ export const switchTemplate = async (
  *                   删除操作不可逆，请谨慎操作
  *
  * @param token - 鉴权token
- * 
+ *
  * @returns Promise<Response> - 返回原始响应对象
  *                如果删除成功，响应状态码通常为204 (No Content)
  *                如果删除失败，会通过handleResponse抛出错误
@@ -424,7 +422,6 @@ export const deleteTemplate = async (
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 批量切换模板启用状态
@@ -477,12 +474,11 @@ export const batchSwitchTemplates = async (
   return response.json()
 }
 
-
 export const batchDeleteTemplates = async (
   templateIds: number[],
   token: string | null
 ): Promise<Response> => {
-  const params = templateIds.map(id => `template_ids=${id}`).join('&')
+  const params = templateIds.map((id) => `template_ids=${id}`).join('&')
   const response = await fetch(`${API_BASE_URL}/templates/?${params}`, {
     method: 'DELETE',
     headers: {
@@ -492,7 +488,6 @@ export const batchDeleteTemplates = async (
   })
   return await handleResponse(response)
 }
-
 
 /**
  * 同步模板数据
@@ -567,7 +562,9 @@ export const syncTemplates = async (token: string | null): Promise<void> => {
  * - 可能需要处理大文件下载，注意浏览器内存限制
  * - 导出的文件格式取决于后端实现，通常为JSON格式
  */
-export const exportTemplates = async (token: string | null): Promise<Response> => {
+export const exportTemplates = async (
+  token: string | null
+): Promise<Response> => {
   const response = await fetch(`${API_BASE_URL}/templates/export/`, {
     method: 'POST',
     headers: {
@@ -627,7 +624,6 @@ export const batchExportTemplates = async (
   return await handleResponse(response)
 }
 
-
 /**
  * 获取模板列表的自定义 Hook
  *
@@ -676,7 +672,13 @@ export const useTemplatesQuery = (
     queryKey: ['templates', template_keyword, template_enabled, page, size],
     queryFn: async () => {
       const token = await getToken()
-      return fetchTemplates(template_keyword, template_enabled, page, size, token)
+      return fetchTemplates(
+        template_keyword,
+        template_enabled,
+        page,
+        size,
+        token
+      )
     },
     placeholderData: (previousData) => previousData,
   })
@@ -724,15 +726,14 @@ export const useTemplateQuery = (templateId: number) => {
   const { getToken } = useAuth()
 
   return useQuery({
-    queryKey: ['template', templateId],  // 查询键包含模板ID，确保不同ID有独立缓存
+    queryKey: ['template', templateId], // 查询键包含模板ID，确保不同ID有独立缓存
     queryFn: async () => {
-      const token = await getToken()  // 获取认证token
-      return fetchTemplateById(templateId, token)  // 调用API获取模板详情
+      const token = await getToken() // 获取认证token
+      return fetchTemplateById(templateId, token) // 调用API获取模板详情
     },
-    enabled: !!templateId,  // 只有当 templateId 存在且不为0时才启用查询
+    enabled: !!templateId, // 只有当 templateId 存在且不为0时才启用查询
   })
 }
-
 
 /**
  * 创建模板的自定义 Mutation Hook
@@ -786,7 +787,6 @@ export const useCreateTemplateMutation = () => {
   })
 }
 
-
 /**
  * 更新模板信息的自定义 Mutation Hook
  *
@@ -834,7 +834,10 @@ export const useUpdateTemplateMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { templateId: number; data: TemplateUpdateData }) => {
+    mutationFn: async (variables: {
+      templateId: number
+      data: TemplateUpdateData
+    }) => {
       const token = await getToken()
       return updateTemplate(variables.templateId, variables.data, token)
     },
@@ -842,11 +845,12 @@ export const useUpdateTemplateMutation = () => {
       // 更新成功后使模板列表缓存失效，确保列表显示最新数据
       queryClient.invalidateQueries({ queryKey: ['templates'] })
       // 同时使单个模板详情缓存失效，确保详情页显示最新数据
-      queryClient.invalidateQueries({ queryKey: ['template', variables.templateId] })
+      queryClient.invalidateQueries({
+        queryKey: ['template', variables.templateId],
+      })
     },
   })
 }
-
 
 /**
  * 部分更新模板信息的自定义 Mutation Hook
@@ -900,7 +904,10 @@ export const usePatchTemplateMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { templateId: number; data: TemplateConfigData }) => {
+    mutationFn: async (variables: {
+      templateId: number
+      data: TemplateConfigData
+    }) => {
       const token = await getToken()
       return patchTemplate(variables.templateId, variables.data, token)
     },
@@ -908,11 +915,12 @@ export const usePatchTemplateMutation = () => {
       // 更新成功后使模板列表缓存失效，确保列表显示最新数据
       queryClient.invalidateQueries({ queryKey: ['templates'] })
       // 同时使单个模板详情缓存失效，确保详情页显示最新数据
-      queryClient.invalidateQueries({ queryKey: ['template', variables.templateId] })
+      queryClient.invalidateQueries({
+        queryKey: ['template', variables.templateId],
+      })
     },
   })
 }
-
 
 /**
  * 切换模板启用状态的自定义 Mutation Hook
@@ -961,7 +969,10 @@ export const useSwitchTemplateMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { templateId: number; data: TemplateSwitchData }) => {
+    mutationFn: async (variables: {
+      templateId: number
+      data: TemplateSwitchData
+    }) => {
       const token = await getToken()
       return switchTemplate(variables.templateId, variables.data, token)
     },
@@ -969,11 +980,12 @@ export const useSwitchTemplateMutation = () => {
       // 状态切换成功后使模板列表缓存失效，确保列表显示最新状态
       queryClient.invalidateQueries({ queryKey: ['templates'] })
       // 同时使单个模板详情缓存失效，确保详情页显示最新状态
-      queryClient.invalidateQueries({ queryKey: ['template', variables.templateId] })
+      queryClient.invalidateQueries({
+        queryKey: ['template', variables.templateId],
+      })
     },
   })
 }
-
 
 /**
  * 批量切换模板启用状态的自定义 Mutation Hook
@@ -1031,14 +1043,13 @@ export const useBatchSwitchTemplatesMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
       // 同时使单个模板详情缓存失效，确保详情页显示最新状态
       if (variables.template_ids && Array.isArray(variables.template_ids)) {
-        variables.template_ids.forEach(template_id => {
+        variables.template_ids.forEach((template_id) => {
           queryClient.invalidateQueries({ queryKey: ['template', template_id] })
         })
       }
     },
   })
 }
-
 
 /**
  * 同步模板数据的自定义 Mutation Hook
@@ -1079,13 +1090,12 @@ export const useSyncTemplatesMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async() => {
+    mutationFn: async () => {
       const token = await getToken()
       return syncTemplates(token)
-    }
+    },
   })
 }
-
 
 /**
  * 导出所有模板数据的自定义 Mutation Hook
@@ -1230,8 +1240,6 @@ export const useBatchExportTemplatesMutation = () => {
   })
 }
 
-
-
 /**
  * 删除模板的自定义 Mutation Hook
  *
@@ -1289,7 +1297,7 @@ export const useDeleteTemplateMutation = () => {
   const { getToken } = useAuth()
 
   return useMutation({
-    mutationFn: async (variables: { templateId: number; }) => {
+    mutationFn: async (variables: { templateId: number }) => {
       const token = await getToken()
       return deleteTemplate(variables.templateId, token)
     },
@@ -1297,11 +1305,12 @@ export const useDeleteTemplateMutation = () => {
       // 删除成功后使模板列表缓存失效，确保列表显示最新状态（已移除被删除的模板）
       queryClient.invalidateQueries({ queryKey: ['templates'] })
       // 同时使单个模板详情缓存失效，确保详情页不会显示已删除的模板信息
-      queryClient.invalidateQueries({ queryKey: ['template', variables.templateId] })
+      queryClient.invalidateQueries({
+        queryKey: ['template', variables.templateId],
+      })
     },
   })
 }
-
 
 export const useBatchDeleteTemplatesMutation = () => {
   const queryClient = useQueryClient()
@@ -1317,7 +1326,7 @@ export const useBatchDeleteTemplatesMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
       // 同时使单个模板详情缓存失效，确保详情页显示最新状态
       if (variables && Array.isArray(variables)) {
-        variables.forEach(templateId => {
+        variables.forEach((templateId) => {
           queryClient.invalidateQueries({ queryKey: ['template', templateId] })
         })
       }
