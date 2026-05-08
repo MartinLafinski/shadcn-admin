@@ -70,8 +70,8 @@ import {
   ImageIcon,
   ClapperboardIcon,
   FoldersIcon,
+  LayoutTemplateIcon,
 } from 'lucide-react'
-import { ClerkLogo } from '@/assets/clerk-logo'
 import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
@@ -177,6 +177,16 @@ export const sidebarData: SidebarData = {
               url: '/links',
               icon: Link,
             },
+            {
+              title: '表单构建',
+              url: '/form-builder',
+              icon: LayoutTemplateIcon,
+            },
+            {
+              title: '参数要素',
+              url: '/param-forms',
+              icon: FileCodeIcon,
+            },
           ],
         },
         {
@@ -231,6 +241,12 @@ export const sidebarData: SidebarData = {
               icon: UtensilsIcon,
             },
             {
+              title: '子料',
+              url: '/material/subs',
+              tip: '入口 采集点',
+              icon: NetworkIcon,
+            },
+            {
               title: '语料',
               tip: '评论 微博 弹幕',
               url: '/material/speech',
@@ -279,7 +295,7 @@ export const sidebarData: SidebarData = {
               icon: PackageIcon,
             },
             {
-              title: '司料',
+              title: '企料',
               url: '/material/company',
               tip: '公司 工厂 组织',
               icon: Building2Icon,
@@ -325,12 +341,6 @@ export const sidebarData: SidebarData = {
               url: '/material/file',
               tip: '文件 软件 App',
               icon: FoldersIcon,
-            },
-            {
-              title: '子料',
-              url: '/material/subs',
-              tip: '入口 采集点',
-              icon: NetworkIcon,
             },
           ],
         },
@@ -433,6 +443,11 @@ export const sidebarData: SidebarData = {
           ],
         },
         {
+          title: '用户管理',
+          url: '/accounts',
+          icon: Users,
+        },
+        {
           title: 'AI使用接口',
           url: 'http://127.0.0.1:8888/docs#/',
           icon: BotMessageSquareIcon,
@@ -458,7 +473,7 @@ export const sidebarData: SidebarData = {
       title: '其他',
       items: [
         {
-          title: '预备任务',
+          title: '预备作业',
           url: '/pre-tasks',
           icon: ListTodo,
         },
@@ -498,24 +513,6 @@ export const sidebarData: SidebarData = {
           title: 'Users',
           url: '/users',
           icon: Users,
-        },
-        {
-          title: 'Secured by Clerk',
-          icon: ClerkLogo,
-          items: [
-            {
-              title: 'Sign In',
-              url: '/clerk/sign-in',
-            },
-            {
-              title: 'Sign Up',
-              url: '/clerk/sign-up',
-            },
-            {
-              title: 'User Management',
-              url: '/clerk/user-management',
-            },
-          ],
         },
       ],
     },

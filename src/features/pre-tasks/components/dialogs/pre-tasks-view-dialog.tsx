@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog.tsx'
 // 滚动区域控件
 import { ScrollArea } from '@/components/ui/scroll-area.tsx'
-import { PreTaskItemData } from '../../data/schemas.ts'
+import { type PreTaskItemData } from '../../data/schemas.ts'
 
 interface PreTasksViewDialogProps {
   /** 对话框的开启状态 */

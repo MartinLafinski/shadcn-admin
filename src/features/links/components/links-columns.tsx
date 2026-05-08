@@ -1,6 +1,6 @@
 // 图标
 // 表格列
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { InfoIcon } from 'lucide-react'
 // 操作结果提示框
 import { toast } from 'sonner'
@@ -15,7 +15,7 @@ import { DatetimeCell } from '@/components/smart/cells/datetime-cell'
 // 友链可用性API调用
 import { useSwitchLinkMutation } from '@/features/links/api/links'
 // 友链数据结构
-import { LinkData } from '@/features/links/data/schemas'
+import { type LinkData } from '@/features/links/data/schemas'
 // 自定义行操作控件
 import { LinksRowActions } from './actions/links-row-actions.tsx'
 // 友链状态

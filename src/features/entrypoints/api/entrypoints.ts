@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
 // Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
+import { getAccessToken } from '@/lib/auth-token'
 import type {
   EntrypointBatchSwitchData,
   EntrypointBatchExportData,
@@ -811,7 +811,6 @@ export const useEntrypointsQuery = (
   page: number = 1,
   size: number = DEFAULT_PAGE_SIZE
 ) => {
-  const { getToken } = useAuth()
   return useQuery({
     queryKey: [
       'entrypoints',
@@ -827,7 +826,7 @@ export const useEntrypointsQuery = (
       size,
     ],
     queryFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return fetchEntrypoints(
         website_id,
         industry_id,
@@ -885,12 +884,10 @@ export const useEntrypointsQuery = (
  * - 此 Hook 适用于需要显示单个入口点详细信息的场景，如入口点详情页
  */
 export const useEntrypointQuery = (entrypointId: number) => {
-  const { getToken } = useAuth()
-
   return useQuery({
     queryKey: ['entrypoint', entrypointId], // 查询键包含入口点ID，确保不同ID有独立缓存
     queryFn: async () => {
-      const token = await getToken() // 获取认证token
+      const token = getAccessToken() // 获取认证token
       return fetchEntrypointById(entrypointId, token) // 调用API获取入口点详情
     },
     enabled: !!entrypointId, // 只有当 entrypointId 存在且不为0时才启用查询
@@ -934,11 +931,10 @@ export const useEntrypointQuery = (entrypointId: number) => {
  */
 export const useCreateEntrypointMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: EntrypointCreateData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return createEntrypoint(variables, token)
     },
     onSuccess: () => {
@@ -993,14 +989,13 @@ export const useCreateEntrypointMutation = () => {
  */
 export const useUpdateEntrypointMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       entrypointId: number
       data: EntrypointUpdateData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return updateEntrypoint(variables.entrypointId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -1063,14 +1058,13 @@ export const useUpdateEntrypointMutation = () => {
  */
 export const usePatchEntrypointMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       entrypointId: number
       data: EntrypointConfigData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return patchEntrypoint(variables.entrypointId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -1127,14 +1121,13 @@ export const usePatchEntrypointMutation = () => {
  */
 export const useSwitchEntrypointMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       entrypointId: number
       data: EntrypointSwitchData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return switchEntrypoint(variables.entrypointId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -1192,11 +1185,10 @@ export const useSwitchEntrypointMutation = () => {
  */
 export const useBatchSwitchEntrypointsMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: EntrypointBatchSwitchData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchSwitchEntrypoints(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1241,11 +1233,10 @@ export const useBatchSwitchEntrypointsMutation = () => {
  */
 export const useBatchLockEntrypointsMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: EntrypointBatchLockData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchLockEntrypoints(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1290,11 +1281,10 @@ export const useBatchLockEntrypointsMutation = () => {
  */
 export const useBatchPauseEntrypointsMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: EntrypointBatchPauseData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchPauseEntrypoints(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1348,11 +1338,9 @@ export const useBatchPauseEntrypointsMutation = () => {
  * - 此操作会调用 syncEntrypoints API 函数，向后端发起同步请求
  */
 export const useSyncEntrypointsMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async (data: SyncEntrypointsData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return syncEntrypoints(token, data)
     },
   })
@@ -1395,11 +1383,9 @@ export const useSyncEntrypointsMutation = () => {
  * - 如果后端没有提供文件名，默认使用 'download.json'
  */
 export const useExportEntrypointsMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return exportEntrypoints(token)
     },
     onSuccess: (data) => {
@@ -1470,11 +1456,9 @@ export const useExportEntrypointsMutation = () => {
  * - 确保传入的 entrypoint_ids 数组中的ID都是有效的入口点ID
  */
 export const useBatchExportEntrypointsMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async (variables: EntrypointBatchExportData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await batchExportEntrypoints(variables, token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）
@@ -1539,11 +1523,10 @@ export const useBatchExportEntrypointsMutation = () => {
  */
 export const useDeleteEntrypointMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: { entrypointId: number }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return deleteEntrypoint(variables.entrypointId, token)
     },
     onSuccess: (_, variables) => {
@@ -1597,11 +1580,10 @@ export const useDeleteEntrypointMutation = () => {
  */
 export const useBatchDeleteEntrypointsMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: number[]) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchDeleteEntrypoints(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1711,11 +1693,10 @@ export const updateEntrypointPeriod = async (
  * @returns 返回 useQuery 的结果对象
  */
 export const useEntrypointSpiderConfigQuery = (entrypointId: number) => {
-  const { getToken } = useAuth()
   return useQuery({
     queryKey: ['entrypoint', entrypointId, 'config'],
     queryFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return fetchEntrypointSpiderConfig(entrypointId, token)
     },
     enabled: !!entrypointId,
@@ -1729,14 +1710,13 @@ export const useEntrypointSpiderConfigQuery = (entrypointId: number) => {
  */
 export const useUpdateEntrypointSpiderConfigMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       entrypointId: number
       data: EntrypointSpiderConfigData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return updateEntrypointSpiderConfig(
         variables.entrypointId,
         variables.data,
@@ -1759,14 +1739,13 @@ export const useUpdateEntrypointSpiderConfigMutation = () => {
  */
 export const useUpdateEntrypointPeriodMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       entrypointId: number
       data: EntrypointPeriodData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return updateEntrypointPeriod(
         variables.entrypointId,
         variables.data,
@@ -1823,11 +1802,10 @@ export const createPrejobByEntrypoint = async (
  */
 export const useCreatePrejobByEntrypointMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: CreatePrejobByEntrypointData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return createPrejobByEntrypoint(
         variables.entrypoint_id,
         variables.prelog_slug_suffix,

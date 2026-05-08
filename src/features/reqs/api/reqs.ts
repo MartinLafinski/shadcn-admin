@@ -3,8 +3,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
 // Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
-import { ReqData, ReqsData, ReqResultType } from '../data/schemas.ts'
+import { getAccessToken } from '@/lib/auth-token'
+import {
+  type ReqData,
+  type ReqsData,
+  type ReqResultType,
+} from '../data/schemas.ts'
 
 // API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8888'
@@ -255,11 +259,10 @@ export const useReqsQuery = (
   page: number = 1,
   size: number = DEFAULT_PAGE_SIZE
 ) => {
-  const { getToken } = useAuth()
   return useQuery({
     queryKey: ['reqs', task_id, result_type, result_category, page, size],
     queryFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return fetchReqs(task_id, result_type, result_category, page, size, token)
     },
     placeholderData: (previousData) => previousData, // 保持上一次的数据
@@ -301,11 +304,10 @@ export const useReqsQuery = (
  * - reqs API 可能不需要认证，但为了兼容性，仍然集成了 Clerk 认证
  */
 export const useReqQuery = (req_id: number) => {
-  const { getToken } = useAuth()
   return useQuery({
     queryKey: ['req', req_id],
     queryFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return fetchReq(req_id, token)
     },
     enabled: !!req_id, // 只有当 req_id 存在时才执行查询
@@ -353,11 +355,10 @@ export const useReqQuery = (req_id: number) => {
  */
 export const useClearReqsMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (task_id: number) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return clearReqs(task_id, token)
     },
     onSuccess: () => {
@@ -509,11 +510,9 @@ export const exportReqsByTask = async (
  * - reqs API 可能不需要认证，但为了兼容性，仍然集成了 Clerk 认证
  */
 export const useBatchExportReqsMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async (req_ids: number[]) => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await exportReqs(req_ids, token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）
@@ -575,11 +574,9 @@ export const useBatchExportReqsMutation = () => {
  * - reqs API 可能不需要认证，但为了兼容性，仍然集成了 Clerk 认证
  */
 export const useExportReqsByTaskMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async (task_id: number) => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await exportReqsByTask(task_id, token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）
@@ -699,11 +696,10 @@ export const clearReqsByTask = async (
  */
 export const useCleartaskReqsMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (task_id: number) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return clearReqsByTask(task_id, token)
     },
     onSuccess: () => {

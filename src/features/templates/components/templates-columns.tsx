@@ -1,6 +1,6 @@
 // 图标
 // 表格列
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { InfoIcon } from 'lucide-react'
 // 操作结果提示框
 import { toast } from 'sonner'
@@ -15,7 +15,7 @@ import { DatetimeCell } from '@/components/smart/cells/datetime-cell'
 // 模板可用性API调用
 import { useSwitchTemplateMutation } from '@/features/templates/api/templates'
 // 模板数据结构
-import { TemplateData } from '@/features/templates/data/schemas'
+import { type TemplateData } from '@/features/templates/data/schemas'
 // 自定义行操作控件
 import { TemplatesRowActions } from './actions/templates-row-actions.tsx'
 // 模板状态

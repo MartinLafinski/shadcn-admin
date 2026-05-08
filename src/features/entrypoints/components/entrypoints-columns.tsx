@@ -1,6 +1,5 @@
-import React from 'react'
 // 表格列
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 // 图标
 import {
   HelpCircleIcon,
@@ -20,54 +19,57 @@ import {
   FoldersIcon,
   NetworkIcon,
   ListTodoIcon,
-  TicketCheckIcon,
-  TicketXIcon,
-  CheckIcon,
+  UtensilsIcon,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button.tsx'
-// 自定义时间控件
-import { SmartDatetime } from '@/components/smart/datetime.tsx'
 import { DatetimeCell } from '@/components/smart/cells/datetime-cell'
+// 启用状态单元格
+import { EntityEnabledStatusCell } from '@/components/smart/cells/entity-enabled-status-cell'
+// 实体ID单元格
+import { EntityIdCell } from '@/components/smart/cells/entity-id-cell'
+// 聚合状态单元格
+import { EntityInheritStatusCell } from '@/components/smart/cells/entity-inherit-status-cell.tsx'
+// 条目信息单元格
+import { EntityItemCountCell } from '@/components/smart/cells/entity-items-count-cell'
+// 禁用状态单元格
+import { EntityLimitedCell } from '@/components/smart/cells/entity-limited-cell'
+// 锁定状态单元格
+import { EntityLockedCell } from '@/components/smart/cells/entity-locked-cell'
+// 材料数量单元格
+import { EntityMaterialCountCell } from '@/components/smart/cells/entity-material-count-cell'
+// 暂停状态单元格
+import { EntityPausedCell } from '@/components/smart/cells/entity-paused-cell'
 // 实体选择单元格
 import { EntitySelectCell } from '@/components/smart/cells/entity-select-cell'
 // 实体选择表头
 import { EntitySelectHeader } from '@/components/smart/cells/entity-select-header'
-// 实体ID单元格
-import { EntityIdCell } from '@/components/smart/cells/entity-id-cell'
-
-import { EntityInheritStatusCell } from '@/components/smart/cells/entity-inherit-status-cell.tsx'
+// 网站聚合状态单元格
+import { EntitySelfStatusCell } from '@/components/smart/cells/entity-self-status-cell'
+// 爬虫任务进度条单元格
+import { EntitySpiderTaskBarCell } from '@/components/smart/cells/entity-spider-task-bar-cell'
+// 迷你信息单元格
+import { EntitySpiderTaskBarHeader } from '@/components/smart/cells/entity-spider-task-bar-header'
+// 爬虫任务进度条单元格
+import { EntitySpiderTasksPieCell } from '@/components/smart/cells/entity-spider-tasks-pie-cell'
+// 入口点迷你信息单元格
+import { EntrypointMiniItemCell } from '@/components/smart/cells/entrypoint-mini-item-cell'
 // 行业单元格
-import { IndustryCell } from '@/components/smart/industry-cell'
+import { IndustryCell } from '@/components/smart/cells/industry-cell.tsx'
 // 材料类型单元格
 import { MaterialCell } from '@/components/smart/cells/material-cell.tsx'
 // URL 单元格
 import { UrlCell } from '@/components/smart/cells/url-cell.tsx'
-// 入口点迷你信息单元格
-import { EntrypointMiniItemCell } from '@/components/smart/cells/entrypoint-mini-item-cell'
 // 网站迷你信息单元格
 import { WebsiteMiniItemCell } from '@/components/smart/cells/website-mini-item-cell'
-// 条目信息单元格
-import { EntityItemCountCell } from '@/components/smart/cells/entity-items-count-cell'
-// 爬虫任务进度条单元格
-import { EntitySpiderTasksPieCell } from '@/components/smart/cells/entity-spider-tasks-pie-cell'
-// 迷你信息单元格
-import { EntitySpiderTaskBarHeader } from '@/components/smart/cells/entity-spider-task-bar-header'
-// 爬虫任务进度条单元格
-import { EntitySpiderTaskBarCell } from '@/components/smart/cells/entity-spider-task-bar-cell'
+// 自定义时间控件
+import { SmartDatetime } from '@/components/smart/datetime.tsx'
 // 入口点数据结构
-import { EntrypointItemData } from '@/features/entrypoints/data/schemas'
-import { IndustryItemData } from '@/features/industries/data/schemas'
+import { type EntrypointItemData } from '@/features/entrypoints/data/schemas'
+// 行业数据结构
+import { type IndustryItemData } from '@/features/industries/data/schemas'
 // 自定义行操作控件
 import { EntrypointsRowActions } from './actions/entrypoints-row-actions.tsx'
-import { EntrypointCountCell } from './cells/entrypoint-count-cell'
-import { EntityEnabledStatusCell } from '@/components/smart/cells/entity-enabled-status-cell'
+// 启用状态切换控件
 import { EntrypointEnabledSwitch } from './cells/entrypoint-enabled-switch'
-import { EntrypointInfoCell } from './cells/entrypoint-info-cell'
-import { EntityLockedCell } from '@/components/smart/cells/entity-locked-cell'
-import { EntityPausedCell } from '@/components/smart/cells/entity-paused-cell'
-import { EntityLimitedCell } from '@/components/smart/cells/entity-limited-cell'
-import { EntityMaterialCountCell } from '@/components/smart/cells/entity-material-count-cell'
-import { EntrypointWorkMaxCell } from './cells/entrypoint-work-max-cell'
 import { useEntrypoints } from './entrypoints-provider'
 
 /**
@@ -116,7 +118,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     id: 'entrypoint_name',
     accessorKey: 'entrypoint_name',
     header: '入口点名称',
-    cell: ({ row }) => <EntrypointMiniItemCell entrypoint={row.original}/>,
+    cell: ({ row }) => <EntrypointMiniItemCell entrypoint={row.original} />,
     size: 200,
   },
   /**
@@ -138,7 +140,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     accessorKey: 'website',
     header: '所属网站',
     cell: ({ row }) => (
-      <WebsiteMiniItemCell website={row.original.website} as_link={true} />
+      <WebsiteMiniItemCell website={row.original.website} asLink={true} />
     ),
     size: 200,
   },
@@ -216,8 +218,6 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     },
   },
 
-
-
   /**
    * 入口点在线任务饼图列 - 可视化显示在线任务占比
    */
@@ -255,7 +255,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     accessorKey: 'entrypoint_enabled',
     header: '可用',
     cell: ({ row }) => (
-      <EntityEnabledStatusCell entity_type="entrypoint" entity={row.original} />
+      <EntityEnabledStatusCell entity_type='entrypoint' entity={row.original} />
     ),
     size: 40,
   },
@@ -269,7 +269,9 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
       return value.includes(!!row.getValue(id)) // 自定义过滤函数
     },
     header: '锁定',
-    cell: ({ row }) => <EntityLockedCell entity_type="entrypoint" entity={row.original} />,
+    cell: ({ row }) => (
+      <EntityLockedCell entity_type='entrypoint' entity={row.original} />
+    ),
     size: 40,
   },
 
@@ -283,7 +285,9 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
       return value.includes(!!row.getValue(id)) // 自定义过滤函数
     },
     header: '运转',
-    cell: ({ row }) => <EntityPausedCell entity_type="entrypoint" entity={row.original} />,
+    cell: ({ row }) => (
+      <EntityPausedCell entity_type='entrypoint' entity={row.original} />
+    ),
     size: 40,
   },
   /**
@@ -296,115 +300,11 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     filterFn: (row, id, value) => {
       return value.includes(!!row.getValue(id)) // 自定义过滤函数
     },
-    cell: ({ row }) => <EntityLimitedCell entity_type="entrypoint" entity={row.original} />,
+    cell: ({ row }) => (
+      <EntityLimitedCell entity_type='entrypoint' entity={row.original} />
+    ),
     size: 40,
   },
-
-
-  // /**
-  //  * 网站任务数量总数列
-  //  * 总数/成功/失败/中断/取消
-  //  */
-  // {
-  //   id: 'total_spider_task_count',
-  //   accessorKey: 'total_spider_task_count',
-  //   header: '总数',
-  //   cell: ({ row }) => (
-  //     <EntrypointCountCell
-  //       entity={row.original}
-  //       linkTo='/entrypoints'
-  //       linkSearch={{ website_id: row.original.website_id }}
-  //       countKey='total_spider_task_count'
-  //       to='/entrypoints'
-  //       searchParams={{ website_id: row.original.website_id }}
-  //     />
-  //   ),
-  //   size: 60,
-  // },
-  //
-  // /**
-  //  * 网站任务成功总数列
-  //  */
-  // {
-  //   id: 'completed_spider_task_count',
-  //   accessorKey: 'completed_spider_task_count',
-  //   header: '成功',
-  //   cell: ({ row }) => (
-  //     <EntrypointCountCell
-  //       entity={row.original}
-  //       linkTo='/entrypoints'
-  //       linkSearch={{ website_id: row.original.website_id }}
-  //       countKey='completed_spider_task_count'
-  //       to='/entrypoints'
-  //       searchParams={{ website_id: row.original.website_id }}
-  //       className='text-green-600'
-  //     />
-  //   ),
-  //   size: 60,
-  // },
-
-  // /**
-  //  * 网站任务失败总数列
-  //  */
-  // {
-  //   id: 'failed_spider_task_count',
-  //   accessorKey: 'failed_spider_task_count',
-  //   header: '失败',
-  //   cell: ({ row }) => (
-  //     <EntrypointCountCell
-  //       entity={row.original}
-  //       linkTo='/entrypoints'
-  //       linkSearch={{ website_id: row.original.website_id }}
-  //       countKey='failed_spider_task_count'
-  //       to='/entrypoints'
-  //       searchParams={{ website_id: row.original.website_id }}
-  //       className='text-red-600'
-  //     />
-  //   ),
-  //   size: 60,
-  // },
-  //
-  // /**
-  //  * 网站任务中断总数列
-  //  */
-  // {
-  //   id: 'interrupted_spider_task_count',
-  //   accessorKey: 'interrupted_spider_task_count',
-  //   header: '中断',
-  //   cell: ({ row }) => (
-  //     <EntrypointCountCell
-  //       entity={row.original}
-  //       linkTo='/entrypoints'
-  //       linkSearch={{ website_id: row.original.website_id }}
-  //       countKey='interrupted_spider_task_count'
-  //       to='/entrypoints'
-  //       searchParams={{ website_id: row.original.website_id }}
-  //       className='text-yellow-600'
-  //     />
-  //   ),
-  //   size: 60,
-  // },
-  //
-  // /**
-  //  * 网站任务取消总数列
-  //  */
-  // {
-  //   id: 'canceled_spider_task_count',
-  //   accessorKey: 'canceled_spider_task_count',
-  //   header: '取消',
-  //   cell: ({ row }) => (
-  //     <EntrypointCountCell
-  //       entity={row.original}
-  //       linkTo='/entrypoints'
-  //       linkSearch={{ website_id: row.original.website_id }}
-  //       countKey='canceled_spider_task_count'
-  //       to='/entrypoints'
-  //       searchParams={{ website_id: row.original.website_id }}
-  //       className='text-muted-foreground'
-  //     />
-  //   ),
-  //   size: 60,
-  // },
 
   /**
    * 所有材料数量列 - 显示网站下所有材料数量
@@ -420,10 +320,34 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='total_material_count'
         icon={CirclePileIcon}
+        className='bg-stone-100 dark:bg-stone-700'
       />
     ),
     size: 60,
   },
+  /**
+   * 子料数量列
+   */
+  {
+    id: 'material_subs_count',
+    accessorKey: 'material_subs_count',
+    header: '子料',
+    cell: ({ row }) => (
+      <EntityMaterialCountCell
+        entity={row.original}
+        linkTo='/entrypoints'
+        linkSearch={{ website_id: row.original.website_id }}
+        countKey='material_subs_count'
+        icon={NetworkIcon}
+        className='bg-stone-100 dark:bg-stone-300/70 dark:text-stone-800'
+      />
+    ),
+    size: 60,
+    meta: {
+      className: 'border-r-1',
+    },
+  },
+
   /**
    * 未知材料数量列 - 显示网站下未知材料数量
    */
@@ -438,10 +362,34 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_unknown_count'
         icon={HelpCircleIcon}
+        className='bg-yellow-100 text-yellow-900 dark:bg-yellow-400/70 dark:text-yellow-900'
       />
     ),
     size: 60,
   },
+  /**
+   * 自定义采料数量列
+   */
+  {
+    id: 'material_customize_count',
+    accessorKey: 'material_customize_count',
+    header: '自定义',
+    cell: ({ row }) => (
+      <EntityMaterialCountCell
+        entity={row.original}
+        linkTo='/entrypoints'
+        linkSearch={{ website_id: row.original.website_id }}
+        countKey='material_customize_count'
+        icon={UtensilsIcon}
+        className='bg-yellow-100 text-yellow-900 dark:bg-yellow-200/70 dark:text-yellow-900'
+      />
+    ),
+    size: 60,
+    meta: {
+      className: 'border-r-1',
+    },
+  },
+
   /**
    * 语料数量列 - 显示网站下语料数量
    */
@@ -456,6 +404,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_speech_count'
         icon={MessageSquareMoreIcon}
+        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-400/70 dark:text-cyan-900'
       />
     ),
     size: 60,
@@ -474,6 +423,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_news_count'
         icon={NewspaperIcon}
+        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-300/70 dark:text-cyan-900'
       />
     ),
     size: 60,
@@ -492,6 +442,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_note_count'
         icon={NotebookTextIcon}
+        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-200/70 dark:text-cyan-900'
       />
     ),
     size: 60,
@@ -511,6 +462,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_article_count'
         icon={FileTextIcon}
+        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-100/70 dark:text-cyan-900'
       />
     ),
     size: 60,
@@ -530,6 +482,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_bid_count'
         icon={GavelIcon}
+        className='bg-rose-100 text-rose-900 dark:bg-rose-200/70 dark:text-rose-900'
       />
     ),
     size: 60,
@@ -549,6 +502,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_trade_count'
         icon={HandCoinsIcon}
+        className='bg-lime-100 text-lime-900 dark:bg-lime-400/70 dark:text-lime-900'
       />
     ),
     size: 60,
@@ -568,6 +522,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_product_count'
         icon={PackageIcon}
+        className='bg-lime-100 text-lime-900 dark:bg-lime-300/70 dark:text-lime-900'
       />
     ),
     size: 60,
@@ -587,6 +542,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_company_count'
         icon={Building2Icon}
+        className='bg-lime-100 text-lime-900 dark:bg-lime-200/70 dark:text-lime-900'
       />
     ),
     size: 60,
@@ -606,6 +562,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_shop_count'
         icon={StoreIcon}
+        className='bg-lime-100 text-lime-900 dark:bg-lime-100/70 dark:text-lime-900'
       />
     ),
     size: 60,
@@ -625,6 +582,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_recruit_count'
         icon={HandshakeIcon}
+        className='bg-indigo-100 text-indigo-900 dark:bg-indigo-300/70 dark:text-indigo-900'
       />
     ),
     size: 60,
@@ -644,6 +602,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_image_count'
         icon={ImageIcon}
+        className='bg-green-100 text-green-900 dark:bg-green-300/70 dark:text-green-900'
       />
     ),
     size: 60,
@@ -663,6 +622,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_video_count'
         icon={ClapperboardIcon}
+        className='bg-green-100 text-green-900 dark:bg-green-100/70 dark:text-green-900'
       />
     ),
     size: 60,
@@ -682,25 +642,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_file_count'
         icon={FoldersIcon}
-      />
-    ),
-    size: 60,
-  },
-
-  /**
-   * 子料数量列 - 显示网站下子料数量
-   */
-  {
-    id: 'material_subs_count',
-    accessorKey: 'material_subs_count',
-    header: '子料',
-    cell: ({ row }) => (
-      <EntityMaterialCountCell
-        entity={row.original}
-        linkTo='/entrypoints'
-        linkSearch={{ website_id: row.original.website_id }}
-        countKey='material_subs_count'
-        icon={NetworkIcon}
+        className='bg-orange-100 text-orange-900 dark:bg-orange-200/70 dark:text-orange-900'
       />
     ),
     size: 60,
@@ -754,19 +696,19 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     header: '更新时间',
     cell: ({ row }) => <DatetimeCell value={row.getValue('updated_at')} />,
   },
+
   /**
-   * 配置说明列 - 提供查看入口点配置和说明的入口
-   * 点击信息图标按钮可以打开配置信息对话框
+   * 自身状态列 - 2x2 四方格显示可用/锁定/运转/受限
    */
   {
-    id: 'info',
-    enableHiding: false, // 信息列不允许隐藏
-    header: '集合说明',
-    cell: ({ row }) => <EntrypointInfoCell entrypoint={row.original}
-        linkTo='/entrypoints'
-        linkSearch={{ website_id: row.original.website_id }} />,
-    size: 80,
+    id: 'entrypoint_status',
+    header: '自身状态',
+    cell: ({ row }) => (
+      <EntitySelfStatusCell entity_type='entrypoint' entity={row.original} />
+    ),
+    size: 50,
   },
+
   /**
    * 入口点启用状态列 - 控制入口点的启用/禁用状态
    * 包含一个开关组件，点击可切换状态并发送API请求
@@ -776,9 +718,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     id: 'entrypoint_enabled',
     accessorKey: 'entrypoint_enabled',
     header: '开关',
-    cell: ({ row }) => <EntrypointEnabledSwitch entrypoint={row.original}
-        linkTo='/entrypoints'
-        linkSearch={{ website_id: row.original.website_id }} />,
+    cell: ({ row }) => <EntrypointEnabledSwitch entrypoint={row.original} />,
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id)) // 自定义过滤函数
     },

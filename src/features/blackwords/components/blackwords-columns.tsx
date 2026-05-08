@@ -1,6 +1,6 @@
 // 图标
 // 表格列
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { InfoIcon } from 'lucide-react'
 // 操作结果提示框
 import { toast } from 'sonner'
@@ -17,7 +17,7 @@ import { DatetimeCell } from '@/components/smart/cells/datetime-cell'
 // 敏感词可用性API调用
 import { useSwitchBlackwordMutation } from '@/features/blackwords/api/blackwords'
 // 敏感词数据结构
-import { BlackwordData } from '@/features/blackwords/data/schemas'
+import { type BlackwordData } from '@/features/blackwords/data/schemas'
 // 自定义行操作控件
 import { BlackwordsRowActions } from './actions/blackwords-row-actions'
 // 敏感词状态

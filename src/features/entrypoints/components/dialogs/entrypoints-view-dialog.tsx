@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dialog.tsx'
 // 滚动区域控件
 import { ScrollArea } from '@/components/ui/scroll-area.tsx'
-import { EntrypointItemData } from '../../data/schemas.ts'
+import { type EntrypointItemData } from '../../data/schemas.ts'
 
 interface EntrypointsViewDialogProps {
   /** 对话框的开启状态 */

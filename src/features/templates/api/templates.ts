@@ -3,16 +3,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
 // Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
+import { getAccessToken } from '@/lib/auth-token'
 import {
-  TemplateBatchSwitchData,
-  TemplateBatchExportData,
-  TemplateConfigData,
-  TemplateCreateData,
-  TemplateData,
-  TemplatesData,
-  TemplateSwitchData,
-  TemplateUpdateData,
+  type TemplateBatchSwitchData,
+  type TemplateBatchExportData,
+  type TemplateConfigData,
+  type TemplateCreateData,
+  type TemplateData,
+  type TemplatesData,
+  type TemplateSwitchData,
+  type TemplateUpdateData,
 } from '../data/schemas.ts'
 
 // API 基础 URL
@@ -667,11 +667,10 @@ export const useTemplatesQuery = (
   page: number = 1,
   size: number = DEFAULT_PAGE_SIZE
 ) => {
-  const { getToken } = useAuth()
   return useQuery({
     queryKey: ['templates', template_keyword, template_enabled, page, size],
     queryFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return fetchTemplates(
         template_keyword,
         template_enabled,
@@ -723,12 +722,10 @@ export const useTemplatesQuery = (
  * - 此 Hook 适用于需要显示单个模板详细信息的场景，如模板详情页
  */
 export const useTemplateQuery = (templateId: number) => {
-  const { getToken } = useAuth()
-
   return useQuery({
     queryKey: ['template', templateId], // 查询键包含模板ID，确保不同ID有独立缓存
     queryFn: async () => {
-      const token = await getToken() // 获取认证token
+      const token = getAccessToken() // 获取认证token
       return fetchTemplateById(templateId, token) // 调用API获取模板详情
     },
     enabled: !!templateId, // 只有当 templateId 存在且不为0时才启用查询
@@ -772,11 +769,10 @@ export const useTemplateQuery = (templateId: number) => {
  */
 export const useCreateTemplateMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: TemplateCreateData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return createTemplate(variables, token)
     },
     onSuccess: () => {
@@ -831,14 +827,13 @@ export const useCreateTemplateMutation = () => {
  */
 export const useUpdateTemplateMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       templateId: number
       data: TemplateUpdateData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return updateTemplate(variables.templateId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -901,14 +896,13 @@ export const useUpdateTemplateMutation = () => {
  */
 export const usePatchTemplateMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       templateId: number
       data: TemplateConfigData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return patchTemplate(variables.templateId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -966,14 +960,13 @@ export const usePatchTemplateMutation = () => {
  */
 export const useSwitchTemplateMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       templateId: number
       data: TemplateSwitchData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return switchTemplate(variables.templateId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -1031,11 +1024,10 @@ export const useSwitchTemplateMutation = () => {
  */
 export const useBatchSwitchTemplatesMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: TemplateBatchSwitchData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchSwitchTemplates(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1087,11 +1079,9 @@ export const useBatchSwitchTemplatesMutation = () => {
  * - 此操作会调用 syncTemplates API 函数，向后端发起同步请求
  */
 export const useSyncTemplatesMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return syncTemplates(token)
     },
   })
@@ -1136,11 +1126,9 @@ export const useSyncTemplatesMutation = () => {
  * - 可能需要处理大文件下载，注意浏览器内存限制
  */
 export const useExportTemplatesMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await exportTemplates(token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）
@@ -1210,11 +1198,9 @@ export const useExportTemplatesMutation = () => {
  * - 确保传入的 template_ids 数组中的ID都是有效的模板ID
  */
 export const useBatchExportTemplatesMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async (variables: TemplateBatchExportData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await batchExportTemplates(variables, token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）
@@ -1294,11 +1280,10 @@ export const useBatchExportTemplatesMutation = () => {
  */
 export const useDeleteTemplateMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: { templateId: number }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return deleteTemplate(variables.templateId, token)
     },
     onSuccess: (_, variables) => {
@@ -1314,11 +1299,10 @@ export const useDeleteTemplateMutation = () => {
 
 export const useBatchDeleteTemplatesMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: number[]) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchDeleteTemplates(variables, token)
     },
     onSuccess: (_, variables) => {

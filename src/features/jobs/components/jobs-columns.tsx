@@ -1,6 +1,6 @@
 // 图标
 // 表格列
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { InfoIcon } from 'lucide-react'
 import { cn } from '@/lib/utils.ts'
 import { Badge } from '@/components/ui/badge.tsx'
@@ -13,11 +13,11 @@ import { SmartDatetime } from '@/components/smart/datetime.tsx'
 // 状态结构
 import { taskStatusDetailDict } from '@/features/jobs/data/labels'
 // 任务数据结构
-import { JobData } from '@/features/jobs/data/schemas'
+import { type JobData } from '@/features/jobs/data/schemas'
 // 入口点数据结构
-import { EntrypointItemData } from '@/features/jobs/data/schemas'
+import { type EntrypointItemData } from '@/features/jobs/data/schemas'
 // 网站数据结构
-import { WebsiteItemData } from '@/features/jobs/data/schemas'
+import { type WebsiteItemData } from '@/features/jobs/data/schemas'
 // // 自定义行操作控件
 // import { JobsRowActions } from './actions/jobs-row-actions.tsx'
 // 任务状态
@@ -193,7 +193,7 @@ export const jobsColumns: ColumnDef<JobData>[] = [
     cell: ({ row }) => {
       // const job = row.original // 获取当前行的原始数据
       const taskStatus = row.getValue('task_status') as string | null
-      const taskStatusDetail = !!taskStatus
+      const taskStatusDetail = taskStatus
         ? taskStatusDetailDict[taskStatus]
         : {
             value: undefined,

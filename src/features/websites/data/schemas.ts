@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { PaginationInfoSchema } from '@/config/pagination'
 import {
+  MiniParamFormSchema,
   EntityStatusSchema,
   EntitySpiderTasksCounterSchema,
   EntityMaterialCounterSchema,
@@ -44,13 +45,25 @@ export const WebsiteItemSchema = z
     website_url: z.url().optional().nullable(),
     website_config: z.record(z.string(), z.any()),
     website_readme: z.string(),
+    // 网站自用参数表单标识
+    website_self_param_slug: z.string().nullable().optional(),
+    // 网站入口点参数表单标识
+    website_entrypoint_param_slug: z.string().nullable().optional(),
+    // 网站预备作业参数表单标识
+    website_prejob_param_slug: z.string().nullable().optional(),
+    // 网站自用参数要素包
+    param_form_self: MiniParamFormSchema.nullable().optional(),
+    // 网站指定入口点参数要素包
+    param_form_entrypoint: MiniParamFormSchema.nullable().optional(),
+    // 网站指定预备作业参数要素包
+    param_form_prejob: MiniParamFormSchema.nullable().optional(),
   })
-  .merge(createEntityToggleSchema('website'))
-  .merge(createEntityLockAuditSchema('website'))
-  .merge(createEntityPauseAuditSchema('website'))
-  .merge(EntityStatusSchema)
-  .merge(EntitySpiderTasksCounterSchema)
-  .merge(EntityMaterialCounterSchema)
+  .extend(createEntityToggleSchema('website').shape)
+  .extend(createEntityLockAuditSchema('website').shape)
+  .extend(createEntityPauseAuditSchema('website').shape)
+  .extend(EntityStatusSchema.shape)
+  .extend(EntitySpiderTasksCounterSchema.shape)
+  .extend(EntityMaterialCounterSchema.shape)
 
 /**
  * 完整网站信息的 Zod 验证模式

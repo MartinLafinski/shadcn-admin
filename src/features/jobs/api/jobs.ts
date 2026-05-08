@@ -3,15 +3,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
 // Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
+import { getAccessToken } from '@/lib/auth-token'
 import {
-  JobApplyData,
-  JobCompleteData,
-  JobData,
-  JobEnsureData,
-  JobsData,
-  TaskStatus,
-  TaskBatchExportData,
+  type JobApplyData,
+  type JobCompleteData,
+  type JobData,
+  type JobEnsureData,
+  type JobsData,
+  type TaskStatus,
+  type TaskBatchExportData,
 } from '../data/schemas.ts'
 
 // API 基础 URL
@@ -501,11 +501,10 @@ export const useJobsQuery = (
   page: number = 1,
   size: number = DEFAULT_PAGE_SIZE
 ) => {
-  const { getToken } = useAuth()
   return useQuery({
     queryKey: ['jobs', day, website_id, entrypoint_id, status, page, size],
     queryFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return fetchJobs(
         day,
         website_id,
@@ -558,11 +557,10 @@ export const useJobsQuery = (
  */
 export const useCreateJobMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: JobApplyData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return createJob(variables, token)
     },
     onSuccess: () => {
@@ -620,11 +618,10 @@ export const useCreateJobMutation = () => {
  */
 export const useEnsureJobMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: { taskId: number; data: JobEnsureData }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return ensureJob(variables.taskId, variables.data, token)
     },
     onSuccess: () => {
@@ -680,14 +677,13 @@ export const useEnsureJobMutation = () => {
  */
 export const useCompleteJobMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       taskId: number
       data: JobCompleteData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return completeJob(variables.taskId, variables.data, token)
     },
     onSuccess: () => {
@@ -737,11 +733,10 @@ export const useCompleteJobMutation = () => {
  */
 export const useCancelJobMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (taskId: number) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return cancelJob(taskId, token)
     },
     onSuccess: () => {
@@ -790,11 +785,10 @@ export const useCancelJobMutation = () => {
  * - 返回的日期列表可以用于日期筛选下拉框
  */
 export const useTaskDaysQuery = () => {
-  const { getToken } = useAuth()
   return useQuery({
     queryKey: ['taskDays'],
     queryFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return fetchTaskDays(token)
     },
     staleTime: 5 * 60 * 1000, // 5分钟内认为数据是新鲜的
@@ -842,11 +836,10 @@ export const useTaskDaysQuery = () => {
  */
 export const useClearJobsMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (day: string) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return clearJobs(day, token)
     },
     onSuccess: () => {
@@ -955,11 +948,9 @@ export const batchExportTasks = async (
  * - 由于涉及文件下载，此功能仅能在浏览器环境中正常工作
  */
 export const useBatchExportTasksMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async (variables: TaskBatchExportData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await batchExportTasks(variables, token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）

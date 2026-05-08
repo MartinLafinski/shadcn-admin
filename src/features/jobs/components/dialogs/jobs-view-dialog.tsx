@@ -18,7 +18,7 @@ import {
 // 滚动区域控件
 import { ScrollArea } from '@/components/ui/scroll-area.tsx'
 import { taskStatusDetailDict } from '@/features/jobs/data/labels.tsx'
-import { JobItemData } from '../../data/schemas.ts'
+import { type JobItemData } from '../../data/schemas.ts'
 
 interface JobsViewDialogProps {
   /** 对话框的开启状态 */
@@ -67,7 +67,7 @@ export function JobsViewDialog({
 
   const getTaskStatusDisplay = () => {
     const taskStatus = job.task_status as string | null
-    return !!taskStatus
+    return taskStatus
       ? taskStatusDetailDict[taskStatus]
       : {
           value: undefined,

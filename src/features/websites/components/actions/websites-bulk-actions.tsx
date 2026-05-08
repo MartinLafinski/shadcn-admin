@@ -12,6 +12,8 @@ import {
 } from 'lucide-react'
 // 操作结果提示框
 import { toast } from 'sonner'
+// 可用性标签
+import { enableLabels, lockedLabels, pausedLabels } from '@/lib/labels'
 // 按钮控件
 import { Button } from '@/components/ui/button'
 // 下拉框控件
@@ -36,8 +38,6 @@ import {
   useBatchPauseWebsitesMutation,
   useBatchLockWebsitesMutation,
 } from '@/features/websites/api/websites'
-// 可用性标签
-import { enableLabels, lockedLabels, pausedLabels } from '../../data/labels'
 // 数据结构
 import { type WebsiteItemData } from '../../data/schemas'
 // 批量删除对话框

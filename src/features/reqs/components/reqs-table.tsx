@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from 'react'
 import { getRouteApi } from '@tanstack/react-router'
 // 表格相关
 import {
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,

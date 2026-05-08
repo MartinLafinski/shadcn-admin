@@ -3,16 +3,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
 // Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
+import { getAccessToken } from '@/lib/auth-token'
 import {
-  BlackwordBatchSwitchData,
-  BlackwordBatchExportData,
-  BlackwordConfigData,
-  BlackwordCreateData,
-  BlackwordData,
-  BlackwordsData,
-  BlackwordSwitchData,
-  BlackwordUpdateData,
+  type BlackwordBatchSwitchData,
+  type BlackwordBatchExportData,
+  type BlackwordConfigData,
+  type BlackwordCreateData,
+  type BlackwordData,
+  type BlackwordsData,
+  type BlackwordSwitchData,
+  type BlackwordUpdateData,
 } from '../data/schemas.ts'
 
 // API 基础 URL
@@ -668,7 +668,6 @@ export const useBlackwordsQuery = (
   page: number = 1,
   size: number = DEFAULT_PAGE_SIZE
 ) => {
-  const { getToken } = useAuth()
   return useQuery({
     queryKey: [
       'blackwords',
@@ -678,7 +677,7 @@ export const useBlackwordsQuery = (
       size,
     ],
     queryFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return fetchBlackwords(
         blackwords_keyword,
         blackwords_enabled,
@@ -730,12 +729,10 @@ export const useBlackwordsQuery = (
  * - 此 Hook 适用于需要显示单个敏感词详细信息的场景，如敏感词详情页
  */
 export const useBlackwordQuery = (blackwordsId: number) => {
-  const { getToken } = useAuth()
-
   return useQuery({
     queryKey: ['blackword', blackwordsId], // 查询键包含敏感词ID，确保不同ID有独立缓存
     queryFn: async () => {
-      const token = await getToken() // 获取认证token
+      const token = getAccessToken() // 获取认证token
       return fetchBlackwordById(blackwordsId, token) // 调用API获取敏感词详情
     },
     enabled: !!blackwordsId, // 只有当 blackwordsId 存在且不为0时才启用查询
@@ -779,11 +776,10 @@ export const useBlackwordQuery = (blackwordsId: number) => {
  */
 export const useCreateBlackwordMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: BlackwordCreateData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return createBlackword(variables, token)
     },
     onSuccess: () => {
@@ -838,14 +834,13 @@ export const useCreateBlackwordMutation = () => {
  */
 export const useUpdateBlackwordMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       blackwordsId: number
       data: BlackwordUpdateData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return updateBlackword(variables.blackwordsId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -908,14 +903,13 @@ export const useUpdateBlackwordMutation = () => {
  */
 export const usePatchBlackwordMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       blackwordsId: number
       data: BlackwordConfigData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return patchBlackword(variables.blackwordsId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -972,14 +966,13 @@ export const usePatchBlackwordMutation = () => {
  */
 export const useSwitchBlackwordMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       blackwordsId: number
       data: BlackwordSwitchData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return switchBlackword(variables.blackwordsId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -1037,11 +1030,10 @@ export const useSwitchBlackwordMutation = () => {
  */
 export const useBatchSwitchBlackwordsMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: BlackwordBatchSwitchData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchSwitchBlackwords(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1095,11 +1087,9 @@ export const useBatchSwitchBlackwordsMutation = () => {
  * - 此操作会调用 syncBlackwords API 函数，向后端发起同步请求
  */
 export const useSyncBlackwordsMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return syncBlackwords(token)
     },
   })
@@ -1144,11 +1134,9 @@ export const useSyncBlackwordsMutation = () => {
  * - 可能需要处理大文件下载，注意浏览器内存限制
  */
 export const useExportBlackwordsMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await exportBlackwords(token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）
@@ -1218,11 +1206,9 @@ export const useExportBlackwordsMutation = () => {
  * - 确保传入的 blackwords_ids 数组中的ID都是有效的敏感词ID
  */
 export const useBatchExportBlackwordsMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async (variables: BlackwordBatchExportData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await batchExportBlackwords(variables, token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）
@@ -1302,11 +1288,10 @@ export const useBatchExportBlackwordsMutation = () => {
  */
 export const useDeleteBlackwordMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: { blackwordsId: number }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return deleteBlackword(variables.blackwordsId, token)
     },
     onSuccess: (_, variables) => {
@@ -1322,11 +1307,10 @@ export const useDeleteBlackwordMutation = () => {
 
 export const useBatchDeleteBlackwordsMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: number[]) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchDeleteBlackwords(variables, token)
     },
     onSuccess: (_, variables) => {

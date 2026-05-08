@@ -1,6 +1,6 @@
 // 图标
 // 表格列
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { InfoIcon } from 'lucide-react'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
@@ -9,11 +9,11 @@ import { Checkbox } from '@/components/ui/checkbox.tsx'
 // 自定义时间控件
 import { SmartDatetime } from '@/components/smart/datetime.tsx'
 // 入口点数据结构
-import { EntrypointItemData } from '@/features/entrypoints/data/schemas'
+import { type EntrypointItemData } from '@/features/entrypoints/data/schemas'
 // 准任务数据结构
-import { PreTaskData } from '@/features/pre-tasks/data/schemas'
+import { type PreTaskData } from '@/features/pre-tasks/data/schemas'
 // 网站数据结构
-import { WebsiteItemData } from '@/features/websites/data/schemas'
+import { type WebsiteItemData } from '@/features/websites/data/schemas'
 // 准任务状态
 import { usePreTasks } from './pre-tasks-provider'
 

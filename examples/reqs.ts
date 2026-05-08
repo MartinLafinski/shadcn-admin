@@ -5,9 +5,9 @@ import { useAuth } from '@clerk/clerk-react'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
 import {
-  ReqData,
-  ReqsData,
-  ReqResultType
+  type ReqData,
+  type ReqsData,
+  type ReqResultType
 } from '../data/schemas.ts'
 
 

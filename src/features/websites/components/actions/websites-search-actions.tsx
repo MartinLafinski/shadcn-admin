@@ -5,6 +5,13 @@ import { useQueryClient } from '@tanstack/react-query'
 import { getRouteApi } from '@tanstack/react-router'
 // 图标
 import { SearchIcon, XIcon, ChevronsUpDownIcon } from 'lucide-react'
+// 可用性标签
+import {
+  enableLabels,
+  lockedLabels,
+  pausedLabels,
+  limitedLabels,
+} from '@/lib/labels'
 // 样式
 import { cn } from '@/lib/utils.ts'
 // 按钮组控件
@@ -25,13 +32,6 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from '@/components/ui/input-group.tsx'
-// 可用性标签
-import {
-  enableLabels,
-  lockedLabels,
-  pausedLabels,
-  limitedLabels,
-} from '../../data/labels.tsx'
 // 获取网站数据
 import { useWebsitesSearch, useWebsitesActions } from '../websites-provider.tsx'
 

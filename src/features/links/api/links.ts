@@ -3,16 +3,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
 // Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
+import { getAccessToken } from '@/lib/auth-token'
 import {
-  LinkBatchSwitchData,
-  LinkBatchExportData,
-  LinkConfigData,
-  LinkCreateData,
-  LinkData,
-  LinksData,
-  LinkSwitchData,
-  LinkUpdateData,
+  type LinkBatchSwitchData,
+  type LinkBatchExportData,
+  type LinkConfigData,
+  type LinkCreateData,
+  type LinkData,
+  type LinksData,
+  type LinkSwitchData,
+  type LinkUpdateData,
 } from '../data/schemas.ts'
 
 // API 基础 URL
@@ -663,11 +663,10 @@ export const useLinksQuery = (
   page: number = 1,
   size: number = DEFAULT_PAGE_SIZE
 ) => {
-  const { getToken } = useAuth()
   return useQuery({
     queryKey: ['links', links_keyword, links_enabled, page, size],
     queryFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return fetchLinks(links_keyword, links_enabled, page, size, token)
     },
     placeholderData: (previousData) => previousData,
@@ -713,12 +712,10 @@ export const useLinksQuery = (
  * - 此 Hook 适用于需要显示单个友链详细信息的场景，如友链详情页
  */
 export const useLinkQuery = (linkId: number) => {
-  const { getToken } = useAuth()
-
   return useQuery({
     queryKey: ['link', linkId], // 查询键包含友链ID，确保不同ID有独立缓存
     queryFn: async () => {
-      const token = await getToken() // 获取认证token
+      const token = getAccessToken() // 获取认证token
       return fetchLinkById(linkId, token) // 调用API获取友链详情
     },
     enabled: !!linkId, // 只有当 linkId 存在且不为0时才启用查询
@@ -762,11 +759,10 @@ export const useLinkQuery = (linkId: number) => {
  */
 export const useCreateLinkMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: LinkCreateData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return createLink(variables, token)
     },
     onSuccess: () => {
@@ -821,11 +817,10 @@ export const useCreateLinkMutation = () => {
  */
 export const useUpdateLinkMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: { linkId: number; data: LinkUpdateData }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return updateLink(variables.linkId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -886,11 +881,10 @@ export const useUpdateLinkMutation = () => {
  */
 export const usePatchLinkMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: { linkId: number; data: LinkConfigData }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return patchLink(variables.linkId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -946,11 +940,10 @@ export const usePatchLinkMutation = () => {
  */
 export const useSwitchLinkMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: { linkId: number; data: LinkSwitchData }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return switchLink(variables.linkId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -1006,11 +999,10 @@ export const useSwitchLinkMutation = () => {
  */
 export const useBatchSwitchLinksMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: LinkBatchSwitchData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchSwitchLinks(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1062,11 +1054,9 @@ export const useBatchSwitchLinksMutation = () => {
  * - 此操作会调用 syncLinks API 函数，向后端发起同步请求
  */
 export const useSyncLinksMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return syncLinks(token)
     },
   })
@@ -1109,11 +1099,9 @@ export const useSyncLinksMutation = () => {
  * - 如果后端没有提供文件名，默认使用 'download.json'
  */
 export const useExportLinksMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return exportLinks(token)
     },
     onSuccess: (data) => {
@@ -1180,11 +1168,10 @@ export const useExportLinksMutation = () => {
  */
 export const useBatchDeleteLinksMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: number[]) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchDeleteLinks(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1244,11 +1231,9 @@ export const useBatchDeleteLinksMutation = () => {
  * - 确保传入的 links_ids 数组中的ID都是有效的友链ID
  */
 export const useBatchExportLinksMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async (variables: LinkBatchExportData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await batchExportLinks(variables, token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）
@@ -1313,11 +1298,10 @@ export const useBatchExportLinksMutation = () => {
  */
 export const useDeleteLinkMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: { linkId: number }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return deleteLink(variables.linkId, token)
     },
     onSuccess: (_, variables) => {

@@ -4,14 +4,13 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getRouteApi } from '@tanstack/react-router'
 // 表格相关
 import {
-  Column,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type Column,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  // getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
@@ -24,11 +23,18 @@ import {
   CheckSquare,
   Square,
 } from 'lucide-react'
+// 可用性标签
+import {
+  enableLabels,
+  lockedLabels,
+  pausedLabels,
+  limitedLabels,
+} from '@/lib/labels'
+import { getPinningStyles, type PinningStyles } from '@/lib/ui-helper'
 // 样式工具函数
 import { cn } from '@/lib/utils.ts'
+// 搜索参数
 import { usePrevious } from '@/hooks/use-previous'
-// Label 控件
-// import { Label } from '@/components/ui/label'
 // Button 控件
 import { Button } from '@/components/ui/button'
 // Switch 控件
@@ -44,16 +50,6 @@ import {
 } from '@/components/ui/table'
 // 自定义分页和工具控件
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
-// 可用性标签
-import {
-  enableLabels,
-  lockedLabels,
-  pausedLabels,
-  historyLabels,
-  remainImageLabels,
-  backupLabels,
-  limitedLabels,
-} from '@/features/websites/data/labels'
 // 网站数据结构
 import { type WebsiteData } from '@/features/websites/data/schemas'
 // 批量操作控件
@@ -63,7 +59,7 @@ import { websitesColumns } from './websites-columns'
 // 网站数据同步
 import { useWebsitesSearch, useWebsitesActions } from './websites-provider'
 // 网站表格行组件
-import { WebsiteTableRow, type PinningStyles } from './websites-table-row'
+import { WebsiteTableRow } from './websites-table-row'
 
 // 定义搜索参数记录类型
 type SearchRecord = Record<string, unknown>
@@ -197,40 +193,10 @@ const WebsitesTableComponent = ({
   const [rowSelection, setRowSelection] = useState({})
   // 全局过滤状态：用于跨多列的 OR 搜索
   const [globalFilter, setGlobalFilter] = useState('')
-
-  // =============================================
-  // 工具函数：生成固定列的样式
-  // =============================================
-
-  const getPinningStyles = React.useCallback(
+  // 固定列样式计算函数
+  const pinningStyles = React.useCallback(
     (column: Column<WebsiteData>): PinningStyles => {
-      const isPinned = column.getIsPinned()
-
-      const isLastLeftPinned =
-        isPinned === 'left' &&
-        column.id === pinnedLeftIds[pinnedLeftIds.length - 1]
-
-      const isFirstRightPinned =
-        isPinned === 'right' &&
-        pinnedRightIds.length > 0 &&
-        column.id === pinnedRightIds[0]
-
-      const style: React.CSSProperties = {
-        width: `${column.getSize()}px`,
-        minWidth: `${column.getSize()}px`,
-        left: '',
-        right: '',
-      }
-
-      if (isPinned === 'left') {
-        style.left = `${column.getStart('left')}px`
-      }
-
-      if (isPinned === 'right') {
-        style.right = `${column.getAfter('right')}px`
-      }
-
-      return { style, isPinned, isLastLeftPinned, isFirstRightPinned }
+      return getPinningStyles(column, pinnedLeftIds, pinnedRightIds)
     },
     [pinnedLeftIds, pinnedRightIds]
   )
@@ -359,21 +325,6 @@ const WebsitesTableComponent = ({
             title: '未限',
             options: limitedLabels,
           },
-          // {
-          //   columnId: 'history_mode',
-          //   title: '追溯',
-          //   options: historyLabels,
-          // },
-          // {
-          //   columnId: 'remain_img',
-          //   title: '存图',
-          //   options: remainImageLabels,
-          // },
-          // {
-          //   columnId: 'backup_in_seaweed',
-          //   title: '备份',
-          //   options: backupLabels,
-          // },
         ]}
         // 右侧控件：视图切换 switch 和全选/全不选按钮
         rightActions={
@@ -431,7 +382,7 @@ const WebsitesTableComponent = ({
                       isPinned,
                       isLastLeftPinned,
                       isFirstRightPinned,
-                    } = getPinningStyles(header.column)
+                    } = pinningStyles(header.column)
                     const metaClassName =
                       header.column.columnDef.meta?.className || ''
                     return (
@@ -497,7 +448,7 @@ const WebsitesTableComponent = ({
                       row={row}
                       rowIdx={rowIdx}
                       isSelected={row.getIsSelected()}
-                      getPinningStyles={getPinningStyles}
+                      getPinningStyles={pinningStyles}
                     />
                   ))
               ) : (

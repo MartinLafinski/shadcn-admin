@@ -1,6 +1,6 @@
 // 图标
 // 表格列
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { InfoIcon } from 'lucide-react'
 import { cn } from '@/lib/utils.ts'
 import { Badge } from '@/components/ui/badge.tsx'
@@ -13,7 +13,7 @@ import { SmartDatetime } from '@/components/smart/datetime.tsx'
 // 状态结构
 import { reqResultTypeDict } from '@/features/reqs/data/labels'
 // 请求数据结构
-import { ReqData } from '@/features/reqs/data/schemas'
+import { type ReqData } from '@/features/reqs/data/schemas'
 // 请求状态
 import { useReqs } from './reqs-provider'
 

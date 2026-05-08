@@ -1,13 +1,15 @@
 import { create } from 'zustand'
 import { getCookie, setCookie, removeCookie } from '@/lib/cookies'
 
-const ACCESS_TOKEN = 'thisisjustarandomstring'
+const ACCESS_TOKEN = 'smartspider_auth_token'
 
-interface AuthUser {
-  accountNo: string
+export interface AuthUser {
+  user_id: number
   email: string
-  role: string[]
-  exp: number
+  username: string
+  is_active: boolean
+  is_superuser: boolean
+  is_verified: boolean
 }
 
 interface AuthState {

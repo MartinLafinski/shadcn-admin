@@ -3,20 +3,20 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
 // Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
+import { getAccessToken } from '@/lib/auth-token'
 import {
-  WebsiteBatchSwitchData,
-  WebsiteBatchExportData,
-  WebsiteConfigData,
-  WebsiteCreateData,
-  WebsiteData,
-  WebsitesData,
-  WebsiteSwitchData,
-  WebsiteUpdateData,
-  WebsiteSyncData,
-  SpiderConfigData,
-  WebsiteBatchLockData,
-  WebsiteBatchPauseData,
+  type WebsiteBatchSwitchData,
+  type WebsiteBatchExportData,
+  type WebsiteConfigData,
+  type WebsiteCreateData,
+  type WebsiteData,
+  type WebsitesData,
+  type WebsiteSwitchData,
+  type WebsiteUpdateData,
+  type WebsiteSyncData,
+  type SpiderConfigData,
+  type WebsiteBatchLockData,
+  type WebsiteBatchPauseData,
 } from '../data/schemas.ts'
 
 // API 基础 URL
@@ -812,7 +812,6 @@ export const useWebsitesQuery = (
   page: number = 1,
   size: number = PAGE_SIZE
 ) => {
-  const { getToken } = useAuth()
   return useQuery({
     queryKey: [
       'websites',
@@ -825,7 +824,7 @@ export const useWebsitesQuery = (
       size,
     ],
     queryFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return fetchWebsites(
         website_keyword,
         website_enabled,
@@ -880,12 +879,10 @@ export const useWebsitesQuery = (
  * - 此 Hook 适用于需要显示单个网站详细信息的场景，如网站详情页
  */
 export const useWebsiteQuery = (websiteId: number) => {
-  const { getToken } = useAuth()
-
   return useQuery({
     queryKey: ['website', websiteId], // 查询键包含网站ID，确保不同ID有独立缓存
     queryFn: async () => {
-      const token = await getToken() // 获取认证token
+      const token = getAccessToken() // 获取认证token
       return fetchWebsiteById(websiteId, token) // 调用API获取网站详情
     },
     enabled: !!websiteId, // 只有当 websiteId 存在且不为0时才启用查询
@@ -929,11 +926,10 @@ export const useWebsiteQuery = (websiteId: number) => {
  */
 export const useCreateWebsiteMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: WebsiteCreateData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return createWebsite(variables, token)
     },
     onSuccess: () => {
@@ -988,14 +984,13 @@ export const useCreateWebsiteMutation = () => {
  */
 export const useUpdateWebsiteMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       websiteId: number
       data: WebsiteUpdateData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return updateWebsite(variables.websiteId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -1058,14 +1053,13 @@ export const useUpdateWebsiteMutation = () => {
  */
 export const usePatchWebsiteMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       websiteId: number
       data: WebsiteConfigData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return patchWebsite(variables.websiteId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -1123,14 +1117,13 @@ export const usePatchWebsiteMutation = () => {
  */
 export const useSwitchWebsiteMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       websiteId: number
       data: WebsiteSwitchData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return switchWebsite(variables.websiteId, variables.data, token)
     },
     onSuccess: (_, variables) => {
@@ -1188,11 +1181,10 @@ export const useSwitchWebsiteMutation = () => {
  */
 export const useBatchSwitchWebsitesMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: WebsiteBatchSwitchData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchSwitchWebsites(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1236,11 +1228,10 @@ export const useBatchSwitchWebsitesMutation = () => {
  */
 export const useBatchLockWebsitesMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: WebsiteBatchLockData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchLockWebsites(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1284,11 +1275,10 @@ export const useBatchLockWebsitesMutation = () => {
  */
 export const useBatchPauseWebsitesMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: WebsiteBatchPauseData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchPauseWebsites(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1340,11 +1330,9 @@ export const useBatchPauseWebsitesMutation = () => {
  * - 此操作会调用 syncWebsites API 函数，向后端发起同步请求
  */
 export const useSyncWebsitesMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async (data: WebsiteSyncData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return syncWebsites(data, token)
     },
   })
@@ -1389,11 +1377,9 @@ export const useSyncWebsitesMutation = () => {
  * - 可能需要处理大文件下载，注意浏览器内存限制
  */
 export const useExportWebsitesMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await exportWebsites(token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）
@@ -1463,11 +1449,9 @@ export const useExportWebsitesMutation = () => {
  * - 确保传入的 website_ids 数组中的ID都是有效的网站ID
  */
 export const useBatchExportWebsitesMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async (variables: WebsiteBatchExportData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await batchExportWebsites(variables, token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）
@@ -1547,11 +1531,10 @@ export const useBatchExportWebsitesMutation = () => {
  */
 export const useDeleteWebsiteMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: { websiteId: number }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return deleteWebsite(variables.websiteId, token)
     },
     onSuccess: (_, variables) => {
@@ -1567,11 +1550,10 @@ export const useDeleteWebsiteMutation = () => {
 
 export const useBatchDeleteWebsitesMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: number[]) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return batchDeleteWebsites(variables, token)
     },
     onSuccess: (_, variables) => {
@@ -1689,14 +1671,13 @@ export const updateWebsiteSpiderConfig = async (
  */
 export const useUpdateWebsiteSpiderConfigMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (variables: {
       websiteId: number
       data: SpiderConfigData
     }) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return updateWebsiteSpiderConfig(
         variables.websiteId,
         variables.data,
@@ -1863,11 +1844,10 @@ export const clearWebsitePreTasks = async (
  */
 export const useResetWebsitePreTasksMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (websiteId: number) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return resetWebsitePreTasks(websiteId, token)
     },
     onSuccess: () => {
@@ -1917,11 +1897,10 @@ export const useResetWebsitePreTasksMutation = () => {
  */
 export const useClearWebsitePreTasksMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (websiteId: number) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return clearWebsitePreTasks(websiteId, token)
     },
     onSuccess: () => {

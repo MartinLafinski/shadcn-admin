@@ -2,8 +2,6 @@
 import React, { useEffect, memo } from 'react'
 // 路由
 import { getRouteApi } from '@tanstack/react-router'
-// 用户按钮组件
-import { UserButton } from '@clerk/clerk-react'
 // 配置抽屉组件
 import { ConfigDrawer } from '@/components/config-drawer'
 // 头部组件
@@ -12,8 +10,9 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 // 日/夜主题切换组件
 import { ThemeSwitch } from '@/components/theme-switch'
+// 用户按钮组件
+import { UserMenu } from '@/components/user-menu'
 // 用户认证
-// import { useAuth } from '@clerk/clerk-react'
 // 网站查询
 import { useWebsitesQuery } from '@/features/websites/api/websites'
 // 网站独立操作按钮
@@ -113,7 +112,7 @@ function WebsitesContent() {
           <ConfigDrawer />
 
           {/* 用户按钮，显示用户信息和账户操作菜单 */}
-          <UserButton />
+          <UserMenu />
           {/*<button onClick={handleGetToken}>获取 JWT 令牌</button>*/}
         </div>
       </MemoizedHeader>

@@ -53,13 +53,14 @@ export const EntrypointItemSchema = z
     entrypoint_config: z.record(z.string(), z.any()),
     entrypoint_readme: z.string(),
     config: z.record(z.string(), z.any()),
-  }).extend({
+  })
+  .extend({
     ...createEntityToggleSchema('entrypoint').shape,
     ...createEntityLockAuditSchema('entrypoint').shape,
     ...createEntityPauseAuditSchema('entrypoint').shape,
     ...EntityStatusSchema.shape,
     ...EntitySpiderTasksCounterSchema.shape,
-    ...EntityMaterialCounterSchema.shape
+    ...EntityMaterialCounterSchema.shape,
   })
 
 /**
@@ -99,9 +100,12 @@ export type EntrypointSwitchData = z.infer<typeof EntrypointSwitchSchema>
 // =====================================================================================================================
 // region Entrypoint Batch Switch Schema
 
-export const EntrypointBatchSwitchSchema = createEntityBatchSwitchSchema('entrypoint')
+export const EntrypointBatchSwitchSchema =
+  createEntityBatchSwitchSchema('entrypoint')
 
-export type EntrypointBatchSwitchData = z.infer<typeof EntrypointBatchSwitchSchema>
+export type EntrypointBatchSwitchData = z.infer<
+  typeof EntrypointBatchSwitchSchema
+>
 // endregion
 
 // =====================================================================================================================
@@ -109,7 +113,8 @@ export type EntrypointBatchSwitchData = z.infer<typeof EntrypointBatchSwitchSche
 // =====================================================================================================================
 // region Entrypoint Batch Lock Schema
 
-export const EntrypointBatchLockSchema = createEntityBatchLockSchema('entrypoint')
+export const EntrypointBatchLockSchema =
+  createEntityBatchLockSchema('entrypoint')
 
 export type EntrypointBatchLockData = z.infer<typeof EntrypointBatchLockSchema>
 // endregion
@@ -119,9 +124,12 @@ export type EntrypointBatchLockData = z.infer<typeof EntrypointBatchLockSchema>
 // =====================================================================================================================
 // region Entrypoint Batch Pause Schema
 
-export const EntrypointBatchPauseSchema = createEntityBatchPauseSchema('entrypoint')
+export const EntrypointBatchPauseSchema =
+  createEntityBatchPauseSchema('entrypoint')
 
-export type EntrypointBatchPauseData = z.infer<typeof EntrypointBatchPauseSchema>
+export type EntrypointBatchPauseData = z.infer<
+  typeof EntrypointBatchPauseSchema
+>
 // endregion
 
 // =====================================================================================================================

@@ -72,7 +72,7 @@ import {
 // 入口点数据查询
 import { useEntrypointsQuery } from '@/features/entrypoints/api/entrypoints.ts'
 import {
-  EntrypointsData,
+  type EntrypointsData,
   emptyEntrypointsData,
 } from '@/features/entrypoints/data/schemas.ts'
 // 任务数据查询
@@ -81,7 +81,7 @@ import { useTaskDaysQuery } from '@/features/jobs/api/jobs.ts'
 // 网站数据查询
 import { useWebsitesQuery } from '@/features/websites/api/websites.ts'
 import {
-  WebsitesData,
+  type WebsitesData,
   emptyWebsitesData,
 } from '@/features/websites/data/schemas.ts'
 // 请求API调用

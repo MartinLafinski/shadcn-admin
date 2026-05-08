@@ -1,73 +1,51 @@
-// 图标
 // 表格列
-import { ColumnDef } from '@tanstack/react-table'
-import {
-  CirclePileIcon,
-  HelpCircleIcon,
-  MessageSquareMoreIcon,
-  NewspaperIcon,
-  NotebookTextIcon,
-  FileTextIcon,
-  GavelIcon,
-  HandCoinsIcon,
-  PackageIcon,
-  Building2Icon,
-  StoreIcon,
-  HandshakeIcon,
-  ImageIcon,
-  ClapperboardIcon,
-  FoldersIcon,
-  NetworkIcon,
-  UtensilsIcon,
-  BookOpenTextIcon,
-  ShieldUserIcon,
-  HeadsetIcon,
-  MapPinIcon,
-  ListTodo,
-} from 'lucide-react'
+import { type ColumnDef } from '@tanstack/react-table'
+// 图标
+import { MapPinIcon, ListTodo } from 'lucide-react'
+// 采料类型字典
+import { materialDictionary } from '@/lib/labels.tsx'
+// 自定义时间控件
+import { DatetimeCell } from '@/components/smart/cells/datetime-cell'
+// 网站启用状态显示单元格
+import { EntityEnabledStatusCell } from '@/components/smart/cells/entity-enabled-status-cell'
+// 实体ID单元格
+import { EntityIdCell } from '@/components/smart/cells/entity-id-cell'
+// 网站聚合状态单元格
+import { EntityInheritStatusCell } from '@/components/smart/cells/entity-inherit-status-cell'
+// 条目信息单元格
+import { EntityItemCountCell } from '@/components/smart/cells/entity-items-count-cell'
+// 网站未限状态单元格
+import { EntityLimitedCell } from '@/components/smart/cells/entity-limited-cell'
+// 网站锁定状态单元格
+import { EntityLockedCell } from '@/components/smart/cells/entity-locked-cell'
+// 网站 Material 统计单元格
+import { EntityMaterialCountCell } from '@/components/smart/cells/entity-material-count-cell'
+// 网站暂停状态单元格
+import { EntityPausedCell } from '@/components/smart/cells/entity-paused-cell'
 // 实体选择单元格
 import { EntitySelectCell } from '@/components/smart/cells/entity-select-cell'
 // 实体选择表头
 import { EntitySelectHeader } from '@/components/smart/cells/entity-select-header'
-// 实体ID单元格
-import { EntityIdCell } from '@/components/smart/cells/entity-id-cell'
-// URL单元格
-import {UrlCell} from "@/components/smart/cells/url-cell.tsx"
-// 条目信息单元格
-import { EntityItemCountCell } from '@/components/smart/cells/entity-items-count-cell'
-// 自定义时间控件
-import { DatetimeCell } from '@/components/smart/cells/datetime-cell'
-// 网站聚合状态单元格
-import { EntityInheritStatusCell } from '@/components/smart/cells/entity-inherit-status-cell'
-// 网站迷你信息单元格
-import { WebsiteMiniItemCell } from '@/components/smart/cells/website-mini-item-cell'
-// 网站迷你信息单元格
-import { EntitySpiderTasksPieCell } from '@/components/smart/cells/entity-spider-tasks-pie-cell'
-// 网站迷你信息单元格
-import { EntitySpiderTaskBarHeader } from '@/components/smart/cells/entity-spider-task-bar-header'
-// 网站爬虫任务进度条单元格
-import { EntitySpiderTaskBarCell } from '@/components/smart/cells/entity-spider-task-bar-cell'
-// 网站未限状态单元格
-import { EntityLimitedCell } from '@/components/smart/cells/entity-limited-cell'
-
-// 网站数据结构
-import { WebsiteData } from '@/features/websites/data/schemas'
-// 自定义行操作控件
-import { WebsitesRowActions } from './actions/websites-row-actions'
-// 网站启用状态显示单元格
-import { EntityEnabledStatusCell } from '@/components/smart/cells/entity-enabled-status-cell'
-// 网站启用状态开关组件
-import { WebsiteEnabledSwitch } from './cells/website-enabled-switch.tsx'
-// 网站配置说明单元格组件
-import { WebsiteInfoCell } from './cells/website-info-cell.tsx'
-import { EntityLockedCell } from '@/components/smart/cells/entity-locked-cell'
-import { EntityPausedCell } from '@/components/smart/cells/entity-paused-cell'
-// 网站 Material 统计单元格
-import { EntityMaterialCountCell } from '@/components/smart/cells/entity-material-count-cell'
 // 网站聚合状态单元格
 import { EntitySelfStatusCell } from '@/components/smart/cells/entity-self-status-cell'
-
-
+// 网站爬虫任务进度条单元格
+import { EntitySpiderTaskBarCell } from '@/components/smart/cells/entity-spider-task-bar-cell'
+// 网站迷你信息单元格
+import { EntitySpiderTaskBarHeader } from '@/components/smart/cells/entity-spider-task-bar-header'
+// 网站迷你信息单元格
+import { EntitySpiderTasksPieCell } from '@/components/smart/cells/entity-spider-tasks-pie-cell'
+// 参数要素单元格
+import { ParamFormMiniItemCell } from '@/components/smart/cells/param-form-mini-item-cell'
+// URL单元格
+import { UrlCell } from '@/components/smart/cells/url-cell.tsx'
+// 网站迷你信息单元格
+import { WebsiteMiniItemCell } from '@/components/smart/cells/website-mini-item-cell'
+// 网站数据结构
+import { type WebsiteData } from '@/features/websites/data/schemas'
+// 自定义行操作控件
+import { WebsitesRowActions } from './actions/websites-row-actions'
+// 网站启用状态开关组件
+import { WebsiteEnabledSwitch } from './cells/website-enabled-switch.tsx'
 
 /**
  * 网站列表表格列定义
@@ -113,7 +91,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     id: 'website_name',
     accessorKey: 'website_name',
     header: '网站名称',
-    cell: ({ row }) => <WebsiteMiniItemCell website={row.original}/>,
+    cell: ({ row }) => <WebsiteMiniItemCell website={row.original} />,
     size: 200,
   },
   /**
@@ -125,8 +103,6 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => <EntityInheritStatusCell entity={row.original} />,
     size: 40,
   },
-
-
 
   /**
    * 入口点数量列 - 显示网站下属的入口点数量
@@ -141,7 +117,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
         count={row.getValue('entrypoint_count')}
         to='/entrypoints'
         icon={MapPinIcon}
-        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-300/70'
+        className='bg-lime-100 text-lime-900 dark:bg-lime-300/70'
       />
     ),
     size: 60,
@@ -164,21 +140,6 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
       />
     ),
     size: 60,
-    meta: {
-      className: 'border-r-1',
-    },
-  },
-
-  /**
-   * 网站URL列 - 显示网站的访问地址
-   * 如果存在URL则渲染为可点击的链接，否则显示占位符
-   */
-  {
-    accessorKey: 'website_url',
-    header: 'URL',
-    cell: ({ row }) => <UrlCell url={row.getValue('website_url')} />,
-    size: 320,
-    maxSize: 320,
     meta: {
       className: 'border-r-1',
     },
@@ -213,8 +174,6 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     },
   },
 
-
-
   /**
    * 自身状态显示列
    */
@@ -222,28 +181,36 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     id: 'website_enabled_status',
     accessorKey: 'website_enabled_status',
     header: '可用',
-    cell: ({ row }) => <EntityEnabledStatusCell entity_type="website" entity={row.original} />,
+    cell: ({ row }) => (
+      <EntityEnabledStatusCell entity_type='website' entity={row.original} />
+    ),
     size: 40,
   },
   {
     id: 'website_locked',
     accessorKey: 'website_locked',
     header: '锁定',
-    cell: ({ row }) => <EntityLockedCell entity_type="website" entity={row.original} />,
+    cell: ({ row }) => (
+      <EntityLockedCell entity_type='website' entity={row.original} />
+    ),
     size: 40,
   },
   {
     id: 'website_paused',
     accessorKey: 'website_paused',
     header: '运转',
-    cell: ({ row }) => <EntityPausedCell entity_type="website" entity={row.original} />,
+    cell: ({ row }) => (
+      <EntityPausedCell entity_type='website' entity={row.original} />
+    ),
     size: 40,
   },
   {
     id: 'website_limited',
     accessorKey: 'website_limited',
     header: '未限',
-    cell: ({ row }) => <EntityLimitedCell entity_type="website" entity={row.original} />,
+    cell: ({ row }) => (
+      <EntityLimitedCell entity_type='website' entity={row.original} />
+    ),
     size: 40,
     meta: {
       className: 'border-r-1',
@@ -260,11 +227,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/index'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='total_material_count'
-        icon={CirclePileIcon}
-        className='bg-stone-100 dark:bg-stone-700'
+        icon={materialDictionary.all.icon}
+        className={materialDictionary.all.className}
       />
     ),
     size: 60,
@@ -280,11 +247,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/subs'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_subs_count'
-        icon={NetworkIcon}
-        className='bg-stone-100 dark:bg-stone-300/70 dark:text-stone-800'
+        icon={materialDictionary.subs.icon}
+        className={materialDictionary.subs.className}
       />
     ),
     size: 60,
@@ -303,11 +270,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/unknown'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_unknown_count'
-        icon={HelpCircleIcon}
-        className='bg-yellow-100 text-yellow-900 dark:bg-yellow-400/70 dark:text-yellow-900'
+        icon={materialDictionary.unknown.icon}
+        className={materialDictionary.unknown.className}
       />
     ),
     size: 60,
@@ -323,11 +290,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/customize'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_customize_count'
-        icon={UtensilsIcon}
-        className='bg-yellow-100 text-yellow-900 dark:bg-yellow-200/70 dark:text-yellow-900'
+        icon={materialDictionary.customize.icon}
+        className={materialDictionary.customize.className}
       />
     ),
     size: 60,
@@ -346,11 +313,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/speech'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_speech_count'
-        icon={MessageSquareMoreIcon}
-        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-400/70 dark:text-cyan-900'
+        icon={materialDictionary.speech.icon}
+        className={materialDictionary.speech.className}
       />
     ),
     size: 60,
@@ -365,11 +332,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/news'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_news_count'
-        icon={NewspaperIcon}
-        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-300/70 dark:text-cyan-900'
+        icon={materialDictionary.news.icon}
+        className={materialDictionary.news.className}
       />
     ),
     size: 60,
@@ -384,11 +351,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/note'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_note_count'
-        icon={NotebookTextIcon}
-        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-200/70 dark:text-cyan-900'
+        icon={materialDictionary.note.icon}
+        className={materialDictionary.note.className}
       />
     ),
     size: 60,
@@ -404,11 +371,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/article'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_article_count'
-        icon={FileTextIcon}
-        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-100/70 dark:text-cyan-900'
+        icon={materialDictionary.article.icon}
+        className={materialDictionary.article.className}
       />
     ),
     size: 60,
@@ -427,11 +394,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/book'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_book_count'
-        icon={BookOpenTextIcon}
-        className='bg-rose-100 text-rose-900 dark:bg-rose-300/70 dark:text-rose-900'
+        icon={materialDictionary.book.icon}
+        className={materialDictionary.book.className}
       />
     ),
     size: 60,
@@ -447,11 +414,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/bid'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_bid_count'
-        icon={GavelIcon}
-        className='bg-rose-100 text-rose-900 dark:bg-rose-200/70 dark:text-rose-900'
+        icon={materialDictionary.bid.icon}
+        className={materialDictionary.bid.className}
       />
     ),
     size: 60,
@@ -470,11 +437,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/trade'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_trade_count'
-        icon={HandCoinsIcon}
-        className='bg-lime-100 text-lime-900 dark:bg-lime-400/70 dark:text-lime-900'
+        icon={materialDictionary.trade.icon}
+        className={materialDictionary.trade.className}
       />
     ),
     size: 60,
@@ -490,11 +457,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/product'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_product_count'
-        icon={PackageIcon}
-        className='bg-lime-100 text-lime-900 dark:bg-lime-300/70 dark:text-lime-900'
+        icon={materialDictionary.product.icon}
+        className={materialDictionary.product.className}
       />
     ),
     size: 60,
@@ -506,15 +473,15 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
   {
     id: 'material_company_count',
     accessorKey: 'material_company_count',
-    header: '司料',
+    header: '企料',
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/company'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_company_count'
-        icon={Building2Icon}
-        className='bg-lime-100 text-lime-900 dark:bg-lime-200/70 dark:text-lime-900'
+        icon={materialDictionary.company.icon}
+        className={materialDictionary.company.className}
       />
     ),
     size: 60,
@@ -530,11 +497,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/shop'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_shop_count'
-        icon={StoreIcon}
-        className='bg-lime-100 text-lime-900 dark:bg-lime-100/70 dark:text-lime-900'
+        icon={materialDictionary.shop.icon}
+        className={materialDictionary.shop.className}
       />
     ),
     size: 60,
@@ -553,11 +520,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/recruit'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_recruit_count'
-        icon={HandshakeIcon}
-        className='bg-indigo-100 text-indigo-900 dark:bg-indigo-300/70 dark:text-indigo-900'
+        icon={materialDictionary.recruit.icon}
+        className={materialDictionary.recruit.className}
       />
     ),
     size: 60,
@@ -573,11 +540,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/account'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_account_count'
-        icon={ShieldUserIcon}
-        className='bg-indigo-100 text-indigo-900 dark:bg-indigo-200/70 dark:text-indigo-900'
+        icon={materialDictionary.account.icon}
+        className={materialDictionary.account.className}
       />
     ),
     size: 60,
@@ -596,11 +563,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/image'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_image_count'
-        icon={ImageIcon}
-        className='bg-green-100 text-green-900 dark:bg-green-300/70 dark:text-green-900'
+        icon={materialDictionary.image.icon}
+        className={materialDictionary.image.className}
       />
     ),
     size: 60,
@@ -616,11 +583,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/audio'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_audio_count'
-        icon={HeadsetIcon}
-        className='bg-green-100 text-green-900 dark:bg-green-200/70 dark:text-green-900'
+        icon={materialDictionary.audio.icon}
+        className={materialDictionary.audio.className}
       />
     ),
     size: 60,
@@ -636,11 +603,11 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/video'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_video_count'
-        icon={ClapperboardIcon}
-        className='bg-green-100 text-green-900 dark:bg-green-100/70 dark:text-green-900'
+        icon={materialDictionary.video.icon}
+        className={materialDictionary.video.className}
       />
     ),
     size: 60,
@@ -659,14 +626,78 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/file'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_file_count'
-        icon={FoldersIcon}
-        className='bg-orange-100 text-orange-900 dark:bg-orange-200/70 dark:text-orange-900'
+        icon={materialDictionary.file.icon}
+        className={materialDictionary.file.className}
       />
     ),
     size: 60,
+    meta: {
+      className: 'border-r-1',
+    },
+  },
+
+  /**
+   * 网站URL列 - 显示网站的访问地址
+   * 如果存在URL则渲染为可点击的链接，否则显示占位符
+   */
+  {
+    accessorKey: 'website_url',
+    header: 'URL',
+    cell: ({ row }) => <UrlCell url={row.getValue('website_url')} />,
+    size: 320,
+    maxSize: 320,
+    meta: {
+      className: 'border-r-1',
+    },
+  },
+
+  /**
+   * 自用参数要素包列
+   */
+  {
+    id: 'industry_self_param_slug',
+    accessorKey: 'industry_self_param_slug',
+    header: '行业自用要素包',
+    cell: ({ row }) => (
+      <ParamFormMiniItemCell
+        entity={row.original.param_form_self}
+        asLink={true}
+      />
+    ),
+    size: 160,
+  },
+  /**
+   * 指定入口点参数要素包列
+   */
+  {
+    id: 'industry_entrypoint_param_slug',
+    accessorKey: 'industry_entrypoint_param_slug',
+    header: '行业入口点要素包',
+    cell: ({ row }) => (
+      <ParamFormMiniItemCell
+        entity={row.original.param_form_entrypoint}
+        asLink={true}
+      />
+    ),
+    size: 160,
+  },
+  /**
+   * 指定预备作业参数要素包列
+   */
+  {
+    id: 'industry_prejob_param_slug',
+    accessorKey: 'industry_prejob_param_slug',
+    header: '行业预备作业要素包',
+    cell: ({ row }) => (
+      <ParamFormMiniItemCell
+        entity={row.original.param_form_prejob}
+        asLink={true}
+      />
+    ),
+    size: 160,
     meta: {
       className: 'border-r-1',
     },
@@ -691,19 +722,6 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     header: '更新时间',
     cell: ({ row }) => <DatetimeCell value={row.getValue('updated_at')} />,
   },
-  // /**
-  //  * 配置说明列 - 提供查看网站配置和说明的入口
-  //  * 点击信息图标按钮可以打开配置信息对话框
-  //  */
-  // {
-  //   id: 'info',
-  //   enableHiding: false, // 信息列不允许隐藏
-  //   header: '配置说明',
-  //   cell: ({ row }) => <WebsiteInfoCell entity={row.original}
-  //       linkTo='/entrypoints'
-  //       linkSearch={{ website_id: row.original.website_id }} />,
-  //   size: 80,
-  // },
 
   /**
    * 自身状态列 - 2x2 四方格显示可用/锁定/运转/受限
@@ -711,7 +729,9 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
   {
     id: 'website_status',
     header: '自身状态',
-    cell: ({ row }) => <EntitySelfStatusCell entity_type='website' entity={row.original}/>,
+    cell: ({ row }) => (
+      <EntitySelfStatusCell entity_type='website' entity={row.original} />
+    ),
     size: 50,
   },
 
@@ -729,7 +749,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     id: 'website_enabled',
     accessorKey: 'website_enabled',
     header: '开关',
-    cell: ({ row }) => <WebsiteEnabledSwitch website={row.original}/>,
+    cell: ({ row }) => <WebsiteEnabledSwitch website={row.original} />,
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id)) // 自定义过滤函数
     },

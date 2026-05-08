@@ -11,15 +11,15 @@ export function SignIn2() {
         <div className='mx-auto flex w-full flex-col justify-center space-y-2 py-8 sm:w-[480px] sm:p-8'>
           <div className='mb-4 flex items-center justify-center'>
             <Logo className='me-2' />
-            <h1 className='text-xl font-medium'>Shadcn Admin</h1>
+            <h1 className='text-xl font-medium'>智蛛采料管理平台</h1>
           </div>
         </div>
         <div className='mx-auto flex w-full max-w-sm flex-col justify-center space-y-2'>
           <div className='flex flex-col space-y-2 text-start'>
-            <h2 className='text-lg font-semibold tracking-tight'>Sign in</h2>
+            <h2 className='text-lg font-semibold tracking-tight'>登录</h2>
             <p className='text-sm text-muted-foreground'>
-              Enter your email and password below <br />
-              to log into your account
+              请在下方输入您的邮箱和密码 <br />
+              以登录您的账户
             </p>
           </div>
           <UserAuthForm />

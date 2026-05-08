@@ -1,7 +1,7 @@
 // 图标
 import { InfoIcon } from 'lucide-react'
 // 表格列
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 // 按钮控件
 import { Button } from "@/components/ui/button.tsx"
 // 复选框控件
@@ -17,11 +17,11 @@ import { useJobs } from './jobs-provider'
 // 任务取消API调用
 import { useCancelJobMutation, useCompleteJobMutation, useEnsureJobMutation } from '@/features/jobs/api/jobs'
 // 任务数据结构
-import { JobData } from '@/features/jobs/data/schemas'
+import { type JobData } from '@/features/jobs/data/schemas'
 // 入口点数据结构
-import { EntrypointItemData } from '@/features/jobs/data/schemas'
+import { type EntrypointItemData } from '@/features/jobs/data/schemas'
 // 网站数据结构
-import { WebsiteItemData } from '@/features/jobs/data/schemas'
+import { type WebsiteItemData } from '@/features/jobs/data/schemas'
 
 
 /**

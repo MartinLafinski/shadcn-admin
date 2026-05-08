@@ -21,6 +21,8 @@ import {
 } from 'lucide-react'
 // 操作结果提示框
 import { toast } from 'sonner'
+// 可用性标签
+import { enableLabels, lockedLabels, pausedLabels } from '@/lib/labels'
 // 确认对话框
 import {
   AlertDialog,
@@ -56,8 +58,6 @@ import {
   useResetWebsitePreTasksMutation,
   useClearWebsitePreTasksMutation,
 } from '@/features/websites/api/websites.ts'
-// 可用性标签
-import { enableLabels, lockedLabels, pausedLabels } from '../../data/labels.tsx'
 // 网站数据格式
 import { WebsiteItemSchema } from '../../data/schemas.ts'
 // 网站状态
@@ -221,9 +221,9 @@ export function WebsitesRowActions<TData>({
           </DropdownMenuSub>
           <DropdownMenuSeparator />
 
-          {/* 预备任务 */}
+          {/* 预备作业 */}
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger>预备任务</DropdownMenuSubTrigger>
+            <DropdownMenuSubTrigger>预备作业</DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuRadioGroup>
                 {/* 重置准任务操作 */}

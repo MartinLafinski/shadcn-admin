@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedUserManagementRouteImport } from './routes/_authenticated/user-management'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors404RouteImport } from './routes/(errors)/404'
@@ -34,11 +33,13 @@ import { Route as AuthenticatedServersIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedReqsIndexRouteImport } from './routes/_authenticated/reqs/index'
 import { Route as AuthenticatedPrejobsIndexRouteImport } from './routes/_authenticated/prejobs/index'
 import { Route as AuthenticatedPreTasksIndexRouteImport } from './routes/_authenticated/pre-tasks/index'
+import { Route as AuthenticatedParamFormsIndexRouteImport } from './routes/_authenticated/param-forms/index'
 import { Route as AuthenticatedLinksIndexRouteImport } from './routes/_authenticated/links/index'
 import { Route as AuthenticatedJobsIndexRouteImport } from './routes/_authenticated/jobs/index'
 import { Route as AuthenticatedJobgroupsIndexRouteImport } from './routes/_authenticated/jobgroups/index'
 import { Route as AuthenticatedIndustriesIndexRouteImport } from './routes/_authenticated/industries/index'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
+import { Route as AuthenticatedFormBuilderIndexRouteImport } from './routes/_authenticated/form-builder/index'
 import { Route as AuthenticatedEntrypointsIndexRouteImport } from './routes/_authenticated/entrypoints/index'
 import { Route as AuthenticatedClustersIndexRouteImport } from './routes/_authenticated/clusters/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
@@ -46,10 +47,13 @@ import { Route as AuthenticatedBlackwordsIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authenticated/articles/index'
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
 import { Route as AuthenticatedActorsIndexRouteImport } from './routes/_authenticated/actors/index'
+import { Route as AuthenticatedAccountsIndexRouteImport } from './routes/_authenticated/accounts/index'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedParamFormsEditRouteImport } from './routes/_authenticated/param-forms/edit'
+import { Route as AuthenticatedParamFormsCreateRouteImport } from './routes/_authenticated/param-forms/create'
 import { Route as AuthenticatedMaterialVideoRouteImport } from './routes/_authenticated/material/video'
 import { Route as AuthenticatedMaterialUnknownRouteImport } from './routes/_authenticated/material/unknown'
 import { Route as AuthenticatedMaterialTradeRouteImport } from './routes/_authenticated/material/trade'
@@ -70,6 +74,7 @@ import { Route as AuthenticatedMaterialAudioRouteImport } from './routes/_authen
 import { Route as AuthenticatedMaterialArticleRouteImport } from './routes/_authenticated/material/article'
 import { Route as AuthenticatedMaterialAccountRouteImport } from './routes/_authenticated/material/account'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
+import { Route as AuthenticatedAccountsMeRouteImport } from './routes/_authenticated/accounts/me'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -84,12 +89,6 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedUserManagementRoute =
-  AuthenticatedUserManagementRouteImport.update({
-    id: '/user-management',
-    path: '/user-management',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const errors503Route = errors503RouteImport.update({
   id: '/(errors)/503',
   path: '/503',
@@ -206,6 +205,12 @@ const AuthenticatedPreTasksIndexRoute =
     path: '/pre-tasks/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedParamFormsIndexRoute =
+  AuthenticatedParamFormsIndexRouteImport.update({
+    id: '/param-forms/',
+    path: '/param-forms/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLinksIndexRoute = AuthenticatedLinksIndexRouteImport.update({
   id: '/links/',
   path: '/links/',
@@ -232,6 +237,12 @@ const AuthenticatedHelpCenterIndexRoute =
   AuthenticatedHelpCenterIndexRouteImport.update({
     id: '/help-center/',
     path: '/help-center/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFormBuilderIndexRoute =
+  AuthenticatedFormBuilderIndexRouteImport.update({
+    id: '/form-builder/',
+    path: '/form-builder/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedEntrypointsIndexRoute =
@@ -274,6 +285,12 @@ const AuthenticatedActorsIndexRoute =
     path: '/actors/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAccountsIndexRoute =
+  AuthenticatedAccountsIndexRouteImport.update({
+    id: '/accounts/',
+    path: '/accounts/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsNotificationsRoute =
   AuthenticatedSettingsNotificationsRouteImport.update({
     id: '/notifications',
@@ -297,6 +314,18 @@ const AuthenticatedSettingsAccountRoute =
     id: '/account',
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedParamFormsEditRoute =
+  AuthenticatedParamFormsEditRouteImport.update({
+    id: '/param-forms/edit',
+    path: '/param-forms/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParamFormsCreateRoute =
+  AuthenticatedParamFormsCreateRouteImport.update({
+    id: '/param-forms/create',
+    path: '/param-forms/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMaterialVideoRoute =
   AuthenticatedMaterialVideoRouteImport.update({
@@ -418,6 +447,11 @@ const AuthenticatedErrorsErrorRoute =
     path: '/errors/$error',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAccountsMeRoute = AuthenticatedAccountsMeRouteImport.update({
+  id: '/accounts/me',
+  path: '/accounts/me',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
@@ -428,8 +462,8 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
-  '/user-management': typeof AuthenticatedUserManagementRoute
   '/': typeof AuthenticatedIndexRoute
+  '/accounts/me': typeof AuthenticatedAccountsMeRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/material/account': typeof AuthenticatedMaterialAccountRoute
   '/material/article': typeof AuthenticatedMaterialArticleRoute
@@ -450,10 +484,13 @@ export interface FileRoutesByFullPath {
   '/material/trade': typeof AuthenticatedMaterialTradeRoute
   '/material/unknown': typeof AuthenticatedMaterialUnknownRoute
   '/material/video': typeof AuthenticatedMaterialVideoRoute
+  '/param-forms/create': typeof AuthenticatedParamFormsCreateRoute
+  '/param-forms/edit': typeof AuthenticatedParamFormsEditRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/accounts': typeof AuthenticatedAccountsIndexRoute
   '/actors': typeof AuthenticatedActorsIndexRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/articles': typeof AuthenticatedArticlesIndexRoute
@@ -461,11 +498,13 @@ export interface FileRoutesByFullPath {
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/clusters': typeof AuthenticatedClustersIndexRoute
   '/entrypoints': typeof AuthenticatedEntrypointsIndexRoute
+  '/form-builder': typeof AuthenticatedFormBuilderIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/industries': typeof AuthenticatedIndustriesIndexRoute
   '/jobgroups': typeof AuthenticatedJobgroupsIndexRoute
   '/jobs': typeof AuthenticatedJobsIndexRoute
   '/links': typeof AuthenticatedLinksIndexRoute
+  '/param-forms': typeof AuthenticatedParamFormsIndexRoute
   '/pre-tasks': typeof AuthenticatedPreTasksIndexRoute
   '/prejobs': typeof AuthenticatedPrejobsIndexRoute
   '/reqs': typeof AuthenticatedReqsIndexRoute
@@ -488,8 +527,8 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
-  '/user-management': typeof AuthenticatedUserManagementRoute
   '/': typeof AuthenticatedIndexRoute
+  '/accounts/me': typeof AuthenticatedAccountsMeRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/material/account': typeof AuthenticatedMaterialAccountRoute
   '/material/article': typeof AuthenticatedMaterialArticleRoute
@@ -510,10 +549,13 @@ export interface FileRoutesByTo {
   '/material/trade': typeof AuthenticatedMaterialTradeRoute
   '/material/unknown': typeof AuthenticatedMaterialUnknownRoute
   '/material/video': typeof AuthenticatedMaterialVideoRoute
+  '/param-forms/create': typeof AuthenticatedParamFormsCreateRoute
+  '/param-forms/edit': typeof AuthenticatedParamFormsEditRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/accounts': typeof AuthenticatedAccountsIndexRoute
   '/actors': typeof AuthenticatedActorsIndexRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/articles': typeof AuthenticatedArticlesIndexRoute
@@ -521,11 +563,13 @@ export interface FileRoutesByTo {
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/clusters': typeof AuthenticatedClustersIndexRoute
   '/entrypoints': typeof AuthenticatedEntrypointsIndexRoute
+  '/form-builder': typeof AuthenticatedFormBuilderIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/industries': typeof AuthenticatedIndustriesIndexRoute
   '/jobgroups': typeof AuthenticatedJobgroupsIndexRoute
   '/jobs': typeof AuthenticatedJobsIndexRoute
   '/links': typeof AuthenticatedLinksIndexRoute
+  '/param-forms': typeof AuthenticatedParamFormsIndexRoute
   '/pre-tasks': typeof AuthenticatedPreTasksIndexRoute
   '/prejobs': typeof AuthenticatedPrejobsIndexRoute
   '/reqs': typeof AuthenticatedReqsIndexRoute
@@ -552,8 +596,8 @@ export interface FileRoutesById {
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
-  '/_authenticated/user-management': typeof AuthenticatedUserManagementRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/accounts/me': typeof AuthenticatedAccountsMeRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/material/account': typeof AuthenticatedMaterialAccountRoute
   '/_authenticated/material/article': typeof AuthenticatedMaterialArticleRoute
@@ -574,10 +618,13 @@ export interface FileRoutesById {
   '/_authenticated/material/trade': typeof AuthenticatedMaterialTradeRoute
   '/_authenticated/material/unknown': typeof AuthenticatedMaterialUnknownRoute
   '/_authenticated/material/video': typeof AuthenticatedMaterialVideoRoute
+  '/_authenticated/param-forms/create': typeof AuthenticatedParamFormsCreateRoute
+  '/_authenticated/param-forms/edit': typeof AuthenticatedParamFormsEditRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/_authenticated/accounts/': typeof AuthenticatedAccountsIndexRoute
   '/_authenticated/actors/': typeof AuthenticatedActorsIndexRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
@@ -585,11 +632,13 @@ export interface FileRoutesById {
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/clusters/': typeof AuthenticatedClustersIndexRoute
   '/_authenticated/entrypoints/': typeof AuthenticatedEntrypointsIndexRoute
+  '/_authenticated/form-builder/': typeof AuthenticatedFormBuilderIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/_authenticated/industries/': typeof AuthenticatedIndustriesIndexRoute
   '/_authenticated/jobgroups/': typeof AuthenticatedJobgroupsIndexRoute
   '/_authenticated/jobs/': typeof AuthenticatedJobsIndexRoute
   '/_authenticated/links/': typeof AuthenticatedLinksIndexRoute
+  '/_authenticated/param-forms/': typeof AuthenticatedParamFormsIndexRoute
   '/_authenticated/pre-tasks/': typeof AuthenticatedPreTasksIndexRoute
   '/_authenticated/prejobs/': typeof AuthenticatedPrejobsIndexRoute
   '/_authenticated/reqs/': typeof AuthenticatedReqsIndexRoute
@@ -615,8 +664,8 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
-    | '/user-management'
     | '/'
+    | '/accounts/me'
     | '/errors/$error'
     | '/material/account'
     | '/material/article'
@@ -637,10 +686,13 @@ export interface FileRouteTypes {
     | '/material/trade'
     | '/material/unknown'
     | '/material/video'
+    | '/param-forms/create'
+    | '/param-forms/edit'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/accounts'
     | '/actors'
     | '/apps'
     | '/articles'
@@ -648,11 +700,13 @@ export interface FileRouteTypes {
     | '/chats'
     | '/clusters'
     | '/entrypoints'
+    | '/form-builder'
     | '/help-center'
     | '/industries'
     | '/jobgroups'
     | '/jobs'
     | '/links'
+    | '/param-forms'
     | '/pre-tasks'
     | '/prejobs'
     | '/reqs'
@@ -675,8 +729,8 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
-    | '/user-management'
     | '/'
+    | '/accounts/me'
     | '/errors/$error'
     | '/material/account'
     | '/material/article'
@@ -697,10 +751,13 @@ export interface FileRouteTypes {
     | '/material/trade'
     | '/material/unknown'
     | '/material/video'
+    | '/param-forms/create'
+    | '/param-forms/edit'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/accounts'
     | '/actors'
     | '/apps'
     | '/articles'
@@ -708,11 +765,13 @@ export interface FileRouteTypes {
     | '/chats'
     | '/clusters'
     | '/entrypoints'
+    | '/form-builder'
     | '/help-center'
     | '/industries'
     | '/jobgroups'
     | '/jobs'
     | '/links'
+    | '/param-forms'
     | '/pre-tasks'
     | '/prejobs'
     | '/reqs'
@@ -738,8 +797,8 @@ export interface FileRouteTypes {
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
-    | '/_authenticated/user-management'
     | '/_authenticated/'
+    | '/_authenticated/accounts/me'
     | '/_authenticated/errors/$error'
     | '/_authenticated/material/account'
     | '/_authenticated/material/article'
@@ -760,10 +819,13 @@ export interface FileRouteTypes {
     | '/_authenticated/material/trade'
     | '/_authenticated/material/unknown'
     | '/_authenticated/material/video'
+    | '/_authenticated/param-forms/create'
+    | '/_authenticated/param-forms/edit'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
+    | '/_authenticated/accounts/'
     | '/_authenticated/actors/'
     | '/_authenticated/apps/'
     | '/_authenticated/articles/'
@@ -771,11 +833,13 @@ export interface FileRouteTypes {
     | '/_authenticated/chats/'
     | '/_authenticated/clusters/'
     | '/_authenticated/entrypoints/'
+    | '/_authenticated/form-builder/'
     | '/_authenticated/help-center/'
     | '/_authenticated/industries/'
     | '/_authenticated/jobgroups/'
     | '/_authenticated/jobs/'
     | '/_authenticated/links/'
+    | '/_authenticated/param-forms/'
     | '/_authenticated/pre-tasks/'
     | '/_authenticated/prejobs/'
     | '/_authenticated/reqs/'
@@ -822,13 +886,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/user-management': {
-      id: '/_authenticated/user-management'
-      path: '/user-management'
-      fullPath: '/user-management'
-      preLoaderRoute: typeof AuthenticatedUserManagementRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/(errors)/503': {
@@ -978,6 +1035,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPreTasksIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/param-forms/': {
+      id: '/_authenticated/param-forms/'
+      path: '/param-forms'
+      fullPath: '/param-forms'
+      preLoaderRoute: typeof AuthenticatedParamFormsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/links/': {
       id: '/_authenticated/links/'
       path: '/links'
@@ -1011,6 +1075,13 @@ declare module '@tanstack/react-router' {
       path: '/help-center'
       fullPath: '/help-center'
       preLoaderRoute: typeof AuthenticatedHelpCenterIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/form-builder/': {
+      id: '/_authenticated/form-builder/'
+      path: '/form-builder'
+      fullPath: '/form-builder'
+      preLoaderRoute: typeof AuthenticatedFormBuilderIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/entrypoints/': {
@@ -1062,6 +1133,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActorsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/accounts/': {
+      id: '/_authenticated/accounts/'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AuthenticatedAccountsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings/notifications': {
       id: '/_authenticated/settings/notifications'
       path: '/notifications'
@@ -1089,6 +1167,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/account'
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/param-forms/edit': {
+      id: '/_authenticated/param-forms/edit'
+      path: '/param-forms/edit'
+      fullPath: '/param-forms/edit'
+      preLoaderRoute: typeof AuthenticatedParamFormsEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/param-forms/create': {
+      id: '/_authenticated/param-forms/create'
+      path: '/param-forms/create'
+      fullPath: '/param-forms/create'
+      preLoaderRoute: typeof AuthenticatedParamFormsCreateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/material/video': {
       id: '/_authenticated/material/video'
@@ -1230,6 +1322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/accounts/me': {
+      id: '/_authenticated/accounts/me'
+      path: '/accounts/me'
+      fullPath: '/accounts/me'
+      preLoaderRoute: typeof AuthenticatedAccountsMeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -1272,8 +1371,8 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
-  AuthenticatedUserManagementRoute: typeof AuthenticatedUserManagementRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAccountsMeRoute: typeof AuthenticatedAccountsMeRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedMaterialAccountRoute: typeof AuthenticatedMaterialAccountRoute
   AuthenticatedMaterialArticleRoute: typeof AuthenticatedMaterialArticleRoute
@@ -1294,6 +1393,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMaterialTradeRoute: typeof AuthenticatedMaterialTradeRoute
   AuthenticatedMaterialUnknownRoute: typeof AuthenticatedMaterialUnknownRoute
   AuthenticatedMaterialVideoRoute: typeof AuthenticatedMaterialVideoRoute
+  AuthenticatedParamFormsCreateRoute: typeof AuthenticatedParamFormsCreateRoute
+  AuthenticatedParamFormsEditRoute: typeof AuthenticatedParamFormsEditRoute
+  AuthenticatedAccountsIndexRoute: typeof AuthenticatedAccountsIndexRoute
   AuthenticatedActorsIndexRoute: typeof AuthenticatedActorsIndexRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedArticlesIndexRoute: typeof AuthenticatedArticlesIndexRoute
@@ -1301,11 +1403,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedClustersIndexRoute: typeof AuthenticatedClustersIndexRoute
   AuthenticatedEntrypointsIndexRoute: typeof AuthenticatedEntrypointsIndexRoute
+  AuthenticatedFormBuilderIndexRoute: typeof AuthenticatedFormBuilderIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
   AuthenticatedIndustriesIndexRoute: typeof AuthenticatedIndustriesIndexRoute
   AuthenticatedJobgroupsIndexRoute: typeof AuthenticatedJobgroupsIndexRoute
   AuthenticatedJobsIndexRoute: typeof AuthenticatedJobsIndexRoute
   AuthenticatedLinksIndexRoute: typeof AuthenticatedLinksIndexRoute
+  AuthenticatedParamFormsIndexRoute: typeof AuthenticatedParamFormsIndexRoute
   AuthenticatedPreTasksIndexRoute: typeof AuthenticatedPreTasksIndexRoute
   AuthenticatedPrejobsIndexRoute: typeof AuthenticatedPrejobsIndexRoute
   AuthenticatedReqsIndexRoute: typeof AuthenticatedReqsIndexRoute
@@ -1322,8 +1426,8 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
-  AuthenticatedUserManagementRoute: AuthenticatedUserManagementRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAccountsMeRoute: AuthenticatedAccountsMeRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedMaterialAccountRoute: AuthenticatedMaterialAccountRoute,
   AuthenticatedMaterialArticleRoute: AuthenticatedMaterialArticleRoute,
@@ -1344,6 +1448,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMaterialTradeRoute: AuthenticatedMaterialTradeRoute,
   AuthenticatedMaterialUnknownRoute: AuthenticatedMaterialUnknownRoute,
   AuthenticatedMaterialVideoRoute: AuthenticatedMaterialVideoRoute,
+  AuthenticatedParamFormsCreateRoute: AuthenticatedParamFormsCreateRoute,
+  AuthenticatedParamFormsEditRoute: AuthenticatedParamFormsEditRoute,
+  AuthenticatedAccountsIndexRoute: AuthenticatedAccountsIndexRoute,
   AuthenticatedActorsIndexRoute: AuthenticatedActorsIndexRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedArticlesIndexRoute: AuthenticatedArticlesIndexRoute,
@@ -1351,11 +1458,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedClustersIndexRoute: AuthenticatedClustersIndexRoute,
   AuthenticatedEntrypointsIndexRoute: AuthenticatedEntrypointsIndexRoute,
+  AuthenticatedFormBuilderIndexRoute: AuthenticatedFormBuilderIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,
   AuthenticatedIndustriesIndexRoute: AuthenticatedIndustriesIndexRoute,
   AuthenticatedJobgroupsIndexRoute: AuthenticatedJobgroupsIndexRoute,
   AuthenticatedJobsIndexRoute: AuthenticatedJobsIndexRoute,
   AuthenticatedLinksIndexRoute: AuthenticatedLinksIndexRoute,
+  AuthenticatedParamFormsIndexRoute: AuthenticatedParamFormsIndexRoute,
   AuthenticatedPreTasksIndexRoute: AuthenticatedPreTasksIndexRoute,
   AuthenticatedPrejobsIndexRoute: AuthenticatedPrejobsIndexRoute,
   AuthenticatedReqsIndexRoute: AuthenticatedReqsIndexRoute,

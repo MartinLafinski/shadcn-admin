@@ -3,11 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 // 分页相关
 import { extracted_pagination } from '@/config/pagination'
 // Clerk 认证
-import { useAuth } from '@clerk/clerk-react'
+import { getAccessToken } from '@/lib/auth-token'
 import {
-  PreTaskData,
-  PreTasksData,
-  PreTaskBatchExportData,
+  type PreTaskData,
+  type PreTasksData,
+  type PreTaskBatchExportData,
 } from '../data/schemas.ts'
 
 // API 基础 URL
@@ -331,11 +331,10 @@ export const usePreTasksQuery = (
   page: number = 1,
   size: number = DEFAULT_PAGE_SIZE
 ) => {
-  const { getToken } = useAuth()
   return useQuery({
     queryKey: ['preTasks', website_id, page, size],
     queryFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return fetchPreTasks(website_id, page, size, token)
     },
     placeholderData: (previousData) => previousData, // 保持上一次的数据
@@ -382,11 +381,10 @@ export const usePreTasksQuery = (
  */
 export const useResetAllPreTasksMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return resetAllPreTasks(token)
     },
     onSuccess: () => {
@@ -436,11 +434,10 @@ export const useResetAllPreTasksMutation = () => {
  */
 export const useClearAllPreTasksMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       return clearAllPreTasks(token)
     },
     onSuccess: () => {
@@ -490,11 +487,10 @@ export const useClearAllPreTasksMutation = () => {
  */
 export const useResetWebsitePreTasksMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (websiteId: number) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return resetWebsitePreTasks(websiteId, token)
     },
     onSuccess: () => {
@@ -545,11 +541,10 @@ export const useResetWebsitePreTasksMutation = () => {
  */
 export const useClearWebsitePreTasksMutation = () => {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
 
   return useMutation({
     mutationFn: async (websiteId: number) => {
-      const token = await getToken()
+      const token = getAccessToken()
       return clearWebsitePreTasks(websiteId, token)
     },
     onSuccess: () => {
@@ -708,11 +703,9 @@ export const batchExportPreTasks = async (
  * - pre-tasks API 可能不需要认证，但为了兼容性，仍然集成了 Clerk 认证
  */
 export const useExportPreTasksMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async () => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await exportPreTasks(token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）
@@ -785,11 +778,9 @@ export const useExportPreTasksMutation = () => {
  * - pre-tasks API 可能不需要认证，但为了兼容性，仍然集成了 Clerk 认证
  */
 export const useBatchExportPreTasksMutation = () => {
-  const { getToken } = useAuth()
-
   return useMutation({
     mutationFn: async (variables: PreTaskBatchExportData) => {
-      const token = await getToken()
+      const token = getAccessToken()
       const response = await batchExportPreTasks(variables, token)
       const blob = await response.blob()
       // 从响应头中提取文件名（如果后端提供）

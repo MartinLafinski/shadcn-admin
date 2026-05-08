@@ -4,15 +4,15 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { getRouteApi } from '@tanstack/react-router'
 // 表格相关
 import {
-  Column,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type Column,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-  ColumnPinningState,
+  type ColumnPinningState,
   flexRender,
 } from '@tanstack/react-table'
 // 分页数据结构
@@ -141,7 +141,10 @@ const EntrypointsTableBase = ({
     ],
     []
   )
-  const pinnedRightIds = useMemo(() => ['entrypoint_enabled', 'actions'], [])
+  const pinnedRightIds = useMemo(
+    () => ['entrypoint_status', 'entrypoint_enabled', 'actions'],
+    []
+  )
   const [columnPinning] = useState<ColumnPinningState>({
     left: pinnedLeftIds,
     right: pinnedRightIds,

@@ -4,18 +4,18 @@ import { useState, useEffect, useRef } from 'react'
 import { getRouteApi } from '@tanstack/react-router'
 // 表格相关
 import {
-  Column,
+  type Column,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-  SortingState,
-  ColumnFiltersState,
-  VisibilityState,
+  type SortingState,
+  type ColumnFiltersState,
+  type VisibilityState,
 } from '@tanstack/react-table'
 // 分页数据结构
-import { PaginationInfoData } from '@/config/pagination'
+import { type PaginationInfoData } from '@/config/pagination'
 // 图标
 import {
   Table as TableIcon,
@@ -44,7 +44,7 @@ import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 // 可用性标签
 import { enableLabels } from '@/features/blackwords/data/labels'
 // 敏感词数据结构
-import { BlackwordData } from '@/features/blackwords/data/schemas'
+import { type BlackwordData } from '@/features/blackwords/data/schemas'
 // 批量操作控件
 import { BlackwordsBulkActions } from './actions/blackwords-bulk-actions'
 // 敏感词数据同步

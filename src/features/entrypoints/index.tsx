@@ -2,9 +2,6 @@
 import React, { memo } from 'react'
 // 路由
 import { getRouteApi } from '@tanstack/react-router'
-// import { WebsitesProvider } from '@/features/websites/components/websites-provider'
-// 用户按钮组件
-import { UserButton } from '@clerk/clerk-react'
 // 配置抽屉组件
 import { ConfigDrawer } from '@/components/config-drawer'
 // 头部组件
@@ -13,8 +10,9 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 // 日/夜主题切换组件
 import { ThemeSwitch } from '@/components/theme-switch'
-// 用户认证
-// import { useAuth } from '@clerk/clerk-react'
+// import { WebsitesProvider } from '@/features/websites/components/websites-provider'
+// 用户按钮组件
+import { UserMenu } from '@/components/user-menu'
 // 入口点查询
 import { useEntrypointsQuery } from '@/features/entrypoints/api/entrypoints'
 // 入口点独立操作按钮
@@ -120,7 +118,7 @@ function EntrypointsContent() {
           <ConfigDrawer />
 
           {/* 用户按钮，显示用户信息和账户操作菜单 */}
-          <UserButton />
+          <UserMenu />
           {/*<button onClick={handleGetToken}>获取 JWT 令牌</button>*/}
         </div>
       </MemoizedHeader>
