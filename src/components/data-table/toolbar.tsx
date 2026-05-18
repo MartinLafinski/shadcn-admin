@@ -38,6 +38,8 @@ type DataTableToolbarProps<TData> = {
   leftActions?: React.ReactNode
   // 自定义右侧控件（在视图选项之前）
   rightActions?: React.ReactNode
+  // 列显示持久化存储键名
+  storageKey?: string
 }
 
 /**
@@ -61,6 +63,7 @@ export function DataTableToolbar<TData>({
   filters = [], // 默认为空数组
   leftActions, // 自定义左侧控件
   rightActions, // 自定义右侧控件
+  storageKey, // 列显示持久化存储键名
 }: DataTableToolbarProps<TData>) {
   // 规范化 searchKey 为数组
   const searchKeys = searchKey
@@ -146,7 +149,7 @@ export function DataTableToolbar<TData>({
       {rightActions}
 
       {/* 右侧工具栏：视图选项 */}
-      <DataTableViewOptions table={table} />
+      <DataTableViewOptions table={table} storageKey={storageKey} />
     </div>
   )
 }

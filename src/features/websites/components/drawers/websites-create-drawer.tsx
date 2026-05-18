@@ -1,5 +1,5 @@
 // 引入依赖
-import React from 'react'
+import React, { useLayoutEffect, useState } from 'react'
 // 处理表单
 import { useForm } from 'react-hook-form'
 // 数据验证
@@ -20,8 +20,6 @@ import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
 import { toast } from 'sonner'
 // 日/夜主题
 import { useTheme } from '@/context/theme-provider.tsx'
-// 显示提交数据
-// import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
 // 表单控件
@@ -45,6 +43,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
+// 参数要素包组合框
+import { ParamFormCombobox } from '@/components/smart/combobox/param-form-combobox.tsx'
 // API调用
 import { useCreateWebsiteMutation } from '../../api/websites.ts'
 // 数据结构
@@ -54,42 +54,31 @@ import {
   WebsiteCreateSchema,
 } from '../../data/schemas.ts'
 
-/**
- * 网站创建抽屉组件
- * 用于创建新网站或编辑现有网站信息
- * 包含表单验证、JSON配置编辑器和Markdown编辑器等功能
- */
 type WebsiteCreateDrawerProps = {
-  /** 控制抽屉是否打开 */
   open: boolean
-  /** 当抽屉打开状态改变时的回调函数 */
   onOpenChange: (open: boolean) => void
-  /** 当前正在编辑的网站数据，如果为undefined则表示创建新网站 */
   currentRow?: WebsiteItemData
 }
 
-/**
- * 网站创建抽屉组件
- * 提供创建或编辑网站的表单界面
- *
- * 功能特性：
- * - 使用 react-hook-form 进行表单管理
- * - 集成 Zod 验证 schema
- * - 支持 JSON 配置编辑
- * - 支持 Markdown 文档编辑
- * - 主题适配（亮色/暗色模式）
- * - 响应式设计
- */
-export function WebsiteCreateDrawer({
+export const WebsiteCreateDrawer = React.memo(function WebsiteCreateDrawer({
   open,
   onOpenChange,
   currentRow,
 }: WebsiteCreateDrawerProps) {
-  // 获取当前主题（用于JSON编辑器和MD编辑器主题适配）
   const { resolvedTheme } = useTheme()
 
   // 全屏状态管理
   const [isFullscreen, setIsFullscreen] = React.useState(false)
+
+  // 延迟挂载重型编辑器，让抽屉框架先渲染
+  const [showEditors, setShowEditors] = useState(false)
+  useLayoutEffect(() => {
+    if (open) {
+      const raf = requestAnimationFrame(() => setShowEditors(true))
+      return () => cancelAnimationFrame(raf)
+    }
+    setShowEditors(false)
+  }, [open])
 
   // 初始化创建网站的mutation
   const createWebsiteMutation = useCreateWebsiteMutation()
@@ -97,47 +86,33 @@ export function WebsiteCreateDrawer({
   // 初始化表单，设置验证规则和默认值
   const form = useForm<WebsiteCreateData>({
     resolver: zodResolver(WebsiteCreateSchema),
-    // 如果有currentRow则使用其值作为默认值，否则使用空值
     defaultValues: currentRow ?? {
-      // 网站显示名称 - 用于界面展示的可读名称
       website_name: '',
-      // 网站URL标识符 - 用于路由和API请求的唯一标识符
       website_slug: '',
-      // 网站头像URL
       website_avatar: undefined,
-      // 网站访问URL - 网站的真实访问地址（可选字段）
       website_url: undefined,
-      // 网站在线任务上限
       website_max_spider_task_count: 0,
-      // 网站配置对象 - 存储网站特定配置信息的JSON对象
       website_config: {},
-      // 网站说明文档 - 使用Markdown格式的说明文档内容
       website_readme: '',
+      website_self_param_slug: '',
+      website_entrypoint_param_slug: '',
+      website_prejob_param_slug: '',
     },
   })
 
-  /**
-   * 表单提交处理函数
-   * 调用API创建或更新网站数据
-   * @param data - 表单提交的数据
-   */
   const onSubmit = async (data: WebsiteCreateData) => {
-    // 使用 mutation 调用 API 创建网站
     await createWebsiteMutation
       .mutateAsync(data)
       .then((res) => {
-        toast.success(`网站 ${res.website_name} 创建成功`) // 操作成功提示
+        toast.success(`网站 ${res.website_name} 创建成功`)
       })
       .catch((error) => {
-        console.error('网站创建失败:', error) // 记录错误日志
-        toast.error('网站创建失败') // 操作失败提示
+        // eslint-disable-next-line no-console
+        console.error('网站创建失败:', error)
+        toast.error('网站创建失败')
       })
-    // 关闭抽屉
     onOpenChange(false)
-    // 重置表单到默认状态
     form.reset()
-    // 显示提交的数据（用于调试）
-    // showSubmittedData(data)
   }
 
   return (
@@ -145,7 +120,6 @@ export function WebsiteCreateDrawer({
       open={open}
       onOpenChange={(v) => {
         onOpenChange(v)
-        // 关闭抽屉时重置表单，确保下次打开时表单是干净的
         form.reset()
       }}
     >
@@ -154,20 +128,23 @@ export function WebsiteCreateDrawer({
           <SheetTitle>创建网站</SheetTitle>
           <SheetDescription>创建新的网站</SheetDescription>
         </SheetHeader>
-        {/* 将表单与react-hook-form实例连接 */}
         <Form {...form}>
           <form
             id='website-create-form'
             onSubmit={form.handleSubmit(onSubmit)}
             className='flex-1 space-y-6 overflow-y-auto px-4'
           >
-            {/* 网站名称字段 - 必填，用于显示 */}
+            <h4 className='text-sm font-bold'>基础设置</h4>
+
+            {/* 网站名称字段 */}
             <FormField
               control={form.control}
               name='website_name'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>网站名称</FormLabel>
+                  <FormLabel>
+                    网站名称<span className='text-destructive'>*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} placeholder='网站名称(强调可读性)' />
                   </FormControl>
@@ -175,13 +152,15 @@ export function WebsiteCreateDrawer({
                 </FormItem>
               )}
             />
-            {/* 网站标识字段 - 必填，用于路由和API */}
+            {/* 网站标识字段 */}
             <FormField
               control={form.control}
               name='website_slug'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>网站标识</FormLabel>
+                  <FormLabel>
+                    网站标识<span className='text-destructive'>*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -192,7 +171,7 @@ export function WebsiteCreateDrawer({
                 </FormItem>
               )}
             />
-            {/* 网站头像字段 - 可选，图片URL */}
+            {/* 网站头像字段 */}
             <FormField
               control={form.control}
               name='website_avatar'
@@ -229,7 +208,7 @@ export function WebsiteCreateDrawer({
                 </FormItem>
               )}
             />
-            {/* 网站URL字段 - 可选，实际访问地址 */}
+            {/* 网站URL字段 */}
             <FormField
               control={form.control}
               name='website_url'
@@ -237,7 +216,6 @@ export function WebsiteCreateDrawer({
                 <FormItem>
                   <FormLabel>URL</FormLabel>
                   <FormControl>
-                    {/* 处理null值与空字符串的显示问题 */}
                     <Input
                       {...field}
                       value={field.value ?? ''}
@@ -248,83 +226,153 @@ export function WebsiteCreateDrawer({
                 </FormItem>
               )}
             />
-            {/* 网站配置字段 - JSON格式的配置信息 */}
+
+            <h4 className='text-sm font-bold'>参数要素包</h4>
+
             <FormField
               control={form.control}
-              name='website_config'
-              render={({ field }) => (
-                <FormItem
-                  className={
-                    isFullscreen
-                      ? 'fixed inset-0 z-50 m-0 flex !h-screen !w-screen flex-col overflow-hidden rounded-none border-0 bg-background'
-                      : ''
-                  }
-                >
-                  <div className='flex flex-shrink-0 items-center justify-between'>
-                    <FormLabel>网站配置</FormLabel>
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => setIsFullscreen(!isFullscreen)}
-                      className='h-8 w-8 p-0'
-                    >
-                      {isFullscreen ? (
-                        <Minimize2Icon className='h-4 w-4' />
-                      ) : (
-                        <Maximize2Icon className='h-4 w-4' />
-                      )}
-                    </Button>
-                  </div>
-                  <FormControl className='dark:[&_textarea]:!text-white1 min-h-0 flex-1 overflow-y-auto'>
-                    {/* JSON编辑器，支持主题切换 */}
-                    <JsonEditor
-                      data={field.value}
-                      setData={field.onChange}
-                      rootFontSize={13}
-                      theme={
-                        resolvedTheme === 'light'
-                          ? githubLightTheme
-                          : githubDarkTheme
-                      }
-                      minWidth={isFullscreen ? '100%' : '100%'}
-                      maxWidth={isFullscreen ? '100%' : '100%'}
-                      TextEditor={(props) => {
-                        return (
-                          <CodeMirror
-                            {...props}
-                            theme={
-                              resolvedTheme === 'light'
-                                ? githubLight
-                                : githubDark
-                            }
-                            extensions={[json(), EditorView.lineWrapping]}
-                            height={isFullscreen ? '100%' : 'auto'}
-                            minHeight='300px'
-                          />
-                        )
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage className='flex-shrink-0' />
-                </FormItem>
-              )}
-            />
-            {/* 网站说明字段 - Markdown格式的文档内容 */}
-            <FormField
-              control={form.control}
-              name='website_readme'
+              name='website_self_param_slug'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>网站说明</FormLabel>
-                  <FormControl data-color-mode={resolvedTheme}>
-                    {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor value={field.value} onChange={field.onChange} />
+                  <FormLabel>网站自用参数</FormLabel>
+                  <FormControl>
+                    <ParamFormCombobox
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      valueKey='param_form_slug'
+                      paramType='website:self'
+                      placeholder='选择自用参数要素包...'
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name='website_entrypoint_param_slug'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>网站入口点参数</FormLabel>
+                  <FormControl>
+                    <ParamFormCombobox
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      valueKey='param_form_slug'
+                      paramType='website:entrypoint'
+                      placeholder='选择入口点参数要素包...'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='website_prejob_param_slug'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>网站预备作业参数</FormLabel>
+                  <FormControl>
+                    <ParamFormCombobox
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      valueKey='param_form_slug'
+                      paramType='website:prejob'
+                      placeholder='选择预备作业参数要素包...'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 网站配置字段 - JSON格式的配置信息 */}
+            {showEditors && (
+              <>
+                <FormField
+                  control={form.control}
+                  name='website_config'
+                  render={({ field }) => (
+                    <FormItem
+                      className={
+                        isFullscreen
+                          ? 'fixed inset-0 z-50 m-0 flex !h-screen !w-screen flex-col overflow-hidden rounded-none border-0 bg-background'
+                          : ''
+                      }
+                    >
+                      <div className='flex flex-shrink-0 items-center justify-between'>
+                        <FormLabel className='text-sm font-bold'>
+                          网站配置
+                        </FormLabel>
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => setIsFullscreen(!isFullscreen)}
+                          className='h-8 w-8 p-0'
+                        >
+                          {isFullscreen ? (
+                            <Minimize2Icon className='h-4 w-4' />
+                          ) : (
+                            <Maximize2Icon className='h-4 w-4' />
+                          )}
+                        </Button>
+                      </div>
+                      <FormControl className='dark:[&_textarea]:!text-white1 min-h-0 flex-1 overflow-y-auto'>
+                        <JsonEditor
+                          data={field.value}
+                          setData={field.onChange}
+                          rootFontSize={13}
+                          theme={
+                            resolvedTheme === 'light'
+                              ? githubLightTheme
+                              : githubDarkTheme
+                          }
+                          minWidth={isFullscreen ? '100%' : '100%'}
+                          maxWidth={isFullscreen ? '100%' : '100%'}
+                          TextEditor={(props) => {
+                            return (
+                              <CodeMirror
+                                {...props}
+                                theme={
+                                  resolvedTheme === 'light'
+                                    ? githubLight
+                                    : githubDark
+                                }
+                                extensions={[json(), EditorView.lineWrapping]}
+                                height={isFullscreen ? '100%' : 'auto'}
+                                minHeight='300px'
+                              />
+                            )
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage className='flex-shrink-0' />
+                    </FormItem>
+                  )}
+                />
+                {/* 网站说明字段 - Markdown格式的文档内容 */}
+                <FormField
+                  control={form.control}
+                  name='website_readme'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-sm font-bold'>
+                        网站说明
+                      </FormLabel>
+                      <FormControl data-color-mode={resolvedTheme}>
+                        <MDEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
           </form>
         </Form>
         <SheetFooter className='gap-2'>
@@ -338,4 +386,4 @@ export function WebsiteCreateDrawer({
       </SheetContent>
     </Sheet>
   )
-}
+})

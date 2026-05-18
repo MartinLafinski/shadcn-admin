@@ -40,6 +40,7 @@ import { ParamFormMiniItemCell } from '@/components/smart/cells/param-form-mini-
 import { UrlCell } from '@/components/smart/cells/url-cell.tsx'
 // 网站迷你信息单元格
 import { WebsiteMiniItemCell } from '@/components/smart/cells/website-mini-item-cell'
+import { useWebsitesActions } from '@/features/websites/components/websites-provider'
 // 网站数据结构
 import { type WebsiteData } from '@/features/websites/data/schemas'
 // 自定义行操作控件
@@ -81,6 +82,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     accessorKey: 'website_id',
     header: 'ID',
     cell: ({ row }) => <EntityIdCell value={row.getValue('website_id')} />,
+    enableHiding: false, // ID列不允许隐藏
     size: 60,
   },
   /**
@@ -90,8 +92,21 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
   {
     id: 'website_name',
     accessorKey: 'website_name',
-    header: '网站名称',
-    cell: ({ row }) => <WebsiteMiniItemCell website={row.original} />,
+    header: '网站',
+    cell: ({ row }) => {
+      const website = row.original // 获取当前行的原始数据
+      const { setOpen, setCurrentRow } = useWebsitesActions() // 使用网站上下文状态
+      return (
+        <WebsiteMiniItemCell
+          website={website}
+          onClick={() => {
+            setCurrentRow(website) // 设置当前选中的行数据
+            setOpen('view') // 打开查看网站信息对话框
+          }}
+        />
+      )
+    },
+    enableHiding: false, // 网站列不允许隐藏
     size: 200,
   },
   /**
@@ -99,8 +114,10 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
    */
   {
     id: 'website_status_mini',
+    accessorKey: 'website_status_mini',
     header: '聚合状态',
     cell: ({ row }) => <EntityInheritStatusCell entity={row.original} />,
+    enableHiding: false, // 聚合状态列不允许隐藏
     size: 40,
   },
 
@@ -150,6 +167,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
    */
   {
     id: 'working_spider_task_pie',
+    accessorKey: 'working_spider_task_pie',
     header: '在线/上限',
     cell: ({ row }) => (
       <EntitySpiderTasksPieCell
@@ -164,7 +182,8 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
    * 网站任务进度条列 - 显示成功/失败/中断/取消的比例
    */
   {
-    id: 'spider_task_progress',
+    id: '爬虫任务分布',
+    accessorKey: '爬虫任务分布',
     // header: '总任务 - 成功 - 失败 - 中断 - 取消',
     header: () => <EntitySpiderTaskBarHeader />,
     cell: ({ row }) => <EntitySpiderTaskBarCell taskCounter={row.original} />,
@@ -193,6 +212,9 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityLockedCell entity_type='website' entity={row.original} />
     ),
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
     size: 40,
   },
   {
@@ -202,6 +224,9 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityPausedCell entity_type='website' entity={row.original} />
     ),
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
     size: 40,
   },
   {
@@ -211,6 +236,9 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityLimitedCell entity_type='website' entity={row.original} />
     ),
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
     size: 40,
     meta: {
       className: 'border-r-1',
@@ -728,10 +756,12 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
    */
   {
     id: 'website_status',
+    accessorKey: 'website_status',
     header: '自身状态',
     cell: ({ row }) => (
       <EntitySelfStatusCell entity_type='website' entity={row.original} />
     ),
+    enableHiding: false, // 自身状态列不允许隐藏
     size: 50,
   },
 
@@ -753,6 +783,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id)) // 自定义过滤函数
     },
+    enableHiding: false, // 开关列不允许隐藏
     size: 60,
     maxSize: 60,
   },

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react'
+import { Suspense, lazy } from 'react'
 // 操作结果提示框
 import { toast } from 'sonner'
 // import { showSubmittedData } from '@/lib/show-submitted-data'
@@ -22,19 +22,14 @@ const WebsiteConfigDrawer = lazy(() =>
     default: module.WebsiteConfigDrawer,
   }))
 )
-const WebsitesInfoDialog = lazy(() =>
-  import('./dialogs/websites-info-dialog.tsx').then((module) => ({
-    default: module.WebsitesInfoDialog,
-  }))
-)
-const WebsitesConfigEditDialog = lazy(() =>
-  import('./dialogs/websites-config-edit-dialog.tsx').then((module) => ({
-    default: module.WebsitesConfigEditDialog,
-  }))
-)
 const WebsitesSyncDialog = lazy(() =>
   import('./dialogs/websites-sync-dialog.tsx').then((module) => ({
     default: module.WebsitesSyncDialog,
+  }))
+)
+const WebsitesViewDialog = lazy(() =>
+  import('./dialogs/websites-view-dialog.tsx').then((module) => ({
+    default: module.WebsitesViewDialog,
   }))
 )
 
@@ -115,29 +110,11 @@ export function WebsitesDialogs() {
             />
           )}
 
-          {open === 'editConfig' && (
-            <WebsitesConfigEditDialog
-              key={`website-config-edit-${currentRow.website_id}`}
-              open={open === 'editConfig'}
-              onOpenChange={(v) => {
-                if (!v) {
-                  setOpen(null)
-                  setTimeout(() => {
-                    setCurrentRow(null)
-                  }, 500)
-                }
-              }}
-              currentRow={currentRow}
-            />
-          )}
-
-          {open === 'configInfo' && (
-            <WebsitesInfoDialog
-              key='website-config-info'
-              open={open === 'configInfo'}
-              readme={currentRow.website_readme}
-              config={currentRow.website_config}
-              websiteName={currentRow.website_name}
+          {open === 'view' && (
+            <WebsitesViewDialog
+              key='website-view-info'
+              open
+              websiteId={currentRow.website_id}
               onOpenChange={() => {
                 setOpen(null)
                 setCurrentRow(null)

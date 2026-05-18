@@ -1,5 +1,5 @@
 // 引入依赖
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 // 路由
 import { getRouteApi } from '@tanstack/react-router'
 // 表格相关
@@ -24,6 +24,14 @@ import {
   CheckSquare,
   Square,
 } from 'lucide-react'
+// 可用性标签
+import {
+  enableLabels,
+  lockedLabels,
+  pausedLabels,
+  limitedLabels,
+} from '@/lib/labels'
+import { getPinningStyles } from '@/lib/ui-helper'
 // 样式工具函数
 import { cn } from '@/lib/utils.ts'
 import { usePrevious } from '@/hooks/use-previous'
@@ -40,15 +48,6 @@ import {
 } from '@/components/ui/table'
 // 自定义分页和工具控件
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
-// 可用性标签
-import {
-  enableLabels,
-  lockedLabels,
-  pausedLabels,
-  historyLabels,
-  remainImageLabels,
-  backupLabels,
-} from '@/features/entrypoints/data/labels'
 // 入口点数据结构
 import { type EntrypointItemData } from '@/features/entrypoints/data/schemas'
 // 批量操作控件
@@ -61,19 +60,13 @@ import {
   useEntrypointsActions,
 } from './entrypoints-provider'
 // 行组件
-import { EntrypointTableRow, type PinningStyles } from './entrypoints-table-row'
+import { EntrypointTableRow } from './entrypoints-table-row'
 
 // 定义搜索参数记录类型
 type SearchRecord = Record<string, unknown>
 const route = getRouteApi('/_authenticated/entrypoints/')
 const DEFAULT_PAGE_SIZE: number = Number(
   import.meta.env.VITE_ENTRYPOINT_PAGE_SIZE || 50
-)
-
-console.log('DEFAULT_PAGE_SIZE', DEFAULT_PAGE_SIZE)
-console.log(
-  'VITE_ENTRYPOINT_PAGE_SIZE',
-  import.meta.env.VITE_ENTRYPOINT_PAGE_SIZE
 )
 
 /**
@@ -191,31 +184,12 @@ const EntrypointsTableBase = ({
 
   // =============================================
   // 工具函数：生成固定列的样式
+  // 使用共享的 getPinningStyles 工具函数
   // =============================================
 
-  const getPinningStyles = useCallback(
-    (column: Column<EntrypointItemData>): PinningStyles => {
-      const isPinned = column.getIsPinned()
-
-      const isLastLeftPinned =
-        isPinned === 'left' &&
-        column.id === pinnedLeftIds[pinnedLeftIds.length - 1]
-
-      const isFirstRightPinned =
-        isPinned === 'right' && column.id === pinnedRightIds[0]
-
-      const style: React.CSSProperties = {
-        width: `${column.getSize()}px`,
-        minWidth: `${column.getSize()}px`,
-        left: isPinned === 'left' ? `${column.getStart('left')}px` : undefined,
-        right:
-          isPinned === 'right' ? `${column.getAfter('right')}px` : undefined,
-      }
-
-      return { style, isPinned, isLastLeftPinned, isFirstRightPinned }
-    },
-    [pinnedLeftIds, pinnedRightIds]
-  )
+  function getPinningStylesForColumn(column: Column<EntrypointItemData>) {
+    return getPinningStyles(column, pinnedLeftIds, pinnedRightIds)
+  }
 
   // 排序状态：跟踪当前的排序列和排序方向
   const [sorting, setSorting] = useState<SortingState>([])
@@ -350,6 +324,11 @@ const EntrypointsTableBase = ({
             title: '运转',
             options: pausedLabels,
           },
+          {
+            columnId: 'entrypoint_limited',
+            title: '未限',
+            options: limitedLabels,
+          },
           // {
           //   columnId: 'history_mode',
           //   title: '追溯',
@@ -403,6 +382,7 @@ const EntrypointsTableBase = ({
             </Button>
           </div>
         }
+        storageKey='entrypoints-column-vis'
       />
 
       {/* 表格容器，添加边框和圆角 */}
@@ -421,7 +401,7 @@ const EntrypointsTableBase = ({
                       isPinned,
                       isLastLeftPinned,
                       isFirstRightPinned,
-                    } = getPinningStyles(header.column)
+                    } = getPinningStylesForColumn(header.column)
                     const metaClassName =
                       header.column.columnDef.meta?.className || ''
                     return (
@@ -484,7 +464,7 @@ const EntrypointsTableBase = ({
                       row={row}
                       rowIdx={rowIdx}
                       isSelected={row.getIsSelected()}
-                      getPinningStyles={getPinningStyles}
+                      getPinningStyles={getPinningStylesForColumn}
                     />
                   ))
               ) : (

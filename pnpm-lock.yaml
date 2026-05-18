@@ -80,6 +80,9 @@ importers:
       '@rjsf/shadcn':
         specifier: ^6.5.2
         version: 6.5.2(@rjsf/core@6.5.2(@rjsf/utils@6.5.2(react@19.2.3))(react@19.2.3))(@rjsf/utils@6.5.2(react@19.2.3))(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(tailwindcss@4.1.18)
+      '@rjsf/utils':
+        specifier: ^6.5.2
+        version: 6.5.2(react@19.2.3)
       '@rjsf/validator-ajv8':
         specifier: ^6.5.2
         version: 6.5.2(@rjsf/utils@6.5.2(react@19.2.3))

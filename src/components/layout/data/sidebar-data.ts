@@ -24,10 +24,7 @@ import {
   GlobeIcon,
   DoorOpenIcon,
   MapPinIcon,
-  BookX,
-  NotepadText,
-  Link,
-  ListVideo,
+  ListVideoIcon,
   ListTree,
   Newspaper,
   NetworkIcon,
@@ -37,11 +34,12 @@ import {
   BotIcon,
   SnailIcon,
   LayersIcon,
-  BrainIcon,
   CodeIcon,
   BotMessageSquareIcon,
   FileCodeIcon,
   BookTextIcon,
+  LibraryBigIcon,
+  WorkflowIcon,
   BookOpenTextIcon,
   ShieldUserIcon,
   HeadsetIcon,
@@ -71,6 +69,14 @@ import {
   ClapperboardIcon,
   FoldersIcon,
   LayoutTemplateIcon,
+  Flower2Icon,
+  ScanEyeIcon,
+  AntennaIcon,
+  BrainIcon,
+  VideotapeIcon,
+  VibrateIcon,
+  ShapesIcon,
+  RadarIcon,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -84,7 +90,7 @@ export const sidebarData: SidebarData = {
     {
       name: 'Smart Spider',
       logo: Command,
-      plan: '智蛛语料采集管理',
+      plan: '觅蜂语料采集管理',
     },
     {
       name: 'Acme Inc',
@@ -112,7 +118,7 @@ export const sidebarData: SidebarData = {
           icon: LayersIcon,
         },
         {
-          title: '智蛛集群',
+          title: '觅蜂集群',
           icon: NetworkIcon,
           items: [
             {
@@ -131,7 +137,7 @@ export const sidebarData: SidebarData = {
               icon: GhostIcon,
             },
             {
-              title: '智蛛',
+              title: '觅蜂',
               url: '/spiders',
               icon: BotIcon,
             },
@@ -163,29 +169,24 @@ export const sidebarData: SidebarData = {
           icon: BookMarkedIcon,
           items: [
             {
-              title: '敏感词',
-              url: '/blackwords',
-              icon: BookX,
+              title: '术语库',
+              url: '/terms',
+              icon: LibraryBigIcon,
             },
             {
-              title: '模板',
-              url: '/templates',
-              icon: NotepadText,
+              title: '属性字典',
+              url: '/dictionaries',
+              icon: BookMarkedIcon,
             },
             {
-              title: '友链',
-              url: '/links',
-              icon: Link,
-            },
-            {
-              title: '表单构建',
-              url: '/form-builder',
-              icon: LayoutTemplateIcon,
-            },
-            {
-              title: '参数要素',
+              title: '参数要素包',
               url: '/param-forms',
               icon: FileCodeIcon,
+            },
+            {
+              title: '参数模型集',
+              url: '/param-model-register',
+              icon: WorkflowIcon,
             },
           ],
         },
@@ -220,6 +221,63 @@ export const sidebarData: SidebarData = {
               icon: ListOrderedIcon,
             },
           ],
+        },
+        {
+          title: '功能管道',
+          icon: ShapesIcon,
+          items: [
+            {
+              title: '表单构建',
+              url: '/form-builder',
+              icon: LayoutTemplateIcon,
+            },
+            {
+              title: '数据判重',
+              url: '/duplicate-checker',
+              icon: RadarIcon,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      title: '任务',
+      items: [
+        {
+          title: '采料任务',
+          icon: Flower2Icon,
+          items: [
+            {
+              title: '任务列表',
+              url: '/spider-tasks',
+              icon: ListVideoIcon,
+            },
+            {
+              title: '请求历史',
+              url: '/spider-task-requests',
+              icon: VideotapeIcon,
+            },
+            {
+              title: '任务通知',
+              url: '/spider-task-notifications',
+              icon: VibrateIcon,
+            },
+          ],
+        },
+        {
+          title: '过检任务',
+          url: '/validate-tasks',
+          icon: ScanEyeIcon,
+        },
+        {
+          title: 'IO任务',
+          url: '/io-tasks',
+          icon: AntennaIcon,
+        },
+        {
+          title: 'AI任务',
+          url: '/ai-tasks',
+          icon: BrainIcon,
         },
       ],
     },
@@ -481,7 +539,7 @@ export const sidebarData: SidebarData = {
         {
           title: '作业任务',
           url: '/jobs',
-          icon: ListVideo,
+          icon: ListVideoIcon,
         },
         {
           title: '请求结果',

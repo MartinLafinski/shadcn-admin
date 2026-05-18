@@ -1,7 +1,6 @@
 // 引入依赖
 import React, { useState, useEffect } from 'react'
 // 获取当前路由信息
-// import { useLocation } from '@tanstack/react-router'
 import { useSearch } from '@tanstack/react-router'
 // 自定义对话框hook
 import useDialogState from '@/hooks/use-dialog-state'
@@ -17,18 +16,14 @@ import { type WebsiteItemData } from '../data/schemas'
  * - 'update': 更新网站对话框 - 用于修改现有的网站信息
  * - 'delete': 删除网站对话框 - 用于确认删除网站操作
  * - 'export': 导入网站对话框 - 用于批量导入网站数据
- * - 'configInfo': 网站配置信息对话框 - 用于查看网站配置详情
  * - 'config': 网站配置对话框 - 用于编辑网站的配置信息
- * - 'editConfig': 单独修改网站爬虫配置对话框 - 用于单独修改网站的爬虫配置
  */
 type WebsitesDialogType =
   | 'create'
   | 'update'
   | 'delete'
   | 'export'
-  | 'configInfo'
   | 'config'
-  | 'editConfig'
   | 'view'
   | 'sync'
 

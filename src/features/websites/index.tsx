@@ -1,5 +1,5 @@
 // 引入依赖
-import React, { useEffect, memo } from 'react'
+import { memo } from 'react'
 // 路由
 import { getRouteApi } from '@tanstack/react-router'
 // 配置抽屉组件
@@ -12,7 +12,6 @@ import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
 // 用户按钮组件
 import { UserMenu } from '@/components/user-menu'
-// 用户认证
 // 网站查询
 import { useWebsitesQuery } from '@/features/websites/api/websites'
 // 网站独立操作按钮
@@ -22,10 +21,7 @@ import { Search } from './components/actions/websites-search-actions.tsx'
 // 网站管理对话框
 import { WebsitesDialogs } from './components/websites-dialogs'
 // 网站管理提供者
-import {
-  WebsitesProvider,
-  useWebsitesActions,
-} from './components/websites-provider'
+import { WebsitesProvider } from './components/websites-provider'
 // 表格组件
 import { WebsitesTable } from './components/websites-table.tsx'
 
@@ -35,7 +31,6 @@ const route = getRouteApi('/_authenticated/websites/')
 // 记忆化静态布局组件，防止主内容重渲染时它们也跟着重渲染
 const MemoizedHeader = memo(Header)
 const MemoizedMain = memo(Main)
-const MemoizedWebsitesPrimaryActions = memo(WebsitesPrimaryActions)
 
 /**
  * 网站管理页面内容组件
@@ -52,8 +47,6 @@ const MemoizedWebsitesPrimaryActions = memo(WebsitesPrimaryActions)
  * - 错误处理机制
  */
 function WebsitesContent() {
-  // 从 WebsitesProvider 上下文获取设置搜索参数的方法
-  const { setSearchParams } = useWebsitesActions()
   const search = route.useSearch()
 
   // 直接使用 URL 的 search 参数
@@ -97,9 +90,6 @@ function WebsitesContent() {
       {/* ===== 页面头部区域 ===== */}
       {/* fixed=true 表示头部固定在页面顶部 */}
       <MemoizedHeader fixed={true}>
-        {/* 可选的顶部导航栏（当前被注释） */}
-        {/*<TopNav links={topNav} />*/}
-
         {/* 搜索组件，用于关键词搜索和筛选 */}
         <Search />
 
@@ -113,7 +103,6 @@ function WebsitesContent() {
 
           {/* 用户按钮，显示用户信息和账户操作菜单 */}
           <UserMenu />
-          {/*<button onClick={handleGetToken}>获取 JWT 令牌</button>*/}
         </div>
       </MemoizedHeader>
 
@@ -129,7 +118,7 @@ function WebsitesContent() {
           </div>
 
           {/* 主要操作按钮，如新建网站等 */}
-          <MemoizedWebsitesPrimaryActions />
+          <WebsitesPrimaryActions />
         </div>
 
         {/* 网站列表表格组件 */}

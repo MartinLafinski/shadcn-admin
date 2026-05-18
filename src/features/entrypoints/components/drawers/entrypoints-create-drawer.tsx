@@ -15,14 +15,11 @@ import MDEditor from '@uiw/react-md-editor'
 // JSON编辑器
 import { JsonEditor, githubDarkTheme, githubLightTheme } from 'json-edit-react'
 // 图标
-import {
-  CheckIcon,
-  ChevronsUpDownIcon,
-  Maximize2Icon,
-  Minimize2Icon,
-} from 'lucide-react'
+import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
 // 操作结果提示框
 import { toast } from 'sonner'
+// 标签数据
+import { materialLabels } from '@/lib/labels'
 // 工具函数
 import { cn } from '@/lib/utils'
 // 日/夜主题
@@ -31,14 +28,6 @@ import { useTheme } from '@/context/theme-provider.tsx'
 // import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command.tsx'
 // 表单控件
 import {
   Form,
@@ -50,12 +39,6 @@ import {
 } from '@/components/ui/form.tsx'
 // 输入框控件
 import { Input } from '@/components/ui/input.tsx'
-// Popover 和 Command 控件
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover.tsx'
 // 选择控件
 import {
   Select,
@@ -75,26 +58,17 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
 // 行业数据查询
-import { useIndustriesQuery } from '@/features/industries/api/industries.ts'
+import { IndustryCombobox } from '@/components/smart/combobox/industry-combobox'
 // 网站数据查询
-import { useWebsitesQuery } from '@/features/websites/api/websites.ts'
+import { WebsiteCombobox } from '@/components/smart/combobox/website-combobox'
 // API调用
 import { useCreateEntrypointMutation } from '../../api/entrypoints.ts'
-// 标签数据
-import { materialLabels } from '../../data/labels.tsx'
 // 数据结构
 import {
   type EntrypointCreateData,
   type EntrypointItemData,
   EntrypointCreateSchema,
 } from '../../data/schemas.ts'
-
-const WEBSITE_SEARCH_SIZE: number = Number(
-  import.meta.env.VITE_WEBSITE_SEARCH_SIZE || 50
-)
-const INDUSTRY_SEARCH_SIZE: number = Number(
-  import.meta.env.VITE_INDUSTRY_SEARCH_SIZE || 50
-)
 
 /**
  * 入口点创建抽屉组件
@@ -131,26 +105,6 @@ export function EntrypointCreateDrawer({
   const { resolvedTheme } = useTheme()
   // 全屏状态管理
   const [isFullscreen, setIsFullscreen] = React.useState(false)
-  // 网站搜索关键词状态
-  const [websiteKeyword, setWebsiteKeyword] = React.useState<string>('')
-  // 控制网站下拉框的打开状态
-  const [websitePopoverOpen, setWebsitePopoverOpen] = React.useState(false)
-  // 行业搜索关键词状态
-  const [industryKeyword, setIndustryKeyword] = React.useState<string>('')
-  // 控制行业下拉框的打开状态
-  const [industryPopoverOpen, setIndustryPopoverOpen] = React.useState(false)
-
-  // 获取网站列表数据（支持搜索）
-  const { data: websitesData, isLoading: websitesLoading } = useWebsitesQuery(
-    websiteKeyword,
-    undefined,
-    1,
-    WEBSITE_SEARCH_SIZE
-  )
-  // 获取行业列表数据（支持搜索）
-  const { data: industriesData, isLoading: industriesLoading } =
-    useIndustriesQuery(industryKeyword, 1, INDUSTRY_SEARCH_SIZE)
-
   // 初始化创建入口点的mutation
   const createEntrypointMutation = useCreateEntrypointMutation()
 
@@ -206,16 +160,6 @@ export function EntrypointCreateDrawer({
         },
   })
 
-  // 获取当前选中的网站
-  const selectedWebsite = websitesData?.websites?.find(
-    (w) => w.website_id === form.watch('website_id')
-  )
-
-  // 获取当前选中的行业
-  const selectedIndustry = industriesData?.industries?.find(
-    (w) => w.industry_id === form.watch('industry_id')
-  )
-
   /**
    * 表单提交处理函数
    * 调用API创建或更新入口点数据
@@ -268,86 +212,19 @@ export function EntrypointCreateDrawer({
               render={({ field }) => (
                 <FormItem className='flex flex-col'>
                   <FormLabel>所属网站</FormLabel>
-                  <Popover
-                    open={websitePopoverOpen}
-                    onOpenChange={setWebsitePopoverOpen}
-                  >
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant='outline'
-                          role='combobox'
-                          className={cn(
-                            'w-full justify-between',
-                            !field.value && 'text-muted-foreground'
-                          )}
-                        >
-                          {field.value
-                            ? selectedWebsite
-                              ? `${selectedWebsite.website_name} [${selectedWebsite.website_slug}]`
-                              : '选择一个网站'
-                            : '选择一个网站'}
-                          <ChevronsUpDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className='w-full p-0' align='start'>
-                      <Command shouldFilter={false} className='w-full'>
-                        <CommandInput
-                          className='w-full'
-                          placeholder='搜索网站...'
-                          value={websiteKeyword}
-                          onValueChange={setWebsiteKeyword}
-                        />
-                        <CommandList className='w-full'>
-                          {!websitesLoading &&
-                            (!websitesData?.websites ||
-                              websitesData.websites.length === 0) && (
-                              <CommandEmpty>未找到网站</CommandEmpty>
-                            )}
-                          {websitesLoading && (
-                            <CommandEmpty>加载中...</CommandEmpty>
-                          )}
-                          {websitesData?.websites &&
-                            websitesData.websites.length > 0 && (
-                              <CommandGroup
-                                key={websitesData?.websites.length.toString()}
-                              >
-                                {websitesData.websites.map((website) => (
-                                  <CommandItem
-                                    key={website.website_id.toString()}
-                                    value={`${website.website_id}`}
-                                    onSelect={() => {
-                                      form.setValue(
-                                        'website_id',
-                                        website.website_id,
-                                        { shouldValidate: true }
-                                      )
-                                      setWebsitePopoverOpen(false)
-                                    }}
-                                  >
-                                    <CheckIcon
-                                      className={cn(
-                                        'mr-2 h-4 w-4',
-                                        field.value === website.website_id
-                                          ? 'opacity-100'
-                                          : 'opacity-0'
-                                      )}
-                                    />
-                                    <span className='font-semibold'>
-                                      {website.website_name}
-                                    </span>
-                                    <span className='ml-2 text-xs text-muted-foreground'>
-                                      [{website.website_slug}]
-                                    </span>
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            )}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <WebsiteCombobox
+                      value={field.value}
+                      onChange={(id) => {
+                        if (id) {
+                          form.setValue('website_id', id, {
+                            shouldValidate: true,
+                          })
+                        }
+                      }}
+                      placeholder='选择一个网站'
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -359,86 +236,19 @@ export function EntrypointCreateDrawer({
               render={({ field }) => (
                 <FormItem className='flex flex-col'>
                   <FormLabel>所在行业</FormLabel>
-                  <Popover
-                    open={industryPopoverOpen}
-                    onOpenChange={setIndustryPopoverOpen}
-                  >
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant='outline'
-                          role='combobox'
-                          className={cn(
-                            'w-full justify-between',
-                            !field.value && 'text-muted-foreground'
-                          )}
-                        >
-                          {field.value
-                            ? selectedIndustry
-                              ? `${selectedIndustry.industry_name} [${selectedIndustry.industry_slug}]`
-                              : '选择一个行业'
-                            : '选择一个行业'}
-                          <ChevronsUpDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className='w-full p-0' align='start'>
-                      <Command shouldFilter={false} className='w-full'>
-                        <CommandInput
-                          className='w-full'
-                          placeholder='搜索行业...'
-                          value={industryKeyword}
-                          onValueChange={setIndustryKeyword}
-                        />
-                        <CommandList className='w-full'>
-                          {!industriesLoading &&
-                            (!industriesData?.industries ||
-                              industriesData.industries.length === 0) && (
-                              <CommandEmpty>未找到行业</CommandEmpty>
-                            )}
-                          {industriesLoading && (
-                            <CommandEmpty>加载中...</CommandEmpty>
-                          )}
-                          {industriesData?.industries &&
-                            industriesData.industries.length > 0 && (
-                              <CommandGroup
-                                key={industriesData?.industries.length.toString()}
-                              >
-                                {industriesData.industries.map((industry) => (
-                                  <CommandItem
-                                    key={industry.industry_id.toString()}
-                                    value={`${industry.industry_id}`}
-                                    onSelect={() => {
-                                      form.setValue(
-                                        'industry_id',
-                                        industry.industry_id,
-                                        { shouldValidate: true }
-                                      )
-                                      setIndustryPopoverOpen(false)
-                                    }}
-                                  >
-                                    <CheckIcon
-                                      className={cn(
-                                        'mr-2 h-4 w-4',
-                                        field.value === industry.industry_id
-                                          ? 'opacity-100'
-                                          : 'opacity-0'
-                                      )}
-                                    />
-                                    <span className='font-semibold'>
-                                      {industry.industry_name}
-                                    </span>
-                                    <span className='ml-2 text-xs text-muted-foreground'>
-                                      [{industry.industry_slug}]
-                                    </span>
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            )}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <IndustryCombobox
+                      value={field.value}
+                      onChange={(id) => {
+                        if (id) {
+                          form.setValue('industry_id', id, {
+                            shouldValidate: true,
+                          })
+                        }
+                      }}
+                      placeholder='选择一个行业'
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -537,7 +347,7 @@ export function EntrypointCreateDrawer({
             {/* 网站内在线爬虫任务数量限制 */}
             <FormField
               control={form.control}
-              name='entrypoint_max_task_count'
+              name='entrypoint_max_spider_task_count'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>入口点最大任务数</FormLabel>

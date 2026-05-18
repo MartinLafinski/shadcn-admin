@@ -1,207 +1,500 @@
-// 图标
-// JSON 数据查看器控件
 import JsonView from '@uiw/react-json-view'
 import { githubDarkTheme } from '@uiw/react-json-view/githubDark'
 import { githubLightTheme } from '@uiw/react-json-view/githubLight'
-// Markdown 编辑器控件
 import MDEditor from '@uiw/react-md-editor'
-import { Check, X, Globe } from 'lucide-react'
-import { cn } from '@/lib/utils.ts'
-// 日/夜主题上下文
+import {
+  Ban,
+  Braces,
+  Bug,
+  Building2,
+  Calendar,
+  CheckCircle2,
+  ChevronDown,
+  DoorOpen,
+  FileText,
+  Globe,
+  Loader2,
+  PauseCircle,
+  Settings,
+  Wrench,
+  XCircle,
+  Package,
+  UserRoundPenIcon,
+  UserRoundPlusIcon,
+  FlagIcon,
+} from 'lucide-react'
+import { materialLabels } from '@/lib/labels'
+import { cn } from '@/lib/utils'
 import { useTheme } from '@/context/theme-provider.tsx'
-// 对话框控件
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog.tsx'
-// 滚动区域控件
-import { ScrollArea } from '@/components/ui/scroll-area.tsx'
-import { type EntrypointItemData } from '../../data/schemas.ts'
+} from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { StatCard, CategoryCard } from '@/components/smart/view-cards'
+import { useEntrypointQuery } from '../../api/entrypoints.ts'
+import type { EntrypointItemData } from '../../data/schemas'
+
+const spiderStatusColors: Record<string, string> = {
+  working: 'bg-blue-500',
+  completed: 'bg-emerald-500',
+  failed: 'bg-red-500',
+  interrupted: 'bg-amber-500',
+  canceled: 'bg-gray-400',
+}
+
+const spiderStatusIcons: Record<string, React.FC<{ className?: string }>> = {
+  working: Loader2,
+  completed: CheckCircle2,
+  failed: XCircle,
+  interrupted: PauseCircle,
+  canceled: Ban,
+}
+
+const spiderStatusLabels: Record<string, string> = {
+  working: '运行中',
+  completed: '已完成',
+  failed: '失败',
+  interrupted: '中断',
+  canceled: '已取消',
+}
+
+function SpiderTaskBar({
+  counts,
+}: {
+  counts: Pick<
+    EntrypointItemData,
+    | 'working_spider_task_count'
+    | 'completed_spider_task_count'
+    | 'failed_spider_task_count'
+    | 'interrupted_spider_task_count'
+    | 'canceled_spider_task_count'
+  >
+}) {
+  const items = [
+    { key: 'working', count: counts.working_spider_task_count ?? 0 },
+    { key: 'completed', count: counts.completed_spider_task_count ?? 0 },
+    { key: 'failed', count: counts.failed_spider_task_count ?? 0 },
+    { key: 'interrupted', count: counts.interrupted_spider_task_count ?? 0 },
+    { key: 'canceled', count: counts.canceled_spider_task_count ?? 0 },
+  ].filter((i) => i.count > 0)
+
+  if (items.length === 0) return null
+
+  const total = items.reduce((s, i) => s + i.count, 0)
+
+  return (
+    <div className='space-y-3'>
+      <div className='flex h-2.5 overflow-hidden rounded-full bg-muted'>
+        {items.map((it) => (
+          <div
+            key={it.key}
+            className={cn('h-full transition-all', spiderStatusColors[it.key])}
+            style={{ width: `${(it.count / total) * 100}%` }}
+          />
+        ))}
+      </div>
+      <div className='flex flex-wrap gap-x-5 gap-y-1.5'>
+        {items.map((it) => {
+          const Icon = spiderStatusIcons[it.key]
+          return (
+            <div key={it.key} className='flex items-center gap-1.5 text-sm'>
+              <div
+                className={cn(
+                  'h-2.5 w-2.5 rounded-full',
+                  spiderStatusColors[it.key]
+                )}
+              />
+              <Icon className='h-3.5 w-3.5 text-muted-foreground' />
+              <span>{it.count}</span>
+              <span className='text-muted-foreground'>
+                {spiderStatusLabels[it.key]}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function MaterialGrid({ entrypoint }: { entrypoint: EntrypointItemData }) {
+  const entries = materialLabels
+    .map((m) => ({ ...m, count: (entrypoint as any)[m.key] as number }))
+    .filter((m) => m.count > 0)
+
+  if (entries.length === 0) return null
+
+  return (
+    <div className='grid grid-cols-4 gap-3'>
+      {entries.map((m) => (
+        <div
+          key={m.key}
+          className='group flex flex-col items-center gap-1.5 rounded-xl border border-border/60 bg-card p-3 transition-all hover:border-primary/30 hover:bg-accent/50 hover:shadow-sm'
+        >
+          <m.icon className={cn('h-5 w-5', m.color)} />
+          <span className='text-base font-bold tabular-nums'>
+            {m.count.toLocaleString()}
+          </span>
+          <span className='text-xs text-muted-foreground'>{m.label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 interface EntrypointsViewDialogProps {
-  /** 对话框的开启状态 */
   open: boolean
-  /** 对话框状态变化时的回调函数 */
   onOpenChange: (open: boolean) => void
-  /** 入口点数据 */
-  entrypoint: EntrypointItemData | null
+  entrypointId: number
 }
 
 export function EntrypointsViewDialog({
   open,
   onOpenChange,
-  entrypoint,
+  entrypointId,
 }: EntrypointsViewDialogProps) {
   const { resolvedTheme } = useTheme()
+  const {
+    data: entrypoint,
+    isLoading,
+    isError,
+  } = useEntrypointQuery(entrypointId)
 
-  if (!entrypoint) {
-    return null
+  if (isLoading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className='min-h-[30vh] max-w-5xl'>
+          <DialogTitle className='sr-only'>加载中...</DialogTitle>
+          <DialogDescription className='sr-only'>
+            正在获取入口点数据
+          </DialogDescription>
+          <div className='flex h-64 items-center justify-center gap-2'>
+            <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
+            <span className='text-muted-foreground'>加载入口点数据...</span>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
   }
+
+  if (isError || !entrypoint) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className='min-h-[30vh] max-w-md'>
+          <DialogTitle className='sr-only'>加载失败</DialogTitle>
+          <DialogDescription className='sr-only'>
+            无法加载入口点数据，请稍后重试
+          </DialogDescription>
+          <div className='flex h-32 items-center justify-center'>
+            <p className='text-muted-foreground'>无法加载入口点数据</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  const totalSpider = entrypoint.total_spider_task_count ?? 0
+  const totalMaterial = entrypoint.total_material_count ?? 0
+
+  const hasParamForms =
+    entrypoint.param_form_self ||
+    entrypoint.param_form_prejob ||
+    entrypoint.param_form_website_entrypoint ||
+    entrypoint.param_form_industry_entrypoint
+
+  const compactTime = (t: string) =>
+    t
+      ? new Date(t).toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : '-'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {/* 对话框内容容器 */}
-      <DialogContent className='flex h-[80vh] flex-col overflow-hidden p-0 sm:max-w-[80%]'>
-        {/* 对话框头部：显示入口点名称和描述信息 */}
-        <DialogHeader className='shrink-0 p-6 pb-4'>
-          <DialogTitle>{entrypoint.entrypoint_name} - 入口点信息</DialogTitle>
-          <DialogDescription>
-            查看 {entrypoint.entrypoint_name} 入口点的信息。
-          </DialogDescription>
-        </DialogHeader>
-
-        {/* 可滚动的内容区域：包含说明文档和配置信息两部分 */}
-        <div className='min-h-0 flex-1 overflow-hidden'>
-          <ScrollArea className='h-full w-full' type={'always'}>
-            <div className='space-y-6 px-6 pb-6'>
-              {/* 入口点基础信息展示区域 */}
-              <div className='space-y-4'>
-                {/* 入口点可用性显示区域 - 显示入口点是否启用 */}
-                <div className='space-y-2'>
-                  <h4 className='text-sm font-medium'>入口点可用性</h4>
-                  <div
-                    className={cn(
-                      'flex items-center gap-2 rounded-md border p-3',
-                      entrypoint.entrypoint_enabled
-                        ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20'
-                        : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20'
-                    )}
-                  >
-                    {entrypoint.entrypoint_enabled ? (
-                      <>
-                        <Check className='h-5 w-5 text-green-600 dark:text-green-400' />
-                        <span className='font-medium text-green-700 dark:text-green-300'>
-                          已启用
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <X className='h-5 w-5 text-red-600 dark:text-red-400' />
-                        <span className='font-medium text-red-700 dark:text-red-300'>
-                          已禁用
-                        </span>
-                      </>
-                    )}
-                  </div>
+      <DialogContent className='flex max-h-[92vh] w-full max-w-5xl flex-col gap-0 space-y-0 overflow-hidden p-0'>
+        {/* ===== Header ===== */}
+        <DialogHeader className='shrink-0 space-y-3 border-b bg-gradient-to-r from-primary/5 via-transparent to-transparent px-6 py-5'>
+          <div className='flex items-start justify-between gap-4'>
+            <div className='w-full min-w-0 space-y-1.5'>
+              <DialogTitle className='flex items-center gap-3 text-2xl'>
+                <DoorOpen className='h-7 w-7 text-primary/70' />
+                <span className='truncate'>{entrypoint.entrypoint_name}</span>
+              </DialogTitle>
+              <div className='flex w-full gap-3 pt-2'>
+                <div className='flex flex-1 items-center gap-2'>
+                  <p>
+                    <FlagIcon className='h-3.5 w-3.5' />
+                  </p>
+                  <p className='flex flex-col gap-0 text-xs text-muted-foreground'>
+                    <span>{entrypoint.entrypoint_slug}</span>
+                    <span>ID: {entrypoint.entrypoint_id}</span>
+                  </p>
                 </div>
-
-                {/* 入口点ID显示区域 - 用于唯一标识入口点 */}
-                <div className='space-y-2'>
-                  <h4 className='text-sm font-medium'>入口点ID</h4>
-                  <div
-                    className='rounded-md border bg-background p-2 break-all'
-                    data-color-mode={resolvedTheme}
-                  >
-                    {entrypoint.entrypoint_id}
-                  </div>
+                <div className='flex flex-1 items-center gap-2 border-l pl-4'>
+                  <p>
+                    <UserRoundPlusIcon className='h-3.5 w-3.5' />
+                  </p>
+                  <p className='flex flex-col gap-0 text-xs text-muted-foreground'>
+                    <span>{entrypoint.created_by || '-'}</span>
+                    <span>{compactTime(entrypoint.created_at)}</span>
+                  </p>
                 </div>
-
-                {/* 入口点名称显示区域 - 展示入口点的显示名称 */}
-                <div className='space-y-2'>
-                  <h4 className='text-sm font-medium'>入口点名称</h4>
-                  <div
-                    className='rounded-md border bg-background p-2 break-all'
-                    data-color-mode={resolvedTheme}
-                  >
-                    {entrypoint.entrypoint_name}
-                  </div>
+                <div className='flex flex-1 items-center gap-2 border-l pl-4'>
+                  <p>
+                    <UserRoundPenIcon className='h-3.5 w-3.5' />
+                  </p>
+                  <p className='flex flex-col gap-0 text-xs text-muted-foreground'>
+                    <span>{entrypoint.updated_by || '-'}</span>
+                    <span>{compactTime(entrypoint.updated_at)}</span>
+                  </p>
                 </div>
-
-                {/* 入口点标识显示区域 - 显示入口点的URL友好标识符 */}
-                <div className='space-y-2'>
-                  <h4 className='text-sm font-medium'>入口点标识</h4>
-                  <div
-                    className='rounded-md border bg-background p-2 break-all'
-                    data-color-mode={resolvedTheme}
-                  >
-                    {entrypoint.entrypoint_slug}
-                  </div>
-                </div>
-
-                {/* 入口点URL显示区域 - 展示入口点的实际访问地址 */}
-                <div className='space-y-2'>
-                  <h4 className='text-sm font-medium'>入口点URL</h4>
-                  <div
-                    className='rounded-md border bg-background p-2 break-all'
-                    data-color-mode={resolvedTheme}
-                  >
-                    {/* 添加链接功能，便于直接访问或复制入口点URL */}
-                    <a
-                      href={entrypoint.entrypoint_url ?? '#'}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='break-all text-blue-600 hover:underline'
-                    >
-                      {entrypoint.entrypoint_url}
-                    </a>
-                  </div>
-                </div>
-
-                {/* 关联网站信息显示区域 */}
-                {entrypoint.website && (
-                  <div className='space-y-2'>
-                    <h4 className='text-sm font-medium'>关联网站</h4>
-                    <div
-                      className='rounded-md border bg-background p-3'
-                      data-color-mode={resolvedTheme}
-                    >
-                      <div className='flex items-center gap-2'>
-                        <Globe className='h-4 w-4 text-muted-foreground' />
-                        <div className='flex flex-col'>
-                          <span className='font-medium'>
-                            {entrypoint.website.website_name}
-                          </span>
-                          <span className='text-xs text-muted-foreground'>
-                            [{entrypoint.website.website_slug}]
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                {(entrypoint.begin_at || entrypoint.end_at) && (
+                  <div className='flex flex-1 items-center gap-2 border-l pl-4'>
+                    <p>
+                      <Calendar className='h-3.5 w-3.5' />
+                    </p>
+                    <p className='flex flex-col gap-0 text-xs text-muted-foreground'>
+                      <span>
+                        {entrypoint.begin_at
+                          ? compactTime(entrypoint.begin_at)
+                          : '-'}
+                      </span>
+                      <span>
+                        {entrypoint.end_at
+                          ? compactTime(entrypoint.end_at)
+                          : '-'}
+                      </span>
+                    </p>
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        </DialogHeader>
 
-              {/* 说明文档区域：展示 Markdown 格式的说明文档 */}
-              <div className='space-y-2'>
-                <h4 className='text-sm font-medium'>说明文档</h4>
-                {/* 使用 MDEditor.Markdown 渲染 Markdown 内容 */}
-                {/* data-color-mode 属性使 Markdown 渲染适配当前主题 */}
-                <div
-                  className='rounded-md border bg-background p-4'
-                  data-color-mode={resolvedTheme}
-                >
-                  <MDEditor.Markdown
-                    source={entrypoint.entrypoint_readme}
-                    style={{ backgroundColor: 'transparent' }}
+        {/* ===== Body ===== */}
+        <div className='min-h-0 flex-1 overflow-hidden'>
+          <ScrollArea className='h-full' type='always'>
+            <div className='space-y-6 p-6'>
+              {/* ------ Stats Row ------ */}
+              <div className='grid grid-cols-2 gap-4'>
+                {entrypoint.website && (
+                  <CategoryCard
+                    icon={Globe}
+                    ctype='网站'
+                    name={entrypoint.website.website_name}
+                    slug={entrypoint.website.website_slug}
+                    colorClass='text-sky-600'
+                    bgClass='bg-sky-500/10'
                   />
-                </div>
+                )}
+                {entrypoint.industry && (
+                  <CategoryCard
+                    icon={Building2}
+                    ctype='行业'
+                    name={entrypoint.industry.industry_name}
+                    slug={entrypoint.industry.industry_slug}
+                    colorClass='text-amber-600'
+                    bgClass='bg-amber-500/10'
+                  />
+                )}
+                <StatCard
+                  icon={Wrench}
+                  count={entrypoint.prejob_count ?? 0}
+                  label='预备作业'
+                  colorClass='text-orange-600'
+                  bgClass='bg-orange-500/10'
+                />
+                <StatCard
+                  icon={Bug}
+                  count={totalSpider}
+                  label='爬虫任务'
+                  colorClass='text-blue-600'
+                  bgClass='bg-blue-500/10'
+                />
+                <StatCard
+                  icon={Package}
+                  count={totalMaterial}
+                  label='采料总数'
+                  colorClass='text-emerald-600'
+                  bgClass='bg-emerald-500/10'
+                />
               </div>
 
-              {/* 配置信息区域：展示 JSON 格式的配置数据 */}
-              <div className='space-y-2'>
-                <h4 className='text-sm font-medium'>配置信息</h4>
-                {/* 使用 react-json-view 组件展示 JSON 数据 */}
-                <div className='rounded-md border bg-muted/50 p-4'>
-                  <JsonView
-                    value={entrypoint.entrypoint_config}
-                    displayDataTypes={false} // 不显示数据类型
-                    displayObjectSize={true} // 显示对象大小
-                    enableClipboard={true} // 启用复制功能
-                    shortenTextAfterLength={0} // 不截断长文本
-                    style={
-                      resolvedTheme === 'light'
-                        ? {
-                            ...githubLightTheme,
-                            backgroundColor: 'transparent',
-                          }
-                        : { ...githubDarkTheme, backgroundColor: 'transparent' }
-                    }
-                  />
-                </div>
-              </div>
+              {/* ------ Spider Tasks ------ */}
+              {totalSpider > 0 && (
+                <Card>
+                  <CardHeader className='pb-3'>
+                    <CardTitle className='flex items-center gap-2 text-base'>
+                      <Bug className='h-5 w-5 text-blue-500' />
+                      爬虫任务分布
+                      <Badge variant='secondary' className='ml-auto'>
+                        {totalSpider}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <SpiderTaskBar
+                      counts={{
+                        working_spider_task_count:
+                          entrypoint.working_spider_task_count,
+                        completed_spider_task_count:
+                          entrypoint.completed_spider_task_count,
+                        failed_spider_task_count:
+                          entrypoint.failed_spider_task_count,
+                        interrupted_spider_task_count:
+                          entrypoint.interrupted_spider_task_count,
+                        canceled_spider_task_count:
+                          entrypoint.canceled_spider_task_count,
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* ------ Material Types ------ */}
+              {totalMaterial > 0 && (
+                <Card>
+                  <CardHeader className='pb-3'>
+                    <CardTitle className='flex items-center gap-2 text-base'>
+                      <Package className='h-5 w-5 text-emerald-500' />
+                      采料类型分布
+                      <Badge variant='secondary' className='ml-auto'>
+                        {totalMaterial}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <MaterialGrid entrypoint={entrypoint} />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* ------ Param Forms ------ */}
+              {hasParamForms && (
+                <Card className='gap-0 space-y-0'>
+                  <CardHeader className='pb-3'>
+                    <CardTitle className='flex items-center gap-2 text-base'>
+                      <Settings className='h-5 w-5 text-amber-500' />
+                      关联参数要素包
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className='flex flex-col gap-3'>
+                      {[
+                        {
+                          data: entrypoint.param_form_self,
+                          label: '入口点自用',
+                        },
+                        {
+                          data: entrypoint.param_form_prejob,
+                          label: '预备作业指定',
+                        },
+                        {
+                          data: entrypoint.param_form_website_entrypoint,
+                          label: '网站指定',
+                        },
+                        {
+                          data: entrypoint.param_form_industry_entrypoint,
+                          label: '行业指定',
+                        },
+                      ].map(
+                        (pf) =>
+                          pf.data && (
+                            <div
+                              key={pf.label}
+                              className='rounded-lg border bg-muted/30 p-3'
+                            >
+                              <div className='flex items-center justify-between'>
+                                <span className='text-xs text-muted-foreground'>
+                                  {pf.label}
+                                </span>
+                                <Badge
+                                  variant={
+                                    pf.data.param_form_enabled
+                                      ? 'success'
+                                      : 'destructive'
+                                  }
+                                  className='h-5 px-1.5 text-xs'
+                                >
+                                  {pf.data.param_form_enabled ? '启用' : '停用'}
+                                </Badge>
+                              </div>
+                              <p className='mt-1.5 text-sm font-semibold'>
+                                {pf.data.param_form_name}
+                              </p>
+                              <p className='font-mono text-xs text-muted-foreground'>
+                                {pf.data.param_form_slug}
+                              </p>
+                            </div>
+                          )
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* ------ Readme ------ */}
+              {entrypoint.entrypoint_readme && (
+                <details className='group' open>
+                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                    <FileText className='h-5 w-5 text-sky-500' />
+                    说明文档
+                    <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                  </summary>
+                  <div
+                    className='mt-4 rounded-xl border bg-card p-4'
+                    data-color-mode={resolvedTheme}
+                  >
+                    <MDEditor.Markdown
+                      source={entrypoint.entrypoint_readme}
+                      style={{ backgroundColor: 'transparent' }}
+                    />
+                  </div>
+                </details>
+              )}
+
+              {/* ------ Config ------ */}
+              {entrypoint.entrypoint_config &&
+                Object.keys(entrypoint.entrypoint_config).length > 0 && (
+                  <details className='group'>
+                    <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                      <Braces className='h-5 w-5 text-fuchsia-500' />
+                      配置信息
+                      <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                    </summary>
+                    <div className='mt-4 rounded-xl border bg-muted/30 p-4'>
+                      <JsonView
+                        value={entrypoint.entrypoint_config}
+                        displayDataTypes={false}
+                        displayObjectSize
+                        enableClipboard
+                        shortenTextAfterLength={0}
+                        style={
+                          resolvedTheme === 'light'
+                            ? {
+                                ...githubLightTheme,
+                                backgroundColor: 'transparent',
+                              }
+                            : {
+                                ...githubDarkTheme,
+                                backgroundColor: 'transparent',
+                              }
+                        }
+                      />
+                    </div>
+                  </details>
+                )}
             </div>
           </ScrollArea>
         </div>

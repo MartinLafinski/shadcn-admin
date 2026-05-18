@@ -5,9 +5,10 @@ import {
   EntityStatusSchema,
   EntitySpiderTasksCounterSchema,
   EntityMaterialCounterSchema,
-  createEntityToggleSchema,
+  createEntityToggleWithDisabledSchema,
   createEntityLockAuditSchema,
   createEntityPauseAuditSchema,
+  createEntityDisabledAuditSchema,
   createEntitySwitchSchema,
   createEntityBatchSwitchSchema,
   createEntityBatchLockSchema,
@@ -26,10 +27,12 @@ export const WebsiteItemSchema = z
   .object({
     website_id: z.number().int(),
     created_at: z.string(),
+    created_by: z.string().nullable(),
     updated_at: z.string(),
     updated_by: z.string(),
-    entrypoint_count: z.number().int().optional().nullable(),
-    prejob_count: z.number().int().optional().nullable(),
+    entrypoint_count: z.number().int().optional(),
+    prejob_count: z.number().int().optional(),
+    website_free_spider_task_capacity: z.number().int(),
     website_max_spider_task_count: z.number().int().optional(),
     website_name: z.string(),
     website_slug: z
@@ -45,11 +48,11 @@ export const WebsiteItemSchema = z
     website_url: z.url().optional().nullable(),
     website_config: z.record(z.string(), z.any()),
     website_readme: z.string(),
-    // 网站自用参数表单标识
+    // 网站自用参数要素包标识
     website_self_param_slug: z.string().nullable().optional(),
-    // 网站入口点参数表单标识
+    // 网站入口点参数要素包标识
     website_entrypoint_param_slug: z.string().nullable().optional(),
-    // 网站预备作业参数表单标识
+    // 网站预备作业参数要素包标识
     website_prejob_param_slug: z.string().nullable().optional(),
     // 网站自用参数要素包
     param_form_self: MiniParamFormSchema.nullable().optional(),
@@ -58,9 +61,10 @@ export const WebsiteItemSchema = z
     // 网站指定预备作业参数要素包
     param_form_prejob: MiniParamFormSchema.nullable().optional(),
   })
-  .extend(createEntityToggleSchema('website').shape)
+  .extend(createEntityToggleWithDisabledSchema('website').shape)
   .extend(createEntityLockAuditSchema('website').shape)
   .extend(createEntityPauseAuditSchema('website').shape)
+  .extend(createEntityDisabledAuditSchema('website').shape)
   .extend(EntityStatusSchema.shape)
   .extend(EntitySpiderTasksCounterSchema.shape)
   .extend(EntityMaterialCounterSchema.shape)
@@ -196,6 +200,12 @@ export const WebsiteCreateSchema = z.object({
   website_config: z.record(z.string(), z.any()).optional(),
   // 网站说明文档内容
   website_readme: z.string().optional(),
+  // 网站自用参数要素包标识
+  website_self_param_slug: z.string().nullable().optional(),
+  // 网站入口点参数要素包标识
+  website_entrypoint_param_slug: z.string().nullable().optional(),
+  // 网站预备作业参数要素包标识
+  website_prejob_param_slug: z.string().nullable().optional(),
 })
 
 export type WebsiteCreateData = z.infer<typeof WebsiteCreateSchema>
@@ -228,10 +238,12 @@ export const WebsiteUpdateSchema = z.object({
   website_max_spider_task_count: z.number().int().optional(),
   // 网站访问URL（可选字段）
   website_url: z.url('请输入正确的网址').optional().nullable(),
-  // 网站配置对象，存储任意键值对配置信息
-  website_config: z.record(z.string(), z.any()),
-  // 网站说明文档内容
-  website_readme: z.string(),
+  // 网站自用参数要素包标识
+  website_self_param_slug: z.string().nullable().optional(),
+  // 网站入口点参数要素包标识
+  website_entrypoint_param_slug: z.string().nullable().optional(),
+  // 网站预备作业参数要素包标识
+  website_prejob_param_slug: z.string().nullable().optional(),
 })
 
 export type WebsiteUpdateData = z.infer<typeof WebsiteUpdateSchema>
@@ -428,16 +440,12 @@ export type SpiderConfigData = z.infer<typeof SpiderConfigSchema>
  * 用于验证网站同步请求的数据结构
  */
 export const WebsiteSyncSchema = z.object({
-  // 清空入口点关联
-  clear_entrypoints: z.boolean().default(false),
-  // 清空预备作业关联
-  clear_prejobs: z.boolean().default(false),
-  // 清空锁定信息
-  clear_locked: z.boolean().default(false),
-  // 清空暂停信息
-  clear_paused: z.boolean().default(false),
-  // 清空爬虫信息信息
-  clear_spider_tasks: z.boolean().default(false),
+  clear_entrypoints: z.boolean(),
+  clear_prejobs: z.boolean(),
+  clear_locked: z.boolean(),
+  clear_paused: z.boolean(),
+  clear_spider_tasks: z.boolean(),
+  only_clear: z.boolean(),
 })
 
 /**

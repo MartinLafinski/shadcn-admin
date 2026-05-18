@@ -5,11 +5,22 @@ import {
   useLocation,
   useNavigate,
 } from '@tanstack/react-router'
+import { useAuthStore } from '@/stores/auth-store'
 import { isAuthenticated } from '@/lib/auth-token'
 import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
+import { fetchCurrentUser } from '@/features/auth/api/auth'
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const Route = createFileRoute('/_authenticated')({
+  beforeLoad: async () => {
+    const { accessToken, user, setUser, reset } = useAuthStore.getState().auth
+    if (accessToken && !user) {
+      try {
+        setUser(await fetchCurrentUser())
+      } catch {
+        reset()
+      }
+    }
+  },
   component: AuthGuard,
 })
 
@@ -19,10 +30,11 @@ function AuthGuard() {
 
   useEffect(() => {
     if (!isAuthenticated()) {
-      const currentPath = location.href
+      const currentPath = location.pathname
+      if (currentPath.startsWith('/sign-in')) return
       navigate({
         to: '/sign-in',
-        search: currentPath !== '/' ? { redirect: currentPath } : undefined,
+        search: location.href !== '/' ? { redirect: location.href } : undefined,
         replace: true,
       })
     }

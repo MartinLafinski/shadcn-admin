@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useCallback } from 'react'
+import { lazy, Suspense } from 'react'
 // 操作结果提示框
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/confirm-dialog'
@@ -22,16 +22,6 @@ const EntrypointCreateDrawer = lazy(() =>
 const EntrypointConfigDrawer = lazy(() =>
   import('./drawers/entrypoints-config-drawer.tsx').then((m) => ({
     default: m.EntrypointConfigDrawer,
-  }))
-)
-const EntrypointsInfoDialog = lazy(() =>
-  import('./dialogs/entrypoints-info-dialog.tsx').then((m) => ({
-    default: m.EntrypointsInfoDialog,
-  }))
-)
-const EntrypointsConfigEditDialog = lazy(() =>
-  import('./dialogs/entrypoints-config-edit-dialog.tsx').then((m) => ({
-    default: m.EntrypointsConfigEditDialog,
   }))
 )
 const EntrypointsPeriodEditDialog = lazy(() =>
@@ -59,6 +49,11 @@ const IndustriesViewDialog = lazy(() =>
     (m) => ({ default: m.IndustriesViewDialog })
   )
 )
+const EntrypointsViewDialog = lazy(() =>
+  import('./dialogs/entrypoints-view-dialog').then((m) => ({
+    default: m.EntrypointsViewDialog,
+  }))
+)
 
 export function EntrypointsDialogs() {
   const { open, currentRow } = useEntrypointsDialog()
@@ -66,7 +61,7 @@ export function EntrypointsDialogs() {
 
   const deleteMutation = useDeleteEntrypointMutation()
 
-  const handleDelete = useCallback(async () => {
+  const handleDelete = async () => {
     if (!currentRow) return
     await deleteMutation
       .mutateAsync({
@@ -76,6 +71,7 @@ export function EntrypointsDialogs() {
         toast.success(`入口点 ${currentRow.entrypoint_name} 删除成功`)
       })
       .catch((error) => {
+        // eslint-disable-next-line no-console
         console.error(`入口点 ${currentRow.entrypoint_name} 删除失败:`, error)
         toast.error(`入口点 ${currentRow.entrypoint_name} 删除失败`)
       })
@@ -85,12 +81,13 @@ export function EntrypointsDialogs() {
           setCurrentRow(null)
         }, 500)
       })
-  }, [currentRow, deleteMutation, setOpen, setCurrentRow])
+  }
 
   return (
     <Suspense fallback={null}>
       {open === 'create' && (
         <EntrypointCreateDrawer
+          key='entrypoint-create'
           open={open === 'create'}
           onOpenChange={() => setOpen(null)}
         />
@@ -98,6 +95,7 @@ export function EntrypointsDialogs() {
 
       {open === 'sync' && (
         <EntrypointsSyncDialog
+          key='entrypoint-sync'
           open={open === 'sync'}
           onOpenChange={() => setOpen(null)}
         />
@@ -121,19 +119,6 @@ export function EntrypointsDialogs() {
           {open === 'config' && (
             <EntrypointConfigDrawer
               open={open === 'config'}
-              onOpenChange={(val) => {
-                if (!val) {
-                  setOpen(null)
-                  setTimeout(() => setCurrentRow(null), 500)
-                }
-              }}
-              currentRow={currentRow}
-            />
-          )}
-
-          {open === 'configSpider' && (
-            <EntrypointsConfigEditDialog
-              open={open === 'configSpider'}
               onOpenChange={(val) => {
                 if (!val) {
                   setOpen(null)
@@ -170,23 +155,10 @@ export function EntrypointsDialogs() {
             />
           )}
 
-          {open === 'configInfo' && (
-            <EntrypointsInfoDialog
-              open={open === 'configInfo'}
-              readme={currentRow.entrypoint_readme}
-              config={currentRow.entrypoint_config}
-              entrypointName={currentRow.entrypoint_name}
-              onOpenChange={() => {
-                setOpen(null)
-                setCurrentRow(null)
-              }}
-            />
-          )}
-
           {open === 'viewWebsite' && (
             <WebsitesViewDialog
               open={open === 'viewWebsite'}
-              website={currentRow.website}
+              websiteId={currentRow.website_id ?? 0}
               onOpenChange={() => {
                 setOpen(null)
                 setCurrentRow(null)
@@ -197,7 +169,19 @@ export function EntrypointsDialogs() {
           {open === 'viewIndustry' && (
             <IndustriesViewDialog
               open={open === 'viewIndustry'}
-              industry={currentRow.industry}
+              industryId={currentRow.industry_id ?? 0}
+              onOpenChange={() => {
+                setOpen(null)
+                setCurrentRow(null)
+              }}
+            />
+          )}
+
+          {open === 'viewEntrypoint' && (
+            <EntrypointsViewDialog
+              key='entrypoint-view-info'
+              open
+              entrypointId={currentRow.entrypoint_id}
               onOpenChange={() => {
                 setOpen(null)
                 setCurrentRow(null)

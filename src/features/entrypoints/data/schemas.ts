@@ -1,12 +1,14 @@
 import { z } from 'zod'
 import { PaginationInfoSchema } from '@/config/pagination'
 import {
+  MiniParamFormSchema,
   EntityStatusSchema,
   EntitySpiderTasksCounterSchema,
   EntityMaterialCounterSchema,
-  createEntityToggleSchema,
+  createEntityToggleWithDisabledSchema,
   createEntityLockAuditSchema,
   createEntityPauseAuditSchema,
+  createEntityDisabledAuditSchema,
   createEntitySwitchSchema,
   createEntityBatchSwitchSchema,
   createEntityBatchLockSchema,
@@ -27,6 +29,7 @@ export const EntrypointItemSchema = z
   .object({
     entrypoint_id: z.number().int(),
     created_at: z.string(),
+    created_by: z.string().nullable(),
     updated_at: z.string(),
     updated_by: z.string(),
     begin_at: z.string().nullable(),
@@ -39,6 +42,8 @@ export const EntrypointItemSchema = z
     website: WebsiteItemSchema.nullable(),
     industry: IndustryItemSchema.nullable(),
     entrypoint_avatar: z.string().optional().nullable(),
+    entrypoint_self_param_slug: z.string().nullable().optional(),
+    entrypoint_prejob_param_slug: z.string().nullable().optional(),
     entrypoint_name: z.string(),
     entrypoint_slug: z
       .string()
@@ -53,11 +58,17 @@ export const EntrypointItemSchema = z
     entrypoint_config: z.record(z.string(), z.any()),
     entrypoint_readme: z.string(),
     config: z.record(z.string(), z.any()),
+    param_form_self: MiniParamFormSchema.nullable().optional(),
+    param_form_prejob: MiniParamFormSchema.nullable().optional(),
+    param_form_website_entrypoint: MiniParamFormSchema.nullable().optional(),
+    param_form_industry_entrypoint: MiniParamFormSchema.nullable().optional(),
+    entrypoint_free_spider_task_capacity: z.number().int(),
   })
   .extend({
-    ...createEntityToggleSchema('entrypoint').shape,
+    ...createEntityToggleWithDisabledSchema('entrypoint').shape,
     ...createEntityLockAuditSchema('entrypoint').shape,
     ...createEntityPauseAuditSchema('entrypoint').shape,
+    ...createEntityDisabledAuditSchema('entrypoint').shape,
     ...EntityStatusSchema.shape,
     ...EntitySpiderTasksCounterSchema.shape,
     ...EntityMaterialCounterSchema.shape,
@@ -202,9 +213,13 @@ export const EntrypointCreateSchema = z.object({
       '入口点标识应该是字母、数字、连字符或下划线，长度在2到64之间'
     ),
   // 入口点在线任务上限
-  entrypoint_max_task_count: z.number().int().optional(),
+  entrypoint_max_spider_task_count: z.number().int().optional(),
   // 入口点URL
   entrypoint_url: z.url('请输入正确的网址'),
+  // 入口点自用参数要素包标识
+  entrypoint_self_param_slug: z.string().nullable().optional(),
+  // 入口点预备作业参数要素包标识
+  entrypoint_prejob_param_slug: z.string().nullable().optional(),
   // 入口点配置对象，存储任意键值对配置信息
   entrypoint_config: z.record(z.string(), z.any()).optional(),
   // 入口点说明文档内容
@@ -244,13 +259,13 @@ export const EntrypointUpdateSchema = z.object({
       '入口点标识应该是字母、数字、连字符或下划线，长度在2到64之间'
     ),
   // 入口点在线任务上限
-  entrypoint_max_task_count: z.number().int().optional(),
+  entrypoint_max_spider_task_count: z.number().int().optional(),
   // 入口点URL
   entrypoint_url: z.url('请输入正确的网址').optional().nullable(),
-  // 入口点配置对象，存储任意键值对配置信息
-  entrypoint_config: z.record(z.string(), z.any()),
-  // 入口点说明文档内容
-  entrypoint_readme: z.string(),
+  // 入口点自用参数要素包标识
+  entrypoint_self_param_slug: z.string().nullable().optional(),
+  // 入口点预备作业参数要素包标识
+  entrypoint_prejob_param_slug: z.string().nullable().optional(),
 })
 
 export type EntrypointUpdateData = z.infer<typeof EntrypointUpdateSchema>
@@ -346,166 +361,6 @@ export const emptyEntrypointsData: EntrypointsData = {
 // endregion
 
 // =====================================================================================================================
-// 入口点Spider配置Schema
-// =====================================================================================================================
-// region Entrypoint Spider Config Schema
-/**
- * 入口点爬虫配置信息的 Zod 验证模式
- * 用于验证入口点爬虫配置更新请求的数据结构
- * 包含爬虫抓取、内容提取、并发控制等配置项
- * 每个配置项都有对应的 inherit_website_* 字段，用于控制是否从网站配置继承该设置
- *
- * 使用场景：
- * - 单独修改入口点配置时的表单验证
- * - 更新入口点爬虫配置信息的API请求参数验证
- */
-export const EntrypointSpiderConfigSchema = z.object({
-  // 抓取时未指定结束时间时的默认抓取时间(小时)
-  default_crawl_hours: z.number().int().nullable().optional(),
-  // 是否继承网站默认抓取时间
-  inherit_website_default_crawl_hours: z.boolean().optional(),
-  // 两次抓取之间的最小间隔时间(毫秒)
-  min_available_interval: z.number().int().nullable().optional(),
-  // 是否继承网站最小可用间隔时间
-  inherit_website_min_available_interval: z.boolean().optional(),
-  // 是否启用历史追溯模式
-  history_mode: z.boolean().nullable().optional(),
-  // 是否继承网站历史追溯模式
-  inherit_website_history_mode: z.boolean().optional(),
-  // 是否暂停任务追加
-  task_paused: z.boolean().nullable().optional(),
-  // 是否继承网站暂停任务追加
-  inherit_website_task_paused: z.boolean().optional(),
-  // 文章内容提取算法, 可以是trafilatura或paragraph或自定义
-  body_extraction_method: z.string().nullable().optional(),
-  // 是否继承网站文章内容提取算法
-  inherit_website_body_extraction_method: z.boolean().optional(),
-  // 单次抓取时可允许的最多过期批次数量
-  max_bunch_expired: z.number().int().nullable().optional(),
-  // 是否继承网站最多过期批次数量
-  inherit_website_max_bunch_expired: z.boolean().optional(),
-  // 单次抓取时可允许的最大错误数量
-  max_spider_errors: z.number().int().nullable().optional(),
-  // 是否继承网站单次抓取时可允许的最大错误数量
-  inherit_website_max_spider_errors: z.boolean().optional(),
-  // 单次抓取时可允许的最大列表页数
-  max_list_pages: z.number().int().nullable().optional(),
-  // 最否继承网站单次抓取时可允许的最大列表页数
-  inherit_website_max_list_pages: z.boolean().optional(),
-  // 单次抓取时可允许抓取的最大文章页数
-  max_article_pages: z.number().int().nullable().optional(),
-  // 是否继承网站单次抓取时可允许抓取的最大文章页数
-  inherit_website_max_article_pages: z.boolean().optional(),
-  // 抓取时每分钟的最大任务数量
-  max_tasks_per_minute: z.number().int().nullable().optional(),
-  // 是否继承抓取时每分钟的最大任务数量
-  inherit_website_max_tasks_per_minute: z.boolean().optional(),
-  // 抓取时期望的并发数
-  desired_concurrency: z.number().int().nullable().optional(),
-  // 是否继承网站抓取时期望的并发数
-  inherit_website_desired_concurrency: z.boolean().optional(),
-  // 抓取时的最小并发数
-  min_concurrency: z.number().int().nullable().optional(),
-  // 是否继承网站抓取时的最小并发数
-  inherit_website_min_concurrency: z.boolean().optional(),
-  // 抓取时最大的并发数
-  max_concurrency: z.number().int().nullable().optional(),
-  // 是否继承网站抓取时最大的并发数
-  inherit_website_max_concurrency: z.boolean().optional(),
-  // 是否保存图片
-  remain_img: z.boolean().optional(),
-  // 是否继承网站保存图片设置
-  inherit_website_remain_img: z.boolean().optional(),
-  // 是否仅检查图像下文放弃词
-  only_check_alt_discard_words: z.boolean().nullable().optional(),
-  // 是否继承网站仅检查图像下文放弃词设置
-  inherit_website_only_check_alt_discard_words: z.boolean().optional(),
-  // 图片URL清理的正则表达式模式
-  img_clean_regex: z.string().nullable().optional(),
-  // 是否继承网站图片URL清理的正则表达式模式
-  inherit_website_img_clean_regex: z.boolean().optional(),
-  // 图像下文放弃词的标识
-  alt_discard_words_slug: z.string().nullable().optional(),
-  // 是否继承网站图像下文放弃词的标识
-  inherit_website_alt_discard_words_slug: z.boolean().optional(),
-  // 图像下文尾部加分词的标识
-  alt_end_words_slug: z.string().nullable().optional(),
-  // 是否继承网站图像下文尾部加分词的标识
-  inherit_website_alt_end_words_slug: z.boolean().optional(),
-  // 图像下文加分词的标识
-  alt_words_slug: z.string().nullable().optional(),
-  // 是否继承网站图像下文加分词的标识
-  inherit_website_alt_words_slug: z.boolean().optional(),
-  // 头部过滤词的标识
-  head_blackwords_slug: z.string().nullable().optional(),
-  // 是否继承网站头部过滤词的标识
-  inherit_website_head_blackwords_slug: z.boolean().optional(),
-  // 尾部过滤词的标识
-  tail_blackwords_slug: z.string().nullable().optional(),
-  // 是否继承网站尾部过滤词的标识
-  inherit_website_tail_blackwords_slug: z.boolean().optional(),
-  // Trafilatura算法下文章内容元素起始位置
-  head_start: z.number().int().nullable().optional(),
-  // 是否继承网站Trafilatura算法下文章内容元素起始位置
-  inherit_website_head_start: z.boolean().optional(),
-  // Trafilatura算法下文章内容元素结束位置
-  tail_end: z.number().int().nullable().optional(),
-  // 是否继承网站Trafilatura算法下文章内容元素结束位置
-  inherit_website_tail_end: z.boolean().optional(),
-  // Trafilatura算法下极端边界情况下文章内容元素头部位置
-  bound_head_position: z.number().int().nullable().optional(),
-  // 是否继承网站Trafilatura算法下极端边界情况下文章内容元素头部位置
-  inherit_website_bound_head_position: z.boolean().optional(),
-  // Trafilatura算法下极端边界情况下文章内容元素尾部位置
-  bound_tail_position: z.number().int().nullable().optional(),
-  // 是否继承网站Trafilatura算法下极端边界情况下文章内容元素尾部位置
-  inherit_website_bound_tail_position: z.boolean().optional(),
-  // Paragraph算法下文章内容选择器，用于指定文章内容所在的HTML元素
-  article_selector: z.string().nullable().optional(),
-  // 是否继承网站Paragraph算法下文章内容选择器，用于指定文章内容所在的HTML元素
-  inherit_website_article_selector: z.boolean().optional(),
-  // Paragraph算法下类似于段落的HTML标签列表
-  tags_like_p: z.array(z.string()).nullable().optional(),
-  // 是否继承网站Paragraph算法下类似于段落的HTML标签列表
-  inherit_website_tags_like_p: z.boolean().optional(),
-  // Paragraph算法下文章内容起始位置
-  paragraph_start: z.number().int().nullable().optional(),
-  // 是否继承网站Paragraph算法下文章内容起始位置
-  inherit_website_paragraph_start: z.boolean().optional(),
-  // Paragraph算法下文章内容结束位置
-  paragraph_end: z.number().int().nullable().optional(),
-  // 是否继承网站Paragraph算法下文章内容结束位置
-  inherit_website_paragraph_end: z.boolean().optional(),
-  // 默认请求队列标识
-  default_request_queue: z.string().nullable().optional(),
-  // 是否继承网站默认请求队列标识
-  inherit_website_default_request_queue: z.boolean().optional(),
-  // 错误请求队列标识
-  error_request_queue: z.string().nullable().optional(),
-  // 是否继承网站错误请求队列标识
-  inherit_website_error_request_queue: z.boolean().optional(),
-  // 是否备分到SeaweedFS
-  backup_in_seaweed: z.boolean().nullable().optional(),
-  // 是否继承网站是否备分到SeaweedFS
-  inherit_website_backup_in_seaweed: z.boolean().optional(),
-})
-
-/**
- * EntrypointSpiderConfig 类型定义
- * 从 EntrypointSpiderConfigSchema 推断出的 TypeScript 类型
- * 用于入口点爬虫配置信息数据的类型标注，确保类型安全
- *
- * 该类型通常用于：
- * - 入口点配置相关API请求体参数类型
- * - 配置编辑组件的props类型
- * - 配置表单的初始值和验证结果类型
- */
-export type EntrypointSpiderConfigData = z.infer<
-  typeof EntrypointSpiderConfigSchema
->
-// endregion
-
-// =====================================================================================================================
 // 入口点日期区间Schema
 // =====================================================================================================================
 // region Entrypoint Period Schema
@@ -575,6 +430,7 @@ export const SyncEntrypointsSchema = z.object({
   clear_locked: z.boolean().default(false).describe('重置锁定信息'),
   clear_paused: z.boolean().default(false).describe('重置暂停信息'),
   clear_spider_tasks: z.boolean().default(false).describe('重置爬虫任务信息'),
+  only_clear: z.boolean().default(false).describe('仅清理缓存，不重写数据'),
 })
 
 /**

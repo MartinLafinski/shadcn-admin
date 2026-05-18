@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 // 路由
 import { getRouteApi } from '@tanstack/react-router'
 // 图标
-import { SearchIcon, XIcon, ChevronsUpDownIcon } from 'lucide-react'
+import { SearchIcon, XIcon } from 'lucide-react'
 // 可用性标签
 import {
   enableLabels,
@@ -18,13 +18,6 @@ import { cn } from '@/lib/utils.ts'
 import { ButtonGroup } from '@/components/ui/button-group.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-// 下拉菜单控件
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu.tsx'
 // 输入框组控件
 import {
   InputGroup,
@@ -32,6 +25,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from '@/components/ui/input-group.tsx'
+import { FilterDropdown } from '@/components/smart/filter-dropdown'
 // 获取网站数据
 import { useWebsitesSearch, useWebsitesActions } from '../websites-provider.tsx'
 
@@ -41,52 +35,6 @@ const route = getRouteApi('/_authenticated/websites/')
 const DEFAULT_PAGE_SIZE: number = Number(
   import.meta.env.VITE_WEBSITE_PAGE_SIZE || 50
 )
-
-/**
- * 筛选下拉菜单组件
- */
-const FilterDropdown = ({
-  options,
-  value,
-  onChange,
-  placeholder,
-}: {
-  options: typeof enableLabels
-  value: boolean | undefined
-  onChange: (value: boolean | undefined) => void
-  placeholder: string
-}) => {
-  const selectedOption = options.find((o) => o.value === value)
-  const label = selectedOption ? selectedOption.label : placeholder
-
-  return (
-    <InputGroupAddon align='inline-start'>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <InputGroupButton
-            variant='ghost'
-            className={cn('-ml-2 !pr-1.5 text-sm', selectedOption?.className)}
-          >
-            {label} <ChevronsUpDownIcon className='size-3' />
-          </InputGroupButton>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='start' className='[--radius:0.95rem]'>
-          <DropdownMenuItem onClick={() => onChange(undefined)}>
-            所有
-          </DropdownMenuItem>
-          {options.map((item) => (
-            <DropdownMenuItem
-              key={item.value.toString()}
-              onClick={() => onChange(item.value as boolean)}
-            >
-              {item.label} <item.icon />
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </InputGroupAddon>
-  )
-}
 
 /**
  * 网站搜索组件
@@ -267,28 +215,28 @@ export function Search({ className = '' }: SearchProps) {
             options={enableLabels}
             value={enabledValue}
             onChange={setEnabledValue}
-            placeholder='可用选项'
+            placeholder='可用?'
           />
 
           <FilterDropdown
             options={lockedLabels}
             value={lockedValue}
             onChange={setLockedValue}
-            placeholder='锁定选项'
+            placeholder='锁定?'
           />
 
           <FilterDropdown
             options={pausedLabels}
             value={pausedValue}
             onChange={setPausedValue}
-            placeholder='运转选项'
+            placeholder='运转?'
           />
 
           <FilterDropdown
             options={limitedLabels}
             value={limitedValue}
             onChange={setLimitedValue}
-            placeholder='受限选项'
+            placeholder='受限?'
           />
 
           {/* 关键词输入框 - 支持输入网站名称、标识或URL进行搜索 */}

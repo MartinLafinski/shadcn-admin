@@ -295,7 +295,7 @@ function AuthLayout() {
             }}
             contentProps={{ side: 'top', align: 'end', className: 'w-auto' }}
           >
-            欢迎登录智蛛系统 <br />
+            欢迎登录觅蜂系统 <br />
             返回{' '}
             <Link
               to='/'

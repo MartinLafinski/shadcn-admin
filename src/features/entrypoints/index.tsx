@@ -1,5 +1,5 @@
 // 引入依赖
-import React, { memo } from 'react'
+import { memo } from 'react'
 // 路由
 import { getRouteApi } from '@tanstack/react-router'
 // 配置抽屉组件
@@ -10,7 +10,6 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 // 日/夜主题切换组件
 import { ThemeSwitch } from '@/components/theme-switch'
-// import { WebsitesProvider } from '@/features/websites/components/websites-provider'
 // 用户按钮组件
 import { UserMenu } from '@/components/user-menu'
 // 入口点查询
@@ -22,10 +21,7 @@ import { Search } from './components/actions/entrypoints-search-actions.tsx'
 // 入口点管理对话框
 import { EntrypointsDialogs } from './components/entrypoints-dialogs'
 // 入口点管理提供者
-import {
-  EntrypointsProvider,
-  useEntrypointsActions,
-} from './components/entrypoints-provider'
+import { EntrypointsProvider } from './components/entrypoints-provider'
 // 表格组件
 import { EntrypointsTable } from './components/entrypoints-table.tsx'
 
@@ -35,7 +31,6 @@ const route = getRouteApi('/_authenticated/entrypoints/')
 // 记忆化静态布局组件，防止主内容重渲染时它们也跟着重渲染
 const MemoizedHeader = memo(Header)
 const MemoizedMain = memo(Main)
-const MemoizedEntrypointsPrimaryActions = memo(EntrypointsPrimaryActions)
 
 /**
  * 入口点管理页面内容组件
@@ -103,10 +98,6 @@ function EntrypointsContent() {
       {/* ===== 页面头部区域 ===== */}
       {/* fixed=true 表示头部固定在页面顶部 */}
       <MemoizedHeader fixed={true}>
-        {/* 可选的顶部导航栏（当前被注释） */}
-        {/*<TopNav links={topNav} />*/}
-
-        {/* 搜索组件，用于关键词搜索和筛选 */}
         <Search />
 
         {/* 右侧操作区域，包含主题切换、配置抽屉和用户菜单 */}
@@ -119,7 +110,6 @@ function EntrypointsContent() {
 
           {/* 用户按钮，显示用户信息和账户操作菜单 */}
           <UserMenu />
-          {/*<button onClick={handleGetToken}>获取 JWT 令牌</button>*/}
         </div>
       </MemoizedHeader>
 
@@ -137,7 +127,7 @@ function EntrypointsContent() {
           </div>
 
           {/* 主要操作按钮，如新建入口点等 */}
-          <MemoizedEntrypointsPrimaryActions />
+          <EntrypointsPrimaryActions />
         </div>
 
         {/* 入口点列表表格组件 */}
@@ -183,9 +173,6 @@ export function Entrypoints() {
   return (
     <EntrypointsProvider>
       <EntrypointsContent />
-      {/*<WebsitesProvider>*/}
-      {/*  <EntrypointsContent />*/}
-      {/*</WebsitesProvider>*/}
     </EntrypointsProvider>
   )
 }

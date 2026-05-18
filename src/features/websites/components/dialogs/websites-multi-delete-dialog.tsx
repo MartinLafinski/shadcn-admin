@@ -107,6 +107,7 @@ export function WebsitesMultiDeleteDialog<TData>({
         setValue('')
 
         // 记录错误日志和显示错误提示
+        // eslint-disable-next-line no-console
         console.error('批量删除网站失败:', error)
         toast.error('批量删除网站失败')
       })
@@ -130,7 +131,7 @@ export function WebsitesMultiDeleteDialog<TData>({
       desc={
         <div className='space-y-4'>
           <p className='mb-2'>
-            您确定要删除选中的任务吗？
+            您确定要删除选中的网站吗？
             <br />
             此操作无法撤销。
           </p>

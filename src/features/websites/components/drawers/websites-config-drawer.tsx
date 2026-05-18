@@ -8,7 +8,6 @@ import { useTheme } from '@/context/theme-provider.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   ConfigSheet,
-  useConfigSheet,
   ConfigReadmeField,
   ConfigJsonField,
   useConfigConflict,
@@ -38,7 +37,6 @@ function WebsiteConfigDrawerContent({
     useWebsiteQuery(currentRow?.website_id || 0)
 
   const { resolvedTheme } = useTheme()
-  const { showContent } = useConfigSheet()
 
   const configWebsiteMutation = usePatchWebsiteMutation()
 
@@ -129,63 +127,65 @@ function WebsiteConfigDrawerContent({
       form={form}
       onSubmit={onSubmit}
     >
-      <Tabs defaultValue='raw' className='flex h-full flex-col'>
-        <TabsList
-          className={cn(
-            'grid w-full grid-cols-[repeat(auto-fit,minmax(0,1fr))]',
-            !hasCommonTab && !hasSelfTab && 'hidden'
-          )}
-        >
+      {({ showContent }) => (
+        <Tabs defaultValue='raw' className='flex h-full flex-col'>
+          <TabsList
+            className={cn(
+              'grid w-full grid-cols-[repeat(auto-fit,minmax(0,1fr))]',
+              !hasCommonTab && !hasSelfTab && 'hidden'
+            )}
+          >
+            {hasCommonTab && (
+              <TabsTrigger value='common'>网站通用参数</TabsTrigger>
+            )}
+            {hasSelfTab && <TabsTrigger value='self'>网站自用参数</TabsTrigger>}
+            <TabsTrigger value='raw'>原始配置与说明</TabsTrigger>
+          </TabsList>
+
           {hasCommonTab && (
-            <TabsTrigger value='common'>网站通用参数</TabsTrigger>
+            <TabsContent value='common' className='flex-1 overflow-auto'>
+              {showContent && (
+                <ParamFormRenderer
+                  paramFormData={commonParamFormQuery.data!}
+                  formData={commonFormData}
+                  onChange={handleCommonChange}
+                />
+              )}
+            </TabsContent>
           )}
-          {hasSelfTab && <TabsTrigger value='self'>网站自用参数</TabsTrigger>}
-          <TabsTrigger value='raw'>原始配置与说明</TabsTrigger>
-        </TabsList>
 
-        {hasCommonTab && (
-          <TabsContent value='common' className='flex-1 overflow-auto'>
+          {hasSelfTab && (
+            <TabsContent value='self' className='flex-1 overflow-auto'>
+              {showContent && (
+                <ParamFormRenderer
+                  paramFormData={selfParamFormQuery.data!}
+                  formData={selfFormData}
+                  onChange={handleSelfChange}
+                />
+              )}
+            </TabsContent>
+          )}
+
+          <TabsContent value='raw' className='flex-1 space-y-6 overflow-auto'>
             {showContent && (
-              <ParamFormRenderer
-                paramFormData={commonParamFormQuery.data!}
-                formData={commonFormData}
-                onChange={handleCommonChange}
-              />
+              <div className='mt-4 space-y-6'>
+                <ConfigReadmeField
+                  form={form}
+                  name='website_readme'
+                  label='网站说明 (Markdown)'
+                  resolvedTheme={resolvedTheme}
+                />
+                <ConfigJsonField
+                  form={form}
+                  name='website_config'
+                  label='网站配置 (JSON)'
+                  resolvedTheme={resolvedTheme}
+                />
+              </div>
             )}
           </TabsContent>
-        )}
-
-        {hasSelfTab && (
-          <TabsContent value='self' className='flex-1 overflow-auto'>
-            {showContent && (
-              <ParamFormRenderer
-                paramFormData={selfParamFormQuery.data!}
-                formData={selfFormData}
-                onChange={handleSelfChange}
-              />
-            )}
-          </TabsContent>
-        )}
-
-        <TabsContent value='raw' className='flex-1 space-y-6 overflow-auto'>
-          {showContent && (
-            <div className='mt-4 space-y-6'>
-              <ConfigReadmeField
-                form={form}
-                name='website_readme'
-                label='网站说明 (Markdown)'
-                resolvedTheme={resolvedTheme}
-              />
-              <ConfigJsonField
-                form={form}
-                name='website_config'
-                label='网站配置 (JSON)'
-                resolvedTheme={resolvedTheme}
-              />
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+        </Tabs>
+      )}
     </ConfigSheet>
   )
 }

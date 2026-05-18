@@ -13,7 +13,6 @@ import type {
   EntrypointsData,
   EntrypointSwitchData,
   EntrypointUpdateData,
-  EntrypointSpiderConfigData,
   EntrypointPeriodData,
   EntrypointBatchLockData,
   EntrypointBatchPauseData,
@@ -1338,10 +1337,14 @@ export const useBatchPauseEntrypointsMutation = () => {
  * - 此操作会调用 syncEntrypoints API 函数，向后端发起同步请求
  */
 export const useSyncEntrypointsMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (data: SyncEntrypointsData) => {
       const token = getAccessToken()
       return syncEntrypoints(token, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
     },
   })
 }
@@ -1602,61 +1605,6 @@ export const useBatchDeleteEntrypointsMutation = () => {
 }
 
 /**
- * 获取入口点爬虫配置
- *
- * 此函数用于从后端API获取指定入口点的爬虫配置信息
- *
- * @param entrypointId - 入口点ID
- * @param token - 鉴权token
- * @returns Promise<EntrypointSpiderConfigData> - 返回爬虫配置数据
- */
-export const fetchEntrypointSpiderConfig = async (
-  entrypointId: number,
-  token: string | null
-): Promise<EntrypointSpiderConfigData> => {
-  const response = await fetch(
-    `${API_BASE_URL}/entrypoints/${entrypointId}/config/`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  )
-  await handleResponse(response)
-  return response.json()
-}
-
-/**
- * 更新入口点爬虫配置
- *
- * 此函数用于更新指定入口点的爬虫配置信息
- *
- * @param entrypointId - 入口点ID
- * @param data - 爬虫配置数据
- * @param token - 鉴权token
- * @returns Promise<EntrypointData> - 返回更新后的入口点数据
- */
-export const updateEntrypointSpiderConfig = async (
-  entrypointId: number,
-  data: EntrypointSpiderConfigData,
-  token: string | null
-): Promise<EntrypointData> => {
-  const response = await fetch(
-    `${API_BASE_URL}/entrypoints/${entrypointId}/config/`,
-    {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    }
-  )
-  await handleResponse(response)
-  return response.json()
-}
-
-/**
  * 更新入口点日期区间
  *
  * 此函数用于更新指定入口点的日期区间
@@ -1684,52 +1632,6 @@ export const updateEntrypointPeriod = async (
   )
   await handleResponse(response)
   return response
-}
-
-/**
- * 获取入口点爬虫配置的自定义 Hook
- *
- * @param entrypointId - 入口点ID
- * @returns 返回 useQuery 的结果对象
- */
-export const useEntrypointSpiderConfigQuery = (entrypointId: number) => {
-  return useQuery({
-    queryKey: ['entrypoint', entrypointId, 'config'],
-    queryFn: async () => {
-      const token = getAccessToken()
-      return fetchEntrypointSpiderConfig(entrypointId, token)
-    },
-    enabled: !!entrypointId,
-  })
-}
-
-/**
- * 更新入口点爬虫配置的自定义 Mutation Hook
- *
- * @returns 返回 useMutation 的结果对象
- */
-export const useUpdateEntrypointSpiderConfigMutation = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (variables: {
-      entrypointId: number
-      data: EntrypointSpiderConfigData
-    }) => {
-      const token = getAccessToken()
-      return updateEntrypointSpiderConfig(
-        variables.entrypointId,
-        variables.data,
-        token
-      )
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ['entrypoint', variables.entrypointId, 'config'],
-      })
-      queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
-    },
-  })
 }
 
 /**

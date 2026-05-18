@@ -15,10 +15,7 @@ import { type EntrypointItemData } from '../data/schemas'
  * - 'create': 创建入口点对话框 - 用于添加新的入口点记录
  * - 'update': 更新入口点对话框 - 用于修改现有的入口点信息
  * - 'delete': 删除入口点对话框 - 用于确认删除入口点操作
- * - 'export': 导入入口点对话框 - 用于批量导入入口点数据
- * - 'configInfo': 入口点配置信息对话框 - 用于查看入口点配置详情
  * - 'config': 入口点配置对话框 - 用于编辑入口点的配置信息
- * - 'configSpider': 爬虫配置对话框 - 用于编辑入口点的爬虫配置
  * - 'period': 日期区间对话框 - 用于编辑入口点的日期区间
  * - 'viewWebsite': 查看网站对话框 - 用于查看关联网站的详细信息
  * - 'viewIndustry': 查看行业对话框 - 用于查看关联行业的详细信息
@@ -28,13 +25,10 @@ type EntrypointsDialogType =
   | 'create'
   | 'update'
   | 'delete'
-  | 'export'
-  | 'configInfo'
   | 'config'
   | 'viewWebsite'
   | 'viewIndustry'
   | 'viewEntrypoint'
-  | 'configSpider'
   | 'period'
   | 'createPrejob'
   | 'sync'

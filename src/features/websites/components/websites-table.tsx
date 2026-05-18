@@ -194,12 +194,20 @@ const WebsitesTableComponent = ({
   // 全局过滤状态：用于跨多列的 OR 搜索
   const [globalFilter, setGlobalFilter] = useState('')
   // 固定列样式计算函数
-  const pinningStyles = React.useCallback(
-    (column: Column<WebsiteData>): PinningStyles => {
-      return getPinningStyles(column, pinnedLeftIds, pinnedRightIds)
-    },
-    [pinnedLeftIds, pinnedRightIds]
-  )
+  // 修复记录：原 useCallback 包装导致 pinningStyles 引用始终不变，配合 React.memo
+  // 的 WebsiteTableRow 会阻止列显示切换后表格体单元格的重渲染（仅表头更新）。
+  // 原因：TanStack Table 在仅 columnVisibility 变化时 Row 对象引用可能不变，
+  // memo 浅比较所有 props 均相等则跳过渲染，row.getVisibleCells() 不被调用。
+  // 改为普通函数后，每次渲染引用不同，memo 正确触发重渲染修复此 bug。
+  // const pinningStyles = React.useCallback(
+  //   (column: Column<WebsiteData>): PinningStyles => {
+  //     return getPinningStyles(column, pinnedLeftIds, pinnedRightIds)
+  //   },
+  //   [pinnedLeftIds, pinnedRightIds]
+  // )
+  function pinningStyles(column: Column<WebsiteData>): PinningStyles {
+    return getPinningStyles(column, pinnedLeftIds, pinnedRightIds)
+  }
 
   // 创建 TanStack Table 实例
   // 通过配置各种模型和状态来实现数据表格的功能
@@ -230,8 +238,6 @@ const WebsitesTableComponent = ({
           .includes(filterValue.toLowerCase())
       })
     },
-    // 设置状态变更处理函数
-    // onColumnPinningChange: setColumnPinning,
     onSortingChange: setSorting, // 排序状态变更时的回调
     onColumnFiltersChange: setColumnFilters, // 过滤状态变更时的回调
     onColumnVisibilityChange: setColumnVisibility, // 列可见性变更时的回调
@@ -363,6 +369,7 @@ const WebsitesTableComponent = ({
             </Button>
           </div>
         }
+        storageKey='websites-column-vis'
       />
 
       {/* 表格容器，添加边框和圆角 */}

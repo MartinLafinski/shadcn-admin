@@ -1,28 +1,10 @@
 // 表格列
 import { type ColumnDef } from '@tanstack/react-table'
 // 图标
-import {
-  HelpCircleIcon,
-  CirclePileIcon,
-  MessageSquareMoreIcon,
-  NewspaperIcon,
-  NotebookTextIcon,
-  FileTextIcon,
-  GavelIcon,
-  HandCoinsIcon,
-  PackageIcon,
-  Building2Icon,
-  StoreIcon,
-  HandshakeIcon,
-  ImageIcon,
-  ClapperboardIcon,
-  FoldersIcon,
-  NetworkIcon,
-  ListTodoIcon,
-  UtensilsIcon,
-} from 'lucide-react'
+import { ListTodoIcon } from 'lucide-react'
+// 采料类型字典
+import { materialDictionary } from '@/lib/labels.tsx'
 import { DatetimeCell } from '@/components/smart/cells/datetime-cell'
-// 启用状态单元格
 import { EntityEnabledStatusCell } from '@/components/smart/cells/entity-enabled-status-cell'
 // 实体ID单元格
 import { EntityIdCell } from '@/components/smart/cells/entity-id-cell'
@@ -56,6 +38,8 @@ import { EntrypointMiniItemCell } from '@/components/smart/cells/entrypoint-mini
 import { IndustryCell } from '@/components/smart/cells/industry-cell.tsx'
 // 材料类型单元格
 import { MaterialCell } from '@/components/smart/cells/material-cell.tsx'
+// 参数要素单元格
+import { ParamFormMiniItemCell } from '@/components/smart/cells/param-form-mini-item-cell'
 // URL 单元格
 import { UrlCell } from '@/components/smart/cells/url-cell.tsx'
 // 网站迷你信息单元格
@@ -70,7 +54,7 @@ import { type IndustryItemData } from '@/features/industries/data/schemas'
 import { EntrypointsRowActions } from './actions/entrypoints-row-actions.tsx'
 // 启用状态切换控件
 import { EntrypointEnabledSwitch } from './cells/entrypoint-enabled-switch'
-import { useEntrypoints } from './entrypoints-provider'
+import { useEntrypointsActions } from './entrypoints-provider'
 
 /**
  * 入口点列表表格列定义
@@ -118,7 +102,20 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     id: 'entrypoint_name',
     accessorKey: 'entrypoint_name',
     header: '入口点名称',
-    cell: ({ row }) => <EntrypointMiniItemCell entrypoint={row.original} />,
+    cell: ({ row }) => {
+      const { setOpen, setCurrentRow } = useEntrypointsActions()
+      return (
+        <div
+          onClick={() => {
+            setCurrentRow(row.original)
+            setOpen('viewEntrypoint')
+          }}
+          className='cursor-pointer'
+        >
+          <EntrypointMiniItemCell entrypoint={row.original} />
+        </div>
+      )
+    },
     size: 200,
   },
   /**
@@ -139,9 +136,20 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     id: 'website',
     accessorKey: 'website',
     header: '所属网站',
-    cell: ({ row }) => (
-      <WebsiteMiniItemCell website={row.original.website} asLink={true} />
-    ),
+    cell: ({ row }) => {
+      const entrypoint = row.original
+      const { setOpen, setCurrentRow } = useEntrypointsActions()
+      return (
+        <WebsiteMiniItemCell
+          website={row.original.website}
+          asLink={true}
+          onClick={() => {
+            setCurrentRow(entrypoint) // 设置当前选中的行数据
+            setOpen('viewWebsite') // 打开查看网站信息对话框
+          }}
+        />
+      )
+    },
     size: 200,
   },
 
@@ -154,7 +162,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => {
       const industry = row.getValue('industry') as IndustryItemData | null
       const entrypoint = row.original
-      const { setOpen, setCurrentRow } = useEntrypoints()
+      const { setOpen, setCurrentRow } = useEntrypointsActions()
       return (
         <IndustryCell
           industry={industry}
@@ -198,21 +206,6 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
       />
     ),
     size: 60,
-    meta: {
-      className: 'border-r-1',
-    },
-  },
-
-  /**
-   * 入口点URL列 - 显示入口点的访问地址
-   * 如果存在URL则渲染为可点击的链接，否则显示占位符
-   */
-  {
-    accessorKey: 'entrypoint_url',
-    header: 'URL',
-    cell: ({ row }) => <UrlCell url={row.getValue('entrypoint_url')} />,
-    size: 320,
-    maxSize: 320,
     meta: {
       className: 'border-r-1',
     },
@@ -312,15 +305,15 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
   {
     id: 'total_material_count',
     accessorKey: 'total_material_count',
-    header: '材料',
+    header: '总采料',
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/index'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='total_material_count'
-        icon={CirclePileIcon}
-        className='bg-stone-100 dark:bg-stone-700'
+        icon={materialDictionary.all.icon}
+        className={materialDictionary.all.className}
       />
     ),
     size: 60,
@@ -335,11 +328,11 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/subs'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_subs_count'
-        icon={NetworkIcon}
-        className='bg-stone-100 dark:bg-stone-300/70 dark:text-stone-800'
+        icon={materialDictionary.subs.icon}
+        className={materialDictionary.subs.className}
       />
     ),
     size: 60,
@@ -358,11 +351,11 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/unknown'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_unknown_count'
-        icon={HelpCircleIcon}
-        className='bg-yellow-100 text-yellow-900 dark:bg-yellow-400/70 dark:text-yellow-900'
+        icon={materialDictionary.unknown.icon}
+        className={materialDictionary.unknown.className}
       />
     ),
     size: 60,
@@ -377,11 +370,11 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/customize'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_customize_count'
-        icon={UtensilsIcon}
-        className='bg-yellow-100 text-yellow-900 dark:bg-yellow-200/70 dark:text-yellow-900'
+        icon={materialDictionary.customize.icon}
+        className={materialDictionary.customize.className}
       />
     ),
     size: 60,
@@ -400,11 +393,11 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/speech'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_speech_count'
-        icon={MessageSquareMoreIcon}
-        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-400/70 dark:text-cyan-900'
+        icon={materialDictionary.speech.icon}
+        className={materialDictionary.speech.className}
       />
     ),
     size: 60,
@@ -419,11 +412,11 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/news'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_news_count'
-        icon={NewspaperIcon}
-        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-300/70 dark:text-cyan-900'
+        icon={materialDictionary.news.icon}
+        className={materialDictionary.news.className}
       />
     ),
     size: 60,
@@ -438,11 +431,11 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/note'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_note_count'
-        icon={NotebookTextIcon}
-        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-200/70 dark:text-cyan-900'
+        icon={materialDictionary.note.icon}
+        className={materialDictionary.note.className}
       />
     ),
     size: 60,
@@ -458,18 +451,41 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/article'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_article_count'
-        icon={FileTextIcon}
-        className='bg-cyan-100 text-cyan-900 dark:bg-cyan-100/70 dark:text-cyan-900'
+        icon={materialDictionary.article.icon}
+        className={materialDictionary.article.className}
+      />
+    ),
+    size: 60,
+    meta: {
+      className: 'border-r-1',
+    },
+  },
+
+  /**
+   * 书料数量列
+   */
+  {
+    id: 'material_book_count',
+    accessorKey: 'material_book_count',
+    header: '书料',
+    cell: ({ row }) => (
+      <EntityMaterialCountCell
+        entity={row.original}
+        linkTo='/material/book'
+        linkSearch={{ website_id: row.original.website_id }}
+        countKey='material_book_count'
+        icon={materialDictionary.book.icon}
+        className={materialDictionary.book.className}
       />
     ),
     size: 60,
   },
 
   /**
-   * 标料数量列 - 显示网站下标料数量
+   * 标料数量列
    */
   {
     id: 'material_bid_count',
@@ -478,19 +494,19 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/bid'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_bid_count'
-        icon={GavelIcon}
-        className='bg-rose-100 text-rose-900 dark:bg-rose-200/70 dark:text-rose-900'
+        icon={materialDictionary.bid.icon}
+        className={materialDictionary.bid.className}
       />
     ),
     size: 60,
+    meta: {
+      className: 'border-r-1',
+    },
   },
 
-  /**
-   * 贸料数量列 - 显示网站下贸料数量
-   */
   {
     id: 'material_trade_count',
     accessorKey: 'material_trade_count',
@@ -498,19 +514,16 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/trade'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_trade_count'
-        icon={HandCoinsIcon}
-        className='bg-lime-100 text-lime-900 dark:bg-lime-400/70 dark:text-lime-900'
+        icon={materialDictionary.trade.icon}
+        className={materialDictionary.trade.className}
       />
     ),
     size: 60,
   },
 
-  /**
-   * 产料数量列 - 显示网站下产料数量
-   */
   {
     id: 'material_product_count',
     accessorKey: 'material_product_count',
@@ -518,39 +531,33 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/product'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_product_count'
-        icon={PackageIcon}
-        className='bg-lime-100 text-lime-900 dark:bg-lime-300/70 dark:text-lime-900'
+        icon={materialDictionary.product.icon}
+        className={materialDictionary.product.className}
       />
     ),
     size: 60,
   },
 
-  /**
-   * 司料数量列 - 显示网站下司料数量
-   */
   {
     id: 'material_company_count',
     accessorKey: 'material_company_count',
-    header: '司料',
+    header: '企料',
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/company'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_company_count'
-        icon={Building2Icon}
-        className='bg-lime-100 text-lime-900 dark:bg-lime-200/70 dark:text-lime-900'
+        icon={materialDictionary.company.icon}
+        className={materialDictionary.company.className}
       />
     ),
     size: 60,
   },
 
-  /**
-   * 店料数量列 - 显示网站下店料数量
-   */
   {
     id: 'material_shop_count',
     accessorKey: 'material_shop_count',
@@ -558,19 +565,19 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/shop'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_shop_count'
-        icon={StoreIcon}
-        className='bg-lime-100 text-lime-900 dark:bg-lime-100/70 dark:text-lime-900'
+        icon={materialDictionary.shop.icon}
+        className={materialDictionary.shop.className}
       />
     ),
     size: 60,
+    meta: {
+      className: 'border-r-1',
+    },
   },
 
-  /**
-   * 聘料数量列 - 显示网站下聘料数量
-   */
   {
     id: 'material_recruit_count',
     accessorKey: 'material_recruit_count',
@@ -578,19 +585,36 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/recruit'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_recruit_count'
-        icon={HandshakeIcon}
-        className='bg-indigo-100 text-indigo-900 dark:bg-indigo-300/70 dark:text-indigo-900'
+        icon={materialDictionary.recruit.icon}
+        className={materialDictionary.recruit.className}
       />
     ),
     size: 60,
   },
 
-  /**
-   * 图料数量列 - 显示网站下图料数量
-   */
+  {
+    id: 'material_account_count',
+    accessorKey: 'material_account_count',
+    header: '户料',
+    cell: ({ row }) => (
+      <EntityMaterialCountCell
+        entity={row.original}
+        linkTo='/material/account'
+        linkSearch={{ website_id: row.original.website_id }}
+        countKey='material_account_count'
+        icon={materialDictionary.account.icon}
+        className={materialDictionary.account.className}
+      />
+    ),
+    size: 60,
+    meta: {
+      className: 'border-r-1',
+    },
+  },
+
   {
     id: 'material_image_count',
     accessorKey: 'material_image_count',
@@ -598,19 +622,33 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/image'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_image_count'
-        icon={ImageIcon}
-        className='bg-green-100 text-green-900 dark:bg-green-300/70 dark:text-green-900'
+        icon={materialDictionary.image.icon}
+        className={materialDictionary.image.className}
       />
     ),
     size: 60,
   },
 
-  /**
-   * 影料数量列 - 显示网站下影料数量
-   */
+  {
+    id: 'material_audio_count',
+    accessorKey: 'material_audio_count',
+    header: '音料',
+    cell: ({ row }) => (
+      <EntityMaterialCountCell
+        entity={row.original}
+        linkTo='/material/audio'
+        linkSearch={{ website_id: row.original.website_id }}
+        countKey='material_audio_count'
+        icon={materialDictionary.audio.icon}
+        className={materialDictionary.audio.className}
+      />
+    ),
+    size: 60,
+  },
+
   {
     id: 'material_video_count',
     accessorKey: 'material_video_count',
@@ -618,19 +656,19 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/video'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_video_count'
-        icon={ClapperboardIcon}
-        className='bg-green-100 text-green-900 dark:bg-green-100/70 dark:text-green-900'
+        icon={materialDictionary.video.icon}
+        className={materialDictionary.video.className}
       />
     ),
     size: 60,
+    meta: {
+      className: 'border-r-1',
+    },
   },
 
-  /**
-   * 资料数量列 - 显示网站下资料数量
-   */
   {
     id: 'material_file_count',
     accessorKey: 'material_file_count',
@@ -638,14 +676,98 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityMaterialCountCell
         entity={row.original}
-        linkTo='/entrypoints'
+        linkTo='/material/file'
         linkSearch={{ website_id: row.original.website_id }}
         countKey='material_file_count'
-        icon={FoldersIcon}
-        className='bg-orange-100 text-orange-900 dark:bg-orange-200/70 dark:text-orange-900'
+        icon={materialDictionary.file.icon}
+        className={materialDictionary.file.className}
       />
     ),
     size: 60,
+    meta: {
+      className: 'border-r-1',
+    },
+  },
+
+  /**
+   * 入口点URL列 - 显示入口点的访问地址
+   * 如果存在URL则渲染为可点击的链接，否则显示占位符
+   */
+  {
+    accessorKey: 'entrypoint_url',
+    header: 'URL',
+    cell: ({ row }) => <UrlCell url={row.getValue('entrypoint_url')} />,
+    size: 320,
+    maxSize: 320,
+    meta: {
+      className: 'border-r-1',
+    },
+  },
+
+  /**
+   * 网站指定入口点参数要素包列
+   */
+  {
+    id: 'param_form_website_entrypoint',
+    accessorKey: 'param_form_website_entrypoint',
+    header: '网站指定入口要素包',
+    cell: ({ row }) => (
+      <ParamFormMiniItemCell
+        entity={row.original.param_form_website_entrypoint}
+        asLink={true}
+      />
+    ),
+    size: 160,
+  },
+
+  /**
+   * 行业指定入口点参数要素包列
+   */
+  {
+    id: 'param_form_industry_entrypoint',
+    accessorKey: 'param_form_industry_entrypoint',
+    header: '行业指定入口要素包',
+    cell: ({ row }) => (
+      <ParamFormMiniItemCell
+        entity={row.original.param_form_industry_entrypoint}
+        asLink={true}
+      />
+    ),
+    size: 160,
+  },
+
+  /**
+   * 自用参数要素包列
+   */
+  {
+    id: 'entrypoint_self_param_slug',
+    accessorKey: 'entrypoint_self_param_slug',
+    header: '入口自用要素包',
+    cell: ({ row }) => (
+      <ParamFormMiniItemCell
+        entity={row.original.param_form_self}
+        asLink={true}
+      />
+    ),
+    size: 160,
+  },
+  /**
+   * 指定预备作业参数要素包列
+   */
+  {
+    id: 'entrypoint_prejob_param_slug',
+    accessorKey: 'entrypoint_prejob_param_slug',
+    header: '入口预备作业要素包',
+    cell: ({ row }) => (
+      <ParamFormMiniItemCell
+        entity={row.original.param_form_prejob}
+        asLink={true}
+      />
+    ),
+    size: 160,
+    meta: {
+      className: 'border-r-1',
+    },
   },
 
   /**
@@ -687,6 +809,9 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     accessorKey: 'created_at',
     header: '创建时间',
     cell: ({ row }) => <DatetimeCell value={row.getValue('created_at')} />,
+    meta: {
+      className: 'text-center',
+    },
   },
   /**
    * 更新时间列
@@ -731,7 +856,8 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
    */
   {
     id: 'actions',
-    enableHiding: false, // 操作列不允许隐藏
+    enableHiding: false,
+    header: '操作',
     cell: ({ row }) => <EntrypointsRowActions row={row} />,
     size: 54,
     maxSize: 54,

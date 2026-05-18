@@ -1,305 +1,262 @@
-// 引入依赖
-import React, { useState, useEffect } from 'react'
-// 导入表单库
+import React from 'react'
 import { useForm } from 'react-hook-form'
-// 数据验证库
 import { zodResolver } from '@hookform/resolvers/zod'
-// 用于同步后台数据
 import { useQueryClient } from '@tanstack/react-query'
-// 代码json插件
-import { json } from '@codemirror/lang-json'
-import { EditorView } from '@codemirror/view'
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
-// 代码编辑器
-import CodeMirror from '@uiw/react-codemirror'
-// Markdown编辑器
-import MDEditor from '@uiw/react-md-editor'
-// JSON编辑器
-import { JsonEditor, githubDarkTheme, githubLightTheme } from 'json-edit-react'
-// 显示提交数据
-// import { showSubmittedData } from '@/lib/show-submitted-data.tsx'
-// 图标
-import { Maximize2Icon, Minimize2Icon } from 'lucide-react'
-// 操作结果提示框
 import { toast } from 'sonner'
-// 日/夜主题
+import { cn } from '@/lib/utils'
 import { useTheme } from '@/context/theme-provider.tsx'
-// 按钮控件
-import { Button } from '@/components/ui/button.tsx'
-// 表单控件
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form.tsx'
-// 抽屉控件
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet.tsx'
-// 配置入口点API调用
+  ConfigSheet,
+  ConfigReadmeField,
+  ConfigJsonField,
+  useConfigConflict,
+} from '@/components/smart/configs'
+import { ParamFormRenderer } from '@/components/smart/param-form-renderer'
+import { useParamFormBySlugQuery } from '../../../param-forms/api/param-forms.ts'
 import {
   usePatchEntrypointMutation,
   useEntrypointQuery,
 } from '../../api/entrypoints.ts'
-// 数据结构
 import {
   type EntrypointConfigData,
   type EntrypointItemData,
   EntrypointConfigSchema,
 } from '../../data/schemas.ts'
 
-/**
- * 入口点配置和说明抽屉组件
- * 用于配置和说明新入口点或编辑现有入口点信息
- * 包含表单验证、JSON配置编辑器和Markdown编辑器等功能
- */
 type EntrypointConfigDrawerProps = {
-  /** 控制抽屉是否打开 */
   open: boolean
-  /** 当抽屉打开状态改变时的回调函数 */
   onOpenChange: (open: boolean) => void
-  /** 当前正在编辑的入口点数据，如果为undefined则表示配置和说明新入口点 */
   currentRow?: EntrypointItemData
 }
 
-/**
- * 入口点配置和说明抽屉组件
- * 提供配置和说明或编辑入口点的表单界面
- *
- * 功能特性：
- * - 使用 react-hook-form 进行表单管理
- * - 集成 Zod 验证 schema
- * - 支持 JSON 配置编辑
- * - 支持 Markdown 文档编辑
- * - 主题适配（亮色/暗色模式）
- * - 响应式设计
- */
-export function EntrypointConfigDrawer({
+function EntrypointConfigDrawerContent({
   open,
   onOpenChange,
   currentRow,
 }: EntrypointConfigDrawerProps) {
   const queryClient = useQueryClient()
-  // 添加查询钩子
-  const {
-    data: latestEntrypoint,
-    isLoading: isLatestDataLoading,
-    refetch,
-  } = useEntrypointQuery(currentRow?.entrypoint_id || 0)
+  const { data: latestEntrypoint, isLoading: isLatestDataLoading } =
+    useEntrypointQuery(currentRow?.entrypoint_id || 0)
 
-  // 添加状态管理
-  const [, setShowConflictWarning] = useState(false)
-
-  // 检查数据一致性
-  useEffect(() => {
-    if (open && currentRow?.entrypoint_id) {
-      // 重新获取最新数据
-      refetch()
-    }
-  }, [open, currentRow?.entrypoint_id])
-
-  // 当最新数据获取完成且与当前行数据不同时，显示警告
-  useEffect(() => {
-    if (latestEntrypoint && currentRow && open && !isLatestDataLoading) {
-      const hasChanged = latestEntrypoint.updated_at !== currentRow.updated_at
-      if (hasChanged) {
-        setShowConflictWarning(true)
-        // 用最新数据更新表单
-        form.reset({
-          entrypoint_config: latestEntrypoint.entrypoint_config,
-          entrypoint_readme: latestEntrypoint.entrypoint_readme,
-        })
-        // 使入口点列表查询缓存失效，以更新表格中的数据
-        queryClient.invalidateQueries({ queryKey: ['entrypoints'] })
-      }
-    }
-  }, [latestEntrypoint, currentRow, open, isLatestDataLoading, queryClient])
-
-  // 获取当前主题（用于JSON编辑器和MD编辑器主题适配）
   const { resolvedTheme } = useTheme()
 
-  // 全屏状态管理
-  const [isFullscreen, setIsFullscreen] = React.useState(false)
-
-  // 初始化配置和说明入口点的mutation
   const configEntrypointMutation = usePatchEntrypointMutation()
 
-  // 初始化表单，设置验证规则和默认值
+  const commonParamFormQuery = useParamFormBySlugQuery('entrypoint_common')
+  const selfParamFormQuery = useParamFormBySlugQuery(
+    currentRow?.entrypoint_self_param_slug ?? undefined
+  )
+
+  const hasCommonTab = commonParamFormQuery.data !== undefined
+  const hasSelfTab = selfParamFormQuery.data !== undefined
+
+  const webEntrypointParamFormQuery = useParamFormBySlugQuery(
+    currentRow?.param_form_website_entrypoint?.param_form_slug ?? undefined
+  )
+  const indEntrypointParamFormQuery = useParamFormBySlugQuery(
+    currentRow?.param_form_industry_entrypoint?.param_form_slug ?? undefined
+  )
+
+  const hasWebEntrypointTab = webEntrypointParamFormQuery.data !== undefined
+  const hasIndEntrypointTab = indEntrypointParamFormQuery.data !== undefined
+
   const form = useForm<EntrypointConfigData>({
     resolver: zodResolver(EntrypointConfigSchema),
-    // 如果有currentRow则使用其值作为默认值，否则使用空值
-    defaultValues: currentRow
-      ? {
-          // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
-          entrypoint_config: currentRow.entrypoint_config,
-          // 入口点说明文档 - 使用Markdown格式的说明文档内容
-          entrypoint_readme: currentRow.entrypoint_readme,
-        }
-      : {
-          // 入口点配置对象 - 存储入口点特定配置信息的JSON对象
-          entrypoint_config: {},
-          // 入口点说明文档 - 使用Markdown格式的说明文档内容
-          entrypoint_readme: '',
-        },
+    defaultValues: currentRow ?? {
+      entrypoint_config: {},
+      entrypoint_readme: '',
+    },
   })
 
-  /**
-   * 表单提交处理函数
-   * 调用API配置和说明入口点数据
-   * @param data - 表单提交的数据
-   */
+  useConfigConflict({
+    open,
+    currentRow,
+    latestEntity: latestEntrypoint,
+    isLatestDataLoading,
+    queryKey: ['entrypoints'],
+    queryClient,
+    form,
+    resetMapper: (latest) => ({
+      entrypoint_config: latest.entrypoint_config,
+      entrypoint_readme: latest.entrypoint_readme,
+    }),
+  })
+
+  const commonFormData = form.watch('entrypoint_config')?.common ?? {}
+  const selfFormData = form.watch('entrypoint_config')?.self ?? {}
+
+  const handleCommonChange = (data: Record<string, unknown>) => {
+    const cfg = structuredClone(form.getValues('entrypoint_config') ?? {})
+    cfg.common = data
+    form.setValue('entrypoint_config', cfg, { shouldDirty: true })
+  }
+
+  const handleSelfChange = (data: Record<string, unknown>) => {
+    const cfg = structuredClone(form.getValues('entrypoint_config') ?? {})
+    cfg.self = data
+    form.setValue('entrypoint_config', cfg, { shouldDirty: true })
+  }
+
+  const webEntrypointFormData =
+    form.watch('entrypoint_config')?.website_entrypoint ?? {}
+  const indEntrypointFormData =
+    form.watch('entrypoint_config')?.industry_entrypoint ?? {}
+
+  const handleWebEntrypointChange = (data: Record<string, unknown>) => {
+    const cfg = structuredClone(form.getValues('entrypoint_config') ?? {})
+    cfg.website_entrypoint = data
+    form.setValue('entrypoint_config', cfg, { shouldDirty: true })
+  }
+
+  const handleIndEntrypointChange = (data: Record<string, unknown>) => {
+    const cfg = structuredClone(form.getValues('entrypoint_config') ?? {})
+    cfg.industry_entrypoint = data
+    form.setValue('entrypoint_config', cfg, { shouldDirty: true })
+  }
+
   const onSubmit = async (data: EntrypointConfigData) => {
-    // 确保有 currentRow 和 entrypoint_id
     if (!currentRow?.entrypoint_id) {
+      // eslint-disable-next-line no-console
       console.error('缺少入口点ID，无法配置和说明')
       return
     }
 
-    // 使用 mutation 调用 API 配置和说明入口点
     await configEntrypointMutation
       .mutateAsync({
         entrypointId: currentRow.entrypoint_id,
         data,
       })
       .then((res) => {
-        toast.success(`入口点 ${res.entrypoint_name} 说明与配置编辑成功`) // 操作成功提示
+        toast.success(`入口点 ${res.entrypoint_name} 说明与配置编辑成功`)
       })
       .catch((error) => {
+        // eslint-disable-next-line no-console
         console.error(
           `入口点 ${currentRow.entrypoint_name} 说明与配置编辑失败:`,
           error
-        ) // 记录错误日志
-        toast.error(`入口点 ${currentRow.entrypoint_name} 说明与配置编辑失败`) // 操作失败提示
+        )
+        toast.error(`入口点 ${currentRow.entrypoint_name} 说明与配置编辑失败`)
       })
 
-    // 关闭抽屉
     onOpenChange(false)
-    // 重置表单到默认状态
-    form.reset()
-    // 显示提交的数据（用于调试）
-    // showSubmittedData(data)
   }
 
   return (
-    <Sheet
+    <ConfigSheet<EntrypointConfigData>
       open={open}
-      onOpenChange={(v) => {
-        onOpenChange(v)
-        // 关闭抽屉时重置表单，确保下次打开时表单是干净的
-        form.reset()
-      }}
+      onOpenChange={onOpenChange}
+      title='配置入口点'
+      description={
+        <>
+          {currentRow?.entrypoint_name} (入口点ID:
+          {currentRow?.entrypoint_id})
+        </>
+      }
+      formId='entrypoint-config-form'
+      submitLabel='配置入口点'
+      form={form}
+      onSubmit={onSubmit}
     >
-      <SheetContent className='flex min-w-1/3 flex-col'>
-        <SheetHeader className='text-start'>
-          <SheetTitle>配置和说明入口点</SheetTitle>
-          <SheetDescription>
-            配置和说明入口点 (入口点ID:{currentRow?.entrypoint_id})
-          </SheetDescription>
-        </SheetHeader>
-        {/* 将表单与react-hook-form实例连接 */}
-        <Form {...form}>
-          <form
-            id='entrypoint-config-form'
-            onSubmit={form.handleSubmit(onSubmit)}
-            className='flex-1 space-y-6 overflow-y-auto px-4'
+      {({ showContent }) => (
+        <Tabs defaultValue='raw' className='flex h-full flex-col'>
+          <TabsList
+            className={cn(
+              'grid w-full grid-cols-[repeat(auto-fit,minmax(0,1fr))]',
+              !hasCommonTab &&
+                !hasSelfTab &&
+                !hasWebEntrypointTab &&
+                !hasIndEntrypointTab &&
+                'hidden'
+            )}
           >
-            {/* 入口点说明字段 - Markdown格式的文档内容 */}
-            <FormField
-              control={form.control}
-              name='entrypoint_readme'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>入口点说明</FormLabel>
-                  <FormControl data-color-mode={resolvedTheme}>
-                    {/* Markdown编辑器，适配主题颜色 */}
-                    <MDEditor value={field.value} onChange={field.onChange} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            {hasCommonTab && <TabsTrigger value='common'>入口通用</TabsTrigger>}
+            {hasSelfTab && <TabsTrigger value='self'>入口自用</TabsTrigger>}
+            {hasWebEntrypointTab && (
+              <TabsTrigger value='web_entrypoint'>网站指定</TabsTrigger>
+            )}
+            {hasIndEntrypointTab && (
+              <TabsTrigger value='ind_entrypoint'>行业指定</TabsTrigger>
+            )}
+            <TabsTrigger value='raw'>原始配置</TabsTrigger>
+          </TabsList>
+
+          {hasCommonTab && (
+            <TabsContent value='common' className='flex-1 overflow-auto'>
+              {showContent && (
+                <ParamFormRenderer
+                  paramFormData={commonParamFormQuery.data!}
+                  formData={commonFormData}
+                  onChange={handleCommonChange}
+                />
               )}
-            />
-            {/* 入口点配置字段 - JSON格式的配置信息 */}
-            <FormField
-              control={form.control}
-              name='entrypoint_config'
-              render={({ field }) => (
-                <FormItem
-                  className={
-                    isFullscreen
-                      ? 'fixed inset-0 z-50 m-0 flex h-screen! w-screen! flex-col overflow-hidden rounded-none border-0 bg-background'
-                      : ''
-                  }
-                >
-                  <div className='flex shrink-0 items-center justify-between'>
-                    <FormLabel>入口点配置</FormLabel>
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => setIsFullscreen(!isFullscreen)}
-                      className='h-8 w-8 p-0'
-                    >
-                      {isFullscreen ? (
-                        <Minimize2Icon className='h-4 w-4' />
-                      ) : (
-                        <Maximize2Icon className='h-4 w-4' />
-                      )}
-                    </Button>
-                  </div>
-                  <FormControl className='min-h-0 flex-1 overflow-y-auto'>
-                    {/* JSON编辑器，支持主题切换 */}
-                    <JsonEditor
-                      data={field.value}
-                      setData={field.onChange}
-                      rootFontSize={13}
-                      theme={
-                        resolvedTheme === 'light'
-                          ? githubLightTheme
-                          : githubDarkTheme
-                      }
-                      minWidth={isFullscreen ? '100%' : '100%'}
-                      maxWidth={isFullscreen ? '100%' : '100%'}
-                      TextEditor={(props) => {
-                        return (
-                          <CodeMirror
-                            {...props}
-                            theme={
-                              resolvedTheme === 'light'
-                                ? githubLight
-                                : githubDark
-                            }
-                            extensions={[json(), EditorView.lineWrapping]}
-                            height={isFullscreen ? '100%' : 'auto'}
-                            minHeight='300px'
-                          />
-                        )
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage className='shrink-0' />
-                </FormItem>
+            </TabsContent>
+          )}
+
+          {hasSelfTab && (
+            <TabsContent value='self' className='flex-1 overflow-auto'>
+              {showContent && (
+                <ParamFormRenderer
+                  paramFormData={selfParamFormQuery.data!}
+                  formData={selfFormData}
+                  onChange={handleSelfChange}
+                />
               )}
-            />
-          </form>
-        </Form>
-        <SheetFooter className='gap-2'>
-          <SheetClose asChild>
-            <Button variant='outline'>关闭</Button>
-          </SheetClose>
-          <Button form='entrypoint-config-form' type='submit'>
-            配置入口点
-          </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+            </TabsContent>
+          )}
+
+          {hasWebEntrypointTab && (
+            <TabsContent
+              value='web_entrypoint'
+              className='flex-1 overflow-auto'
+            >
+              {showContent && (
+                <ParamFormRenderer
+                  paramFormData={webEntrypointParamFormQuery.data!}
+                  formData={webEntrypointFormData}
+                  onChange={handleWebEntrypointChange}
+                />
+              )}
+            </TabsContent>
+          )}
+
+          {hasIndEntrypointTab && (
+            <TabsContent
+              value='ind_entrypoint'
+              className='flex-1 overflow-auto'
+            >
+              {showContent && (
+                <ParamFormRenderer
+                  paramFormData={indEntrypointParamFormQuery.data!}
+                  formData={indEntrypointFormData}
+                  onChange={handleIndEntrypointChange}
+                />
+              )}
+            </TabsContent>
+          )}
+
+          <TabsContent value='raw' className='flex-1 space-y-6 overflow-auto'>
+            {showContent && (
+              <div className='mt-4 space-y-6'>
+                <ConfigReadmeField
+                  form={form}
+                  name='entrypoint_readme'
+                  label='入口点说明 (Markdown)'
+                  resolvedTheme={resolvedTheme}
+                />
+                <ConfigJsonField
+                  form={form}
+                  name='entrypoint_config'
+                  label='入口点配置 (JSON)'
+                  resolvedTheme={resolvedTheme}
+                />
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
+    </ConfigSheet>
   )
 }
+
+export const EntrypointConfigDrawer = React.memo(EntrypointConfigDrawerContent)

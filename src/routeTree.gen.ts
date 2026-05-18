@@ -21,10 +21,14 @@ import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
 import { Route as AuthenticatedWebsitesIndexRouteImport } from './routes/_authenticated/websites/index'
+import { Route as AuthenticatedValidateTasksIndexRouteImport } from './routes/_authenticated/validate-tasks/index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
-import { Route as AuthenticatedTemplatesIndexRouteImport } from './routes/_authenticated/templates/index'
+import { Route as AuthenticatedTermsIndexRouteImport } from './routes/_authenticated/terms/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSpidersIndexRouteImport } from './routes/_authenticated/spiders/index'
+import { Route as AuthenticatedSpiderTasksIndexRouteImport } from './routes/_authenticated/spider-tasks/index'
+import { Route as AuthenticatedSpiderTaskRequestsIndexRouteImport } from './routes/_authenticated/spider-task-requests/index'
+import { Route as AuthenticatedSpiderTaskNotificationsIndexRouteImport } from './routes/_authenticated/spider-task-notifications/index'
 import { Route as AuthenticatedSpiderSessionsIndexRouteImport } from './routes/_authenticated/spider-sessions/index'
 import { Route as AuthenticatedSpiderPackagesIndexRouteImport } from './routes/_authenticated/spider-packages/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
@@ -33,19 +37,22 @@ import { Route as AuthenticatedServersIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedReqsIndexRouteImport } from './routes/_authenticated/reqs/index'
 import { Route as AuthenticatedPrejobsIndexRouteImport } from './routes/_authenticated/prejobs/index'
 import { Route as AuthenticatedPreTasksIndexRouteImport } from './routes/_authenticated/pre-tasks/index'
+import { Route as AuthenticatedParamModelRegisterIndexRouteImport } from './routes/_authenticated/param-model-register/index'
 import { Route as AuthenticatedParamFormsIndexRouteImport } from './routes/_authenticated/param-forms/index'
-import { Route as AuthenticatedLinksIndexRouteImport } from './routes/_authenticated/links/index'
 import { Route as AuthenticatedJobsIndexRouteImport } from './routes/_authenticated/jobs/index'
 import { Route as AuthenticatedJobgroupsIndexRouteImport } from './routes/_authenticated/jobgroups/index'
+import { Route as AuthenticatedIoTasksIndexRouteImport } from './routes/_authenticated/io-tasks/index'
 import { Route as AuthenticatedIndustriesIndexRouteImport } from './routes/_authenticated/industries/index'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
 import { Route as AuthenticatedFormBuilderIndexRouteImport } from './routes/_authenticated/form-builder/index'
 import { Route as AuthenticatedEntrypointsIndexRouteImport } from './routes/_authenticated/entrypoints/index'
+import { Route as AuthenticatedDuplicateCheckerIndexRouteImport } from './routes/_authenticated/duplicate-checker/index'
+import { Route as AuthenticatedDictionariesIndexRouteImport } from './routes/_authenticated/dictionaries/index'
 import { Route as AuthenticatedClustersIndexRouteImport } from './routes/_authenticated/clusters/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
-import { Route as AuthenticatedBlackwordsIndexRouteImport } from './routes/_authenticated/blackwords/index'
 import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authenticated/articles/index'
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
+import { Route as AuthenticatedAiTasksIndexRouteImport } from './routes/_authenticated/ai-tasks/index'
 import { Route as AuthenticatedActorsIndexRouteImport } from './routes/_authenticated/actors/index'
 import { Route as AuthenticatedAccountsIndexRouteImport } from './routes/_authenticated/accounts/index'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
@@ -136,17 +143,22 @@ const AuthenticatedWebsitesIndexRoute =
     path: '/websites/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedValidateTasksIndexRoute =
+  AuthenticatedValidateTasksIndexRouteImport.update({
+    id: '/validate-tasks/',
+    path: '/validate-tasks/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedTemplatesIndexRoute =
-  AuthenticatedTemplatesIndexRouteImport.update({
-    id: '/templates/',
-    path: '/templates/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
+const AuthenticatedTermsIndexRoute = AuthenticatedTermsIndexRouteImport.update({
+  id: '/terms/',
+  path: '/terms/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTasksIndexRoute = AuthenticatedTasksIndexRouteImport.update({
   id: '/tasks/',
   path: '/tasks/',
@@ -156,6 +168,24 @@ const AuthenticatedSpidersIndexRoute =
   AuthenticatedSpidersIndexRouteImport.update({
     id: '/spiders/',
     path: '/spiders/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSpiderTasksIndexRoute =
+  AuthenticatedSpiderTasksIndexRouteImport.update({
+    id: '/spider-tasks/',
+    path: '/spider-tasks/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSpiderTaskRequestsIndexRoute =
+  AuthenticatedSpiderTaskRequestsIndexRouteImport.update({
+    id: '/spider-task-requests/',
+    path: '/spider-task-requests/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSpiderTaskNotificationsIndexRoute =
+  AuthenticatedSpiderTaskNotificationsIndexRouteImport.update({
+    id: '/spider-task-notifications/',
+    path: '/spider-task-notifications/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedSpiderSessionsIndexRoute =
@@ -205,17 +235,18 @@ const AuthenticatedPreTasksIndexRoute =
     path: '/pre-tasks/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedParamModelRegisterIndexRoute =
+  AuthenticatedParamModelRegisterIndexRouteImport.update({
+    id: '/param-model-register/',
+    path: '/param-model-register/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedParamFormsIndexRoute =
   AuthenticatedParamFormsIndexRouteImport.update({
     id: '/param-forms/',
     path: '/param-forms/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedLinksIndexRoute = AuthenticatedLinksIndexRouteImport.update({
-  id: '/links/',
-  path: '/links/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedJobsIndexRoute = AuthenticatedJobsIndexRouteImport.update({
   id: '/jobs/',
   path: '/jobs/',
@@ -225,6 +256,12 @@ const AuthenticatedJobgroupsIndexRoute =
   AuthenticatedJobgroupsIndexRouteImport.update({
     id: '/jobgroups/',
     path: '/jobgroups/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedIoTasksIndexRoute =
+  AuthenticatedIoTasksIndexRouteImport.update({
+    id: '/io-tasks/',
+    path: '/io-tasks/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedIndustriesIndexRoute =
@@ -251,6 +288,18 @@ const AuthenticatedEntrypointsIndexRoute =
     path: '/entrypoints/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDuplicateCheckerIndexRoute =
+  AuthenticatedDuplicateCheckerIndexRouteImport.update({
+    id: '/duplicate-checker/',
+    path: '/duplicate-checker/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDictionariesIndexRoute =
+  AuthenticatedDictionariesIndexRouteImport.update({
+    id: '/dictionaries/',
+    path: '/dictionaries/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedClustersIndexRoute =
   AuthenticatedClustersIndexRouteImport.update({
     id: '/clusters/',
@@ -262,12 +311,6 @@ const AuthenticatedChatsIndexRoute = AuthenticatedChatsIndexRouteImport.update({
   path: '/chats/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedBlackwordsIndexRoute =
-  AuthenticatedBlackwordsIndexRouteImport.update({
-    id: '/blackwords/',
-    path: '/blackwords/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedArticlesIndexRoute =
   AuthenticatedArticlesIndexRouteImport.update({
     id: '/articles/',
@@ -279,6 +322,12 @@ const AuthenticatedAppsIndexRoute = AuthenticatedAppsIndexRouteImport.update({
   path: '/apps/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiTasksIndexRoute =
+  AuthenticatedAiTasksIndexRouteImport.update({
+    id: '/ai-tasks/',
+    path: '/ai-tasks/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedActorsIndexRoute =
   AuthenticatedActorsIndexRouteImport.update({
     id: '/actors/',
@@ -492,19 +541,22 @@ export interface FileRoutesByFullPath {
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/accounts': typeof AuthenticatedAccountsIndexRoute
   '/actors': typeof AuthenticatedActorsIndexRoute
+  '/ai-tasks': typeof AuthenticatedAiTasksIndexRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/articles': typeof AuthenticatedArticlesIndexRoute
-  '/blackwords': typeof AuthenticatedBlackwordsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/clusters': typeof AuthenticatedClustersIndexRoute
+  '/dictionaries': typeof AuthenticatedDictionariesIndexRoute
+  '/duplicate-checker': typeof AuthenticatedDuplicateCheckerIndexRoute
   '/entrypoints': typeof AuthenticatedEntrypointsIndexRoute
   '/form-builder': typeof AuthenticatedFormBuilderIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/industries': typeof AuthenticatedIndustriesIndexRoute
+  '/io-tasks': typeof AuthenticatedIoTasksIndexRoute
   '/jobgroups': typeof AuthenticatedJobgroupsIndexRoute
   '/jobs': typeof AuthenticatedJobsIndexRoute
-  '/links': typeof AuthenticatedLinksIndexRoute
   '/param-forms': typeof AuthenticatedParamFormsIndexRoute
+  '/param-model-register': typeof AuthenticatedParamModelRegisterIndexRoute
   '/pre-tasks': typeof AuthenticatedPreTasksIndexRoute
   '/prejobs': typeof AuthenticatedPrejobsIndexRoute
   '/reqs': typeof AuthenticatedReqsIndexRoute
@@ -513,10 +565,14 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/spider-packages': typeof AuthenticatedSpiderPackagesIndexRoute
   '/spider-sessions': typeof AuthenticatedSpiderSessionsIndexRoute
+  '/spider-task-notifications': typeof AuthenticatedSpiderTaskNotificationsIndexRoute
+  '/spider-task-requests': typeof AuthenticatedSpiderTaskRequestsIndexRoute
+  '/spider-tasks': typeof AuthenticatedSpiderTasksIndexRoute
   '/spiders': typeof AuthenticatedSpidersIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
-  '/templates': typeof AuthenticatedTemplatesIndexRoute
+  '/terms': typeof AuthenticatedTermsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/validate-tasks': typeof AuthenticatedValidateTasksIndexRoute
   '/websites': typeof AuthenticatedWebsitesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -557,19 +613,22 @@ export interface FileRoutesByTo {
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/accounts': typeof AuthenticatedAccountsIndexRoute
   '/actors': typeof AuthenticatedActorsIndexRoute
+  '/ai-tasks': typeof AuthenticatedAiTasksIndexRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/articles': typeof AuthenticatedArticlesIndexRoute
-  '/blackwords': typeof AuthenticatedBlackwordsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/clusters': typeof AuthenticatedClustersIndexRoute
+  '/dictionaries': typeof AuthenticatedDictionariesIndexRoute
+  '/duplicate-checker': typeof AuthenticatedDuplicateCheckerIndexRoute
   '/entrypoints': typeof AuthenticatedEntrypointsIndexRoute
   '/form-builder': typeof AuthenticatedFormBuilderIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/industries': typeof AuthenticatedIndustriesIndexRoute
+  '/io-tasks': typeof AuthenticatedIoTasksIndexRoute
   '/jobgroups': typeof AuthenticatedJobgroupsIndexRoute
   '/jobs': typeof AuthenticatedJobsIndexRoute
-  '/links': typeof AuthenticatedLinksIndexRoute
   '/param-forms': typeof AuthenticatedParamFormsIndexRoute
+  '/param-model-register': typeof AuthenticatedParamModelRegisterIndexRoute
   '/pre-tasks': typeof AuthenticatedPreTasksIndexRoute
   '/prejobs': typeof AuthenticatedPrejobsIndexRoute
   '/reqs': typeof AuthenticatedReqsIndexRoute
@@ -578,10 +637,14 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/spider-packages': typeof AuthenticatedSpiderPackagesIndexRoute
   '/spider-sessions': typeof AuthenticatedSpiderSessionsIndexRoute
+  '/spider-task-notifications': typeof AuthenticatedSpiderTaskNotificationsIndexRoute
+  '/spider-task-requests': typeof AuthenticatedSpiderTaskRequestsIndexRoute
+  '/spider-tasks': typeof AuthenticatedSpiderTasksIndexRoute
   '/spiders': typeof AuthenticatedSpidersIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
-  '/templates': typeof AuthenticatedTemplatesIndexRoute
+  '/terms': typeof AuthenticatedTermsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/validate-tasks': typeof AuthenticatedValidateTasksIndexRoute
   '/websites': typeof AuthenticatedWebsitesIndexRoute
 }
 export interface FileRoutesById {
@@ -626,19 +689,22 @@ export interface FileRoutesById {
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/_authenticated/accounts/': typeof AuthenticatedAccountsIndexRoute
   '/_authenticated/actors/': typeof AuthenticatedActorsIndexRoute
+  '/_authenticated/ai-tasks/': typeof AuthenticatedAiTasksIndexRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
-  '/_authenticated/blackwords/': typeof AuthenticatedBlackwordsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/clusters/': typeof AuthenticatedClustersIndexRoute
+  '/_authenticated/dictionaries/': typeof AuthenticatedDictionariesIndexRoute
+  '/_authenticated/duplicate-checker/': typeof AuthenticatedDuplicateCheckerIndexRoute
   '/_authenticated/entrypoints/': typeof AuthenticatedEntrypointsIndexRoute
   '/_authenticated/form-builder/': typeof AuthenticatedFormBuilderIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/_authenticated/industries/': typeof AuthenticatedIndustriesIndexRoute
+  '/_authenticated/io-tasks/': typeof AuthenticatedIoTasksIndexRoute
   '/_authenticated/jobgroups/': typeof AuthenticatedJobgroupsIndexRoute
   '/_authenticated/jobs/': typeof AuthenticatedJobsIndexRoute
-  '/_authenticated/links/': typeof AuthenticatedLinksIndexRoute
   '/_authenticated/param-forms/': typeof AuthenticatedParamFormsIndexRoute
+  '/_authenticated/param-model-register/': typeof AuthenticatedParamModelRegisterIndexRoute
   '/_authenticated/pre-tasks/': typeof AuthenticatedPreTasksIndexRoute
   '/_authenticated/prejobs/': typeof AuthenticatedPrejobsIndexRoute
   '/_authenticated/reqs/': typeof AuthenticatedReqsIndexRoute
@@ -647,10 +713,14 @@ export interface FileRoutesById {
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/spider-packages/': typeof AuthenticatedSpiderPackagesIndexRoute
   '/_authenticated/spider-sessions/': typeof AuthenticatedSpiderSessionsIndexRoute
+  '/_authenticated/spider-task-notifications/': typeof AuthenticatedSpiderTaskNotificationsIndexRoute
+  '/_authenticated/spider-task-requests/': typeof AuthenticatedSpiderTaskRequestsIndexRoute
+  '/_authenticated/spider-tasks/': typeof AuthenticatedSpiderTasksIndexRoute
   '/_authenticated/spiders/': typeof AuthenticatedSpidersIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
-  '/_authenticated/templates/': typeof AuthenticatedTemplatesIndexRoute
+  '/_authenticated/terms/': typeof AuthenticatedTermsIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
+  '/_authenticated/validate-tasks/': typeof AuthenticatedValidateTasksIndexRoute
   '/_authenticated/websites/': typeof AuthenticatedWebsitesIndexRoute
 }
 export interface FileRouteTypes {
@@ -694,19 +764,22 @@ export interface FileRouteTypes {
     | '/settings/notifications'
     | '/accounts'
     | '/actors'
+    | '/ai-tasks'
     | '/apps'
     | '/articles'
-    | '/blackwords'
     | '/chats'
     | '/clusters'
+    | '/dictionaries'
+    | '/duplicate-checker'
     | '/entrypoints'
     | '/form-builder'
     | '/help-center'
     | '/industries'
+    | '/io-tasks'
     | '/jobgroups'
     | '/jobs'
-    | '/links'
     | '/param-forms'
+    | '/param-model-register'
     | '/pre-tasks'
     | '/prejobs'
     | '/reqs'
@@ -715,10 +788,14 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/spider-packages'
     | '/spider-sessions'
+    | '/spider-task-notifications'
+    | '/spider-task-requests'
+    | '/spider-tasks'
     | '/spiders'
     | '/tasks'
-    | '/templates'
+    | '/terms'
     | '/users'
+    | '/validate-tasks'
     | '/websites'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -759,19 +836,22 @@ export interface FileRouteTypes {
     | '/settings/notifications'
     | '/accounts'
     | '/actors'
+    | '/ai-tasks'
     | '/apps'
     | '/articles'
-    | '/blackwords'
     | '/chats'
     | '/clusters'
+    | '/dictionaries'
+    | '/duplicate-checker'
     | '/entrypoints'
     | '/form-builder'
     | '/help-center'
     | '/industries'
+    | '/io-tasks'
     | '/jobgroups'
     | '/jobs'
-    | '/links'
     | '/param-forms'
+    | '/param-model-register'
     | '/pre-tasks'
     | '/prejobs'
     | '/reqs'
@@ -780,10 +860,14 @@ export interface FileRouteTypes {
     | '/settings'
     | '/spider-packages'
     | '/spider-sessions'
+    | '/spider-task-notifications'
+    | '/spider-task-requests'
+    | '/spider-tasks'
     | '/spiders'
     | '/tasks'
-    | '/templates'
+    | '/terms'
     | '/users'
+    | '/validate-tasks'
     | '/websites'
   id:
     | '__root__'
@@ -827,19 +911,22 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/notifications'
     | '/_authenticated/accounts/'
     | '/_authenticated/actors/'
+    | '/_authenticated/ai-tasks/'
     | '/_authenticated/apps/'
     | '/_authenticated/articles/'
-    | '/_authenticated/blackwords/'
     | '/_authenticated/chats/'
     | '/_authenticated/clusters/'
+    | '/_authenticated/dictionaries/'
+    | '/_authenticated/duplicate-checker/'
     | '/_authenticated/entrypoints/'
     | '/_authenticated/form-builder/'
     | '/_authenticated/help-center/'
     | '/_authenticated/industries/'
+    | '/_authenticated/io-tasks/'
     | '/_authenticated/jobgroups/'
     | '/_authenticated/jobs/'
-    | '/_authenticated/links/'
     | '/_authenticated/param-forms/'
+    | '/_authenticated/param-model-register/'
     | '/_authenticated/pre-tasks/'
     | '/_authenticated/prejobs/'
     | '/_authenticated/reqs/'
@@ -848,10 +935,14 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/'
     | '/_authenticated/spider-packages/'
     | '/_authenticated/spider-sessions/'
+    | '/_authenticated/spider-task-notifications/'
+    | '/_authenticated/spider-task-requests/'
+    | '/_authenticated/spider-tasks/'
     | '/_authenticated/spiders/'
     | '/_authenticated/tasks/'
-    | '/_authenticated/templates/'
+    | '/_authenticated/terms/'
     | '/_authenticated/users/'
+    | '/_authenticated/validate-tasks/'
     | '/_authenticated/websites/'
   fileRoutesById: FileRoutesById
 }
@@ -951,6 +1042,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWebsitesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/validate-tasks/': {
+      id: '/_authenticated/validate-tasks/'
+      path: '/validate-tasks'
+      fullPath: '/validate-tasks'
+      preLoaderRoute: typeof AuthenticatedValidateTasksIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/users/': {
       id: '/_authenticated/users/'
       path: '/users'
@@ -958,11 +1056,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/templates/': {
-      id: '/_authenticated/templates/'
-      path: '/templates'
-      fullPath: '/templates'
-      preLoaderRoute: typeof AuthenticatedTemplatesIndexRouteImport
+    '/_authenticated/terms/': {
+      id: '/_authenticated/terms/'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof AuthenticatedTermsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tasks/': {
@@ -977,6 +1075,27 @@ declare module '@tanstack/react-router' {
       path: '/spiders'
       fullPath: '/spiders'
       preLoaderRoute: typeof AuthenticatedSpidersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/spider-tasks/': {
+      id: '/_authenticated/spider-tasks/'
+      path: '/spider-tasks'
+      fullPath: '/spider-tasks'
+      preLoaderRoute: typeof AuthenticatedSpiderTasksIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/spider-task-requests/': {
+      id: '/_authenticated/spider-task-requests/'
+      path: '/spider-task-requests'
+      fullPath: '/spider-task-requests'
+      preLoaderRoute: typeof AuthenticatedSpiderTaskRequestsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/spider-task-notifications/': {
+      id: '/_authenticated/spider-task-notifications/'
+      path: '/spider-task-notifications'
+      fullPath: '/spider-task-notifications'
+      preLoaderRoute: typeof AuthenticatedSpiderTaskNotificationsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/spider-sessions/': {
@@ -1035,18 +1154,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPreTasksIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/param-model-register/': {
+      id: '/_authenticated/param-model-register/'
+      path: '/param-model-register'
+      fullPath: '/param-model-register'
+      preLoaderRoute: typeof AuthenticatedParamModelRegisterIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/param-forms/': {
       id: '/_authenticated/param-forms/'
       path: '/param-forms'
       fullPath: '/param-forms'
       preLoaderRoute: typeof AuthenticatedParamFormsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/links/': {
-      id: '/_authenticated/links/'
-      path: '/links'
-      fullPath: '/links'
-      preLoaderRoute: typeof AuthenticatedLinksIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/jobs/': {
@@ -1061,6 +1180,13 @@ declare module '@tanstack/react-router' {
       path: '/jobgroups'
       fullPath: '/jobgroups'
       preLoaderRoute: typeof AuthenticatedJobgroupsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/io-tasks/': {
+      id: '/_authenticated/io-tasks/'
+      path: '/io-tasks'
+      fullPath: '/io-tasks'
+      preLoaderRoute: typeof AuthenticatedIoTasksIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/industries/': {
@@ -1091,6 +1217,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEntrypointsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/duplicate-checker/': {
+      id: '/_authenticated/duplicate-checker/'
+      path: '/duplicate-checker'
+      fullPath: '/duplicate-checker'
+      preLoaderRoute: typeof AuthenticatedDuplicateCheckerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dictionaries/': {
+      id: '/_authenticated/dictionaries/'
+      path: '/dictionaries'
+      fullPath: '/dictionaries'
+      preLoaderRoute: typeof AuthenticatedDictionariesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/clusters/': {
       id: '/_authenticated/clusters/'
       path: '/clusters'
@@ -1105,13 +1245,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/blackwords/': {
-      id: '/_authenticated/blackwords/'
-      path: '/blackwords'
-      fullPath: '/blackwords'
-      preLoaderRoute: typeof AuthenticatedBlackwordsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/articles/': {
       id: '/_authenticated/articles/'
       path: '/articles'
@@ -1124,6 +1257,13 @@ declare module '@tanstack/react-router' {
       path: '/apps'
       fullPath: '/apps'
       preLoaderRoute: typeof AuthenticatedAppsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai-tasks/': {
+      id: '/_authenticated/ai-tasks/'
+      path: '/ai-tasks'
+      fullPath: '/ai-tasks'
+      preLoaderRoute: typeof AuthenticatedAiTasksIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/actors/': {
@@ -1397,19 +1537,22 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedParamFormsEditRoute: typeof AuthenticatedParamFormsEditRoute
   AuthenticatedAccountsIndexRoute: typeof AuthenticatedAccountsIndexRoute
   AuthenticatedActorsIndexRoute: typeof AuthenticatedActorsIndexRoute
+  AuthenticatedAiTasksIndexRoute: typeof AuthenticatedAiTasksIndexRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedArticlesIndexRoute: typeof AuthenticatedArticlesIndexRoute
-  AuthenticatedBlackwordsIndexRoute: typeof AuthenticatedBlackwordsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedClustersIndexRoute: typeof AuthenticatedClustersIndexRoute
+  AuthenticatedDictionariesIndexRoute: typeof AuthenticatedDictionariesIndexRoute
+  AuthenticatedDuplicateCheckerIndexRoute: typeof AuthenticatedDuplicateCheckerIndexRoute
   AuthenticatedEntrypointsIndexRoute: typeof AuthenticatedEntrypointsIndexRoute
   AuthenticatedFormBuilderIndexRoute: typeof AuthenticatedFormBuilderIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
   AuthenticatedIndustriesIndexRoute: typeof AuthenticatedIndustriesIndexRoute
+  AuthenticatedIoTasksIndexRoute: typeof AuthenticatedIoTasksIndexRoute
   AuthenticatedJobgroupsIndexRoute: typeof AuthenticatedJobgroupsIndexRoute
   AuthenticatedJobsIndexRoute: typeof AuthenticatedJobsIndexRoute
-  AuthenticatedLinksIndexRoute: typeof AuthenticatedLinksIndexRoute
   AuthenticatedParamFormsIndexRoute: typeof AuthenticatedParamFormsIndexRoute
+  AuthenticatedParamModelRegisterIndexRoute: typeof AuthenticatedParamModelRegisterIndexRoute
   AuthenticatedPreTasksIndexRoute: typeof AuthenticatedPreTasksIndexRoute
   AuthenticatedPrejobsIndexRoute: typeof AuthenticatedPrejobsIndexRoute
   AuthenticatedReqsIndexRoute: typeof AuthenticatedReqsIndexRoute
@@ -1417,10 +1560,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
   AuthenticatedSpiderPackagesIndexRoute: typeof AuthenticatedSpiderPackagesIndexRoute
   AuthenticatedSpiderSessionsIndexRoute: typeof AuthenticatedSpiderSessionsIndexRoute
+  AuthenticatedSpiderTaskNotificationsIndexRoute: typeof AuthenticatedSpiderTaskNotificationsIndexRoute
+  AuthenticatedSpiderTaskRequestsIndexRoute: typeof AuthenticatedSpiderTaskRequestsIndexRoute
+  AuthenticatedSpiderTasksIndexRoute: typeof AuthenticatedSpiderTasksIndexRoute
   AuthenticatedSpidersIndexRoute: typeof AuthenticatedSpidersIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
-  AuthenticatedTemplatesIndexRoute: typeof AuthenticatedTemplatesIndexRoute
+  AuthenticatedTermsIndexRoute: typeof AuthenticatedTermsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedValidateTasksIndexRoute: typeof AuthenticatedValidateTasksIndexRoute
   AuthenticatedWebsitesIndexRoute: typeof AuthenticatedWebsitesIndexRoute
 }
 
@@ -1452,19 +1599,24 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedParamFormsEditRoute: AuthenticatedParamFormsEditRoute,
   AuthenticatedAccountsIndexRoute: AuthenticatedAccountsIndexRoute,
   AuthenticatedActorsIndexRoute: AuthenticatedActorsIndexRoute,
+  AuthenticatedAiTasksIndexRoute: AuthenticatedAiTasksIndexRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedArticlesIndexRoute: AuthenticatedArticlesIndexRoute,
-  AuthenticatedBlackwordsIndexRoute: AuthenticatedBlackwordsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedClustersIndexRoute: AuthenticatedClustersIndexRoute,
+  AuthenticatedDictionariesIndexRoute: AuthenticatedDictionariesIndexRoute,
+  AuthenticatedDuplicateCheckerIndexRoute:
+    AuthenticatedDuplicateCheckerIndexRoute,
   AuthenticatedEntrypointsIndexRoute: AuthenticatedEntrypointsIndexRoute,
   AuthenticatedFormBuilderIndexRoute: AuthenticatedFormBuilderIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,
   AuthenticatedIndustriesIndexRoute: AuthenticatedIndustriesIndexRoute,
+  AuthenticatedIoTasksIndexRoute: AuthenticatedIoTasksIndexRoute,
   AuthenticatedJobgroupsIndexRoute: AuthenticatedJobgroupsIndexRoute,
   AuthenticatedJobsIndexRoute: AuthenticatedJobsIndexRoute,
-  AuthenticatedLinksIndexRoute: AuthenticatedLinksIndexRoute,
   AuthenticatedParamFormsIndexRoute: AuthenticatedParamFormsIndexRoute,
+  AuthenticatedParamModelRegisterIndexRoute:
+    AuthenticatedParamModelRegisterIndexRoute,
   AuthenticatedPreTasksIndexRoute: AuthenticatedPreTasksIndexRoute,
   AuthenticatedPrejobsIndexRoute: AuthenticatedPrejobsIndexRoute,
   AuthenticatedReqsIndexRoute: AuthenticatedReqsIndexRoute,
@@ -1472,10 +1624,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
   AuthenticatedSpiderPackagesIndexRoute: AuthenticatedSpiderPackagesIndexRoute,
   AuthenticatedSpiderSessionsIndexRoute: AuthenticatedSpiderSessionsIndexRoute,
+  AuthenticatedSpiderTaskNotificationsIndexRoute:
+    AuthenticatedSpiderTaskNotificationsIndexRoute,
+  AuthenticatedSpiderTaskRequestsIndexRoute:
+    AuthenticatedSpiderTaskRequestsIndexRoute,
+  AuthenticatedSpiderTasksIndexRoute: AuthenticatedSpiderTasksIndexRoute,
   AuthenticatedSpidersIndexRoute: AuthenticatedSpidersIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
-  AuthenticatedTemplatesIndexRoute: AuthenticatedTemplatesIndexRoute,
+  AuthenticatedTermsIndexRoute: AuthenticatedTermsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedValidateTasksIndexRoute: AuthenticatedValidateTasksIndexRoute,
   AuthenticatedWebsitesIndexRoute: AuthenticatedWebsitesIndexRoute,
 }
 

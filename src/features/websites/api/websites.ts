@@ -101,7 +101,7 @@ export const fetchWebsites = async (
   // 发送GET请求获取数据
   const response = await fetch(url, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
   })
 
@@ -156,7 +156,7 @@ export const fetchWebsiteById = async (
 ): Promise<WebsiteData> => {
   const response = await fetch(`${API_BASE_URL}/websites/${websiteId}/`, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
   })
   await handleResponse(response)
@@ -207,7 +207,7 @@ export const createWebsite = async (
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
     body: JSON.stringify(data),
   })
@@ -267,7 +267,7 @@ export const updateWebsite = async (
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
     body: JSON.stringify(data),
   })
@@ -326,7 +326,7 @@ export const patchWebsite = async (
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
     body: JSON.stringify(data),
   })
@@ -438,7 +438,7 @@ export const deleteWebsite = async (
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
   })
   return await handleResponse(response)
@@ -487,7 +487,7 @@ export const batchSwitchWebsites = async (
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
     body: JSON.stringify(data),
   })
@@ -526,7 +526,7 @@ export const batchLockWebsites = async (
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
     body: JSON.stringify(data),
   })
@@ -566,7 +566,7 @@ export const batchPauseWebsites = async (
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
     body: JSON.stringify(data),
   })
@@ -612,7 +612,7 @@ export const batchDeleteWebsites = async (
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
   })
 
@@ -661,8 +661,8 @@ export const syncWebsites = async (
   const response = await fetch(`${API_BASE_URL}/websites/sync/`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
     body: JSON.stringify(data),
   })
@@ -710,7 +710,7 @@ export const exportWebsites = async (
   const response = await fetch(`${API_BASE_URL}/websites/export/`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
   })
   return await handleResponse(response)
@@ -759,7 +759,7 @@ export const batchExportWebsites = async (
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
     body: JSON.stringify(data),
   })
@@ -1330,10 +1330,14 @@ export const useBatchPauseWebsitesMutation = () => {
  * - 此操作会调用 syncWebsites API 函数，向后端发起同步请求
  */
 export const useSyncWebsitesMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (data: WebsiteSyncData) => {
       const token = getAccessToken()
       return syncWebsites(data, token)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['websites'] })
     },
   })
 }
@@ -1557,7 +1561,7 @@ export const useBatchDeleteWebsitesMutation = () => {
       return batchDeleteWebsites(variables, token)
     },
     onSuccess: (_, variables) => {
-      // 状态切换成功后使网站列表缓存失效，确保列表显示最新状态
+      // 批量删除成功后使网站列表缓存失效，确保列表显示最新状态
       queryClient.invalidateQueries({ queryKey: ['websites'] })
       // 同时使单个网站详情缓存失效，确保详情页显示最新状态
       if (variables && Array.isArray(variables)) {
@@ -1691,221 +1695,6 @@ export const useUpdateWebsiteSpiderConfigMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ['website', variables.websiteId],
       })
-    },
-  })
-}
-
-/**
- * 重置网站准任务
- *
- * 此函数用于向后端API发送请求重置指定网站的准任务
- *
- * @param websiteId - 需要重置准任务的网站的唯一标识符（ID）
- *                   必须是有效的数字ID，对应数据库中存在的网站记录
- *
- * @param token - 鉴权token
- *
- * @returns Promise<Response> - 返回原始响应对象
- *                如果重置成功，响应状态码通常为200
- *                如果重置失败，会通过handleResponse抛出错误
- *
- * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
- *                   可能的错误情况：网站ID不存在、权限不足、网络错误等
- *
- * 使用示例:
- * // 重置ID为1的网站的准任务
- * try {
- *   const response = await resetWebsitePreTasks(1)
- *   console.log("网站准任务重置成功")
- * } catch (error) {
- *   console.error("网站准任务重置失败:", error)
- * }
- *
- * 注意事项:
- * - 该函数会向 /pre_tasks/websites/{websiteId}/ 端点发送PUT请求
- * - 重置操作会将指定网站的所有准任务状态重置
- * - 函数内部使用handleResponse进行错误处理，确保错误被正确抛出
- * - 成功重置后，后端通常返回200状态码和重置结果
- * - 在UI中建议添加二次确认机制，防止误操作
- * - 重置后需要手动使相关查询缓存失效，以确保UI显示最新数据
- */
-export const resetWebsitePreTasks = async (
-  websiteId: number,
-  token: string | null
-): Promise<Response> => {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  }
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-
-  const response = await fetch(
-    `${API_BASE_URL}/pre_tasks/websites/${websiteId}/`,
-    {
-      method: 'PUT',
-      headers,
-    }
-  )
-  return await handleResponse(response)
-}
-
-/**
- * 清空网站准任务
- *
- * 此函数用于向后端API发送DELETE请求，清空指定网站的准任务
- *
- * @param websiteId - 需要清空准任务的网站的唯一标识符（ID）
- *                   必须是有效的数字ID，对应数据库中存在的网站记录
- *
- * @param token - 鉴权token
- *
- * @returns Promise<Response> - 返回原始响应对象
- *                如果清空成功，响应状态码通常为204 (No Content)
- *                如果清空失败，会通过handleResponse抛出错误
- *
- * @throws {Error} - 当API响应不成功时，会抛出包含错误信息的Error对象
- *                   可能的错误情况：网站ID不存在、权限不足、网络错误等
- *
- * 使用示例:
- * // 清空ID为1的网站的准任务
- * try {
- *   const response = await clearWebsitePreTasks(1)
- *   console.log("网站准任务清空成功")
- * } catch (error) {
- *   console.error("网站准任务清空失败:", error)
- * }
- *
- * 注意事项:
- * - 该函数会向 /pre_tasks/websites/{websiteId}/ 端点发送DELETE请求
- * - 清空操作会永久删除指定网站的所有准任务，请谨慎操作
- * - 函数内部使用handleResponse进行错误处理，确保错误被正确抛出
- * - 成功清空后，后端通常返回204状态码，表示资源已成功删除且无响应体
- * - 在UI中建议添加二次确认机制，防止误操作
- * - 清空后需要手动使相关查询缓存失效，以确保UI显示最新数据
- */
-export const clearWebsitePreTasks = async (
-  websiteId: number,
-  token: string | null
-): Promise<Response> => {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  }
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-
-  const response = await fetch(
-    `${API_BASE_URL}/pre_tasks/websites/${websiteId}/`,
-    {
-      method: 'DELETE',
-      headers,
-    }
-  )
-  return await handleResponse(response)
-}
-
-/**
- * 重置网站准任务的自定义 Mutation Hook
- *
- * 此 Hook 封装了重置网站准任务的逻辑，使用 TanStack Query 的 useMutation 来处理异步操作
- * 允许前端通过 API 调用重置网站准任务，并自动处理缓存更新
- *
- * 主要功能：
- * - 向后端API发送重置网站准任务的请求
- * - 自动处理缓存失效，确保UI显示最新的准任务状态
- * - 提供完整的状态管理（加载中、错误、成功等状态）
- *
- * @returns 返回 useMutation 的结果对象，包含以下主要属性：
- *          - mutate/mutateAsync: 触发重置操作的函数，需要传入网站ID
- *          - isLoading: 重置操作的加载状态
- *          - isError: 是否发生错误
- *          - error: 错误对象（如果有的话）
- *          - data: 重置成功的响应数据（如果有的话）
- *
- * 使用示例:
- * const { mutateAsync, isLoading, error } = useResetWebsitePreTasksMutation()
- *
- * const handleResetWebsite = async (websiteId) => {
- *   try {
- *     await mutateAsync(websiteId)
- *     console.log('网站准任务重置成功')
- *   } catch (err) {
- *     console.error('网站准任务重置失败:', err)
- *   }
- * }
- *
- * 注意事项:
- * - 此 Hook 向 /pre_tasks/websites/{websiteId}/ 端点发送PUT请求来重置网站准任务
- * - 重置成功后会自动使 ['preTasks'] 查询缓存失效
- * - 适用于需要重置特定网站准任务的场景
- * - websiteId 必须是有效的数字ID，且对应网站存在于数据库中
- * - 建议在UI中添加二次确认机制，防止误操作
- */
-export const useResetWebsitePreTasksMutation = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (websiteId: number) => {
-      const token = getAccessToken()
-      return resetWebsitePreTasks(websiteId, token)
-    },
-    onSuccess: () => {
-      // 重置成功后使准任务列表缓存失效，确保列表显示最新状态
-      queryClient.invalidateQueries({ queryKey: ['preTasks'] })
-    },
-  })
-}
-
-/**
- * 清空网站准任务的自定义 Mutation Hook
- *
- * 此 Hook 封装了清空网站准任务的逻辑，使用 TanStack Query 的 useMutation 来处理异步操作
- * 允许前端通过 API 调用清空网站准任务，并自动处理缓存更新
- *
- * 主要功能：
- * - 向后端API发送清空网站准任务的请求
- * - 自动处理缓存失效，确保UI显示最新的准任务状态
- * - 提供完整的状态管理（加载中、错误、成功等状态）
- *
- * @returns 返回 useMutation 的结果对象，包含以下主要属性：
- *          - mutate/mutateAsync: 触发清空操作的函数，需要传入网站ID
- *          - isLoading: 清空操作的加载状态
- *          - isError: 是否发生错误
- *          - error: 错误对象（如果有的话）
- *          - data: 清空成功的响应数据（如果有的话）
- *
- * 使用示例:
- * const { mutateAsync, isLoading, error } = useClearWebsitePreTasksMutation()
- *
- * const handleClearWebsite = async (websiteId) => {
- *   try {
- *     await mutateAsync(websiteId)
- *     console.log('网站准任务清空成功')
- *   } catch (err) {
- *     console.error('网站准任务清空失败:', err)
- *   }
- * }
- *
- * 注意事项:
- * - 此 Hook 向 /pre_tasks/websites/{websiteId}/ 端点发送DELETE请求来清空网站准任务
- * - 清空成功后会自动使 ['preTasks'] 查询缓存失效
- * - 适用于需要清空特定网站准任务的场景
- * - websiteId 必须是有效的数字ID，且对应网站存在于数据库中
- * - 清空操作会永久删除指定网站的所有准任务，请谨慎使用
- * - 建议在UI中添加二次确认机制，防止误操作
- */
-export const useClearWebsitePreTasksMutation = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (websiteId: number) => {
-      const token = getAccessToken()
-      return clearWebsitePreTasks(websiteId, token)
-    },
-    onSuccess: () => {
-      // 清空成功后使准任务列表缓存失效，确保列表显示最新状态
-      queryClient.invalidateQueries({ queryKey: ['preTasks'] })
     },
   })
 }

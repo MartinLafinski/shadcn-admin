@@ -11,20 +11,20 @@ import {
   ChevronsUpDownIcon,
   SearchCheckIcon,
 } from 'lucide-react'
+// 可用性标签
+import {
+  enableLabels,
+  lockedLabels,
+  pausedLabels,
+  limitedLabels,
+  deeplySearchLabels,
+} from '@/lib/labels.tsx'
 // 样式
 import { cn } from '@/lib/utils.ts'
 // 按钮组控件
 import { ButtonGroup } from '@/components/ui/button-group.tsx'
 // 按钮控件
 import { Button } from '@/components/ui/button.tsx'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command.tsx'
 // 下拉菜单控件
 import {
   DropdownMenu,
@@ -39,24 +39,11 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from '@/components/ui/input-group.tsx'
-// Popover 和 Command 控件
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover.tsx'
 // 行业数据查询
-import { useIndustriesQuery } from '@/features/industries/api/industries.ts'
+import { IndustryCombobox } from '@/components/smart/combobox/industry-combobox'
 // 网站数据查询
-import { useWebsitesQuery } from '@/features/websites/api/websites.ts'
-// 可用性标签
-import {
-  enableLabels,
-  lockedLabels,
-  pausedLabels,
-  limitedLabels,
-  deeplySearchLabels,
-} from '../../data/labels.tsx'
+import { WebsiteCombobox } from '@/components/smart/combobox/website-combobox'
+import { FilterDropdown } from '@/components/smart/filter-dropdown'
 // 获取入口点数据
 import { useEntrypoints } from '../entrypoints-provider.tsx'
 
@@ -65,58 +52,6 @@ const route = getRouteApi('/_authenticated/entrypoints/')
 const DEFAULT_PAGE_SIZE: number = Number(
   import.meta.env.VITE_ENTRYPOINT_PAGE_SIZE || 50
 )
-const WEBSITE_SEARCH_SIZE: number = Number(
-  import.meta.env.VITE_WEBSITE_SEARCH_SIZE || 50
-)
-const INDUSTRY_SEARCH_SIZE: number = Number(
-  import.meta.env.VITE_INDUSTRIY_SEARCH_SIZE || 50
-)
-
-/**
- * 筛选下拉菜单组件
- */
-const FilterDropdown = ({
-  options,
-  value,
-  onChange,
-  placeholder,
-}: {
-  options: typeof enableLabels
-  value: boolean | undefined
-  onChange: (value: boolean | undefined) => void
-  placeholder: string
-}) => {
-  const selectedOption = options.find((o) => o.value === value)
-  const label = selectedOption ? selectedOption.label : placeholder
-
-  return (
-    <InputGroupAddon align='inline-start'>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <InputGroupButton
-            variant='ghost'
-            className={cn('-ml-2 !pr-1.5 text-sm', selectedOption?.className)}
-          >
-            {label} <ChevronsUpDownIcon className='size-3' />
-          </InputGroupButton>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='start' className='[--radius:0.95rem]'>
-          <DropdownMenuItem onClick={() => onChange(undefined)}>
-            所有
-          </DropdownMenuItem>
-          {options.map((item) => (
-            <DropdownMenuItem
-              key={item.value.toString()}
-              onClick={() => onChange(item.value as boolean)}
-            >
-              {item.label} <item.icon />
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </InputGroupAddon>
-  )
-}
 
 /**
  * 入口点搜索组件
@@ -133,17 +68,6 @@ export function Search({ className = '' }: SearchProps) {
   const navigate = route.useNavigate()
   const queryClient = useQueryClient()
 
-  // 本地状态：网站搜索关键词
-  const [websiteKeyword, setWebsiteKeyword] = useState<string>('')
-  // 本地状态：控制网站下拉框的打开状态
-  const [websitePopoverOpen, setWebsitePopoverOpen] = useState(false)
-  // 本地状态：网站选择框的ID
-  const [websiteId, setWebsiteId] = useState<number | undefined>(undefined)
-
-  // 本地状态：行业搜索关键词
-  const [industryKeyword, setIndustryKeyword] = useState<string>('')
-  // 本地状态：控制行业下拉框的打开状态
-  const [industryPopoverOpen, setIndustryPopoverOpen] = useState(false)
   // 本地状态：行业选择框的ID
   const [industryId, setIndustryId] = useState<number | undefined>(undefined)
 
@@ -160,31 +84,7 @@ export function Search({ className = '' }: SearchProps) {
     undefined
   )
   const [deeplySearch, setDeeplySearch] = useState<boolean>(false)
-
-  // 获取网站列表数据（支持搜索）
-  const { data: websitesData, isLoading: websitesLoading } = useWebsitesQuery(
-    websiteKeyword,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    1,
-    WEBSITE_SEARCH_SIZE
-  )
-
-  // 获取行业列表数据（支持搜索）
-  const { data: industriesData, isLoading: industriesLoading } =
-    useIndustriesQuery(industryKeyword, 1, INDUSTRY_SEARCH_SIZE)
-
-  // 获取当前选中的网站
-  const selectedWebsite = websitesData?.websites?.find(
-    (w) => w.website_id === websiteId
-  )
-
-  // 获取当前选中的行业
-  const selectedIndustry = industriesData?.industries?.find(
-    (i) => i.industry_id === industryId
-  )
+  const [websiteId, setWebsiteId] = useState<number | undefined>(undefined)
 
   useEffect(() => {
     setKeyword(searchParams?.entrypoint_keyword ?? '')
@@ -314,160 +214,22 @@ export function Search({ className = '' }: SearchProps) {
           </InputGroupAddon>
           {/* 网站下拉菜单 */}
           <InputGroupAddon align='inline-start'>
-            <Popover
-              open={websitePopoverOpen}
-              onOpenChange={setWebsitePopoverOpen}
-            >
-              <PopoverTrigger asChild>
-                <InputGroupButton
-                  variant='ghost'
-                  size='sm'
-                  role='combobox'
-                  className={cn(
-                    '-ml-2 h-6 justify-between text-sm',
-                    !websiteId && 'text-muted-foreground'
-                  )}
-                >
-                  {websiteId
-                    ? selectedWebsite
-                      ? `${selectedWebsite.website_name} [${selectedWebsite.website_slug}]`
-                      : '选择一个网站'
-                    : '选择网站'}
-                  <ChevronsUpDownIcon className='size-3' />
-                </InputGroupButton>
-              </PopoverTrigger>
-              <PopoverContent className='p-0' align='start'>
-                <Command shouldFilter={false}>
-                  <CommandInput
-                    placeholder='搜索网站...'
-                    value={websiteKeyword}
-                    onValueChange={setWebsiteKeyword}
-                  />
-                  <CommandList>
-                    {!websitesLoading &&
-                      (!websitesData?.websites ||
-                        websitesData.websites.length === 0) && (
-                        <CommandEmpty>未找到网站</CommandEmpty>
-                      )}
-                    {websitesLoading && <CommandEmpty>加载中...</CommandEmpty>}
-                    {websitesData?.websites &&
-                      websitesData.websites.length > 0 && (
-                        <CommandGroup
-                          key={websitesData?.websites.length.toString()}
-                        >
-                          {websitesData.websites.map((website) => (
-                            <CommandItem
-                              key={website.website_id.toString()}
-                              value={`${website.website_id}`}
-                              onSelect={() => {
-                                setWebsiteId(website.website_id)
-                                setWebsitePopoverOpen(false)
-                              }}
-                            >
-                              <CheckIcon
-                                className={cn(
-                                  'mr-2 h-4 w-4',
-                                  websiteId === website.website_id
-                                    ? 'opacity-100'
-                                    : 'opacity-0'
-                                )}
-                              />
-                              <div className='flex flex-col'>
-                                <span className='flex font-semibold'>
-                                  {website.website_name}
-                                </span>
-                                <span className='flex text-xs text-muted-foreground'>
-                                  [{website.website_slug}]
-                                </span>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      )}
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <WebsiteCombobox
+              value={websiteId}
+              onChange={(id) => setWebsiteId(id ?? undefined)}
+              variant='inline'
+              placeholder='网站?'
+            />
           </InputGroupAddon>
 
           {/* 行业下拉菜单 */}
           <InputGroupAddon align='inline-start'>
-            <Popover
-              open={industryPopoverOpen}
-              onOpenChange={setIndustryPopoverOpen}
-            >
-              <PopoverTrigger asChild>
-                <InputGroupButton
-                  variant='ghost'
-                  size='sm'
-                  role='combobox'
-                  className={cn(
-                    '-ml-2 h-6 justify-between text-sm',
-                    !industryId && 'text-muted-foreground'
-                  )}
-                >
-                  {industryId
-                    ? selectedIndustry
-                      ? `${selectedIndustry.industry_name} [${selectedIndustry.industry_slug}]`
-                      : '选择一个行业'
-                    : '选择行业'}
-                  <ChevronsUpDownIcon className='size-3' />
-                </InputGroupButton>
-              </PopoverTrigger>
-              <PopoverContent className='p-0' align='start'>
-                <Command shouldFilter={false}>
-                  <CommandInput
-                    placeholder='搜索行业...'
-                    value={industryKeyword}
-                    onValueChange={setIndustryKeyword}
-                  />
-                  <CommandList>
-                    {!industriesLoading &&
-                      (!industriesData?.industries ||
-                        industriesData.industries.length === 0) && (
-                        <CommandEmpty>未找到行业</CommandEmpty>
-                      )}
-                    {industriesLoading && (
-                      <CommandEmpty>加载中...</CommandEmpty>
-                    )}
-                    {industriesData?.industries &&
-                      industriesData.industries.length > 0 && (
-                        <CommandGroup
-                          key={industriesData?.industries.length.toString()}
-                        >
-                          {industriesData.industries.map((industry) => (
-                            <CommandItem
-                              key={industry.industry_id.toString()}
-                              value={`${industry.industry_id}`}
-                              onSelect={() => {
-                                setIndustryId(industry.industry_id)
-                                setIndustryPopoverOpen(false)
-                              }}
-                            >
-                              <CheckIcon
-                                className={cn(
-                                  'mr-2 h-4 w-4',
-                                  industryId === industry.industry_id
-                                    ? 'opacity-100'
-                                    : 'opacity-0'
-                                )}
-                              />
-                              <div className='flex flex-col'>
-                                <span className='flex font-semibold'>
-                                  {industry.industry_name}
-                                </span>
-                                <span className='flex text-xs text-muted-foreground'>
-                                  [{industry.industry_slug}]
-                                </span>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      )}
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <IndustryCombobox
+              value={industryId}
+              onChange={(id) => setIndustryId(id ?? undefined)}
+              variant='inline'
+              placeholder='行业?'
+            />
           </InputGroupAddon>
 
           {/* 状态筛选 */}
@@ -475,7 +237,7 @@ export function Search({ className = '' }: SearchProps) {
             options={enableLabels}
             value={enabledValue}
             onChange={setEnabledValue}
-            placeholder='可用选项'
+            placeholder='可用?'
           />
 
           {/* 锁定筛选 */}
@@ -483,7 +245,7 @@ export function Search({ className = '' }: SearchProps) {
             options={lockedLabels}
             value={lockedValue}
             onChange={setLockedValue}
-            placeholder='锁定选项'
+            placeholder='锁定?'
           />
 
           {/* 暂停筛选 */}
@@ -491,7 +253,7 @@ export function Search({ className = '' }: SearchProps) {
             options={pausedLabels}
             value={pausedValue}
             onChange={setPausedValue}
-            placeholder='运转选项'
+            placeholder='运转?'
           />
 
           {/* 受限筛选 */}
@@ -499,7 +261,7 @@ export function Search({ className = '' }: SearchProps) {
             options={limitedLabels}
             value={limitedValue}
             onChange={setLimitedValue}
-            placeholder='受限选项'
+            placeholder='受限?'
           />
           {/* 关键词输入框 */}
           <InputGroupInput
