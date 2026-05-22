@@ -29,7 +29,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import {
   useUpdateParamModelRegisterMutation,
@@ -74,7 +73,6 @@ function ParamModelRegisterUpdateDrawerContent({
         form.reset({
           register_name: latestRegister.register_name,
           shard_strategy: latestRegister.shard_strategy,
-          enabled: latestRegister.enabled,
           description: latestRegister.description,
         })
         queryClient.invalidateQueries({ queryKey: ['param-model-register'] })
@@ -90,11 +88,9 @@ function ParamModelRegisterUpdateDrawerContent({
       ? {
           register_name: currentRow.register_name,
           shard_strategy: currentRow.shard_strategy,
-          enabled: currentRow.enabled,
           description: currentRow.description,
         }
       : {
-          enabled: true,
           register_name: '',
           shard_strategy: null,
           description: '',
@@ -103,8 +99,8 @@ function ParamModelRegisterUpdateDrawerContent({
 
   const onSubmit = async (data: ParamModelRegisterUpdateData) => {
     if (!currentRow?.register_id) {
-      console.error('缺少注册条目ID，无法更新')
-      toast.error('缺少注册条目ID，无法更新')
+      console.error('缺少参数模型集ID，无法更新')
+      toast.error('缺少参数模型集ID，无法更新')
       return
     }
 
@@ -115,16 +111,16 @@ function ParamModelRegisterUpdateDrawerContent({
       })
       .then((res) => {
         toast.success(
-          `注册条目 ${res.register_name || res.register_slug} 更新成功`
+          `参数模型集 ${res.register_name || res.register_slug} 更新成功`
         )
       })
       .catch((error) => {
         console.error(
-          `注册条目 ${currentRow.register_name || currentRow.register_slug} 更新失败:`,
+          `参数模型集 ${currentRow.register_name || currentRow.register_slug} 更新失败:`,
           error
         )
         toast.error(
-          `注册条目 ${currentRow.register_name || currentRow.register_slug} 更新失败`
+          `参数模型集 ${currentRow.register_name || currentRow.register_slug} 更新失败`
         )
       })
 
@@ -135,7 +131,7 @@ function ParamModelRegisterUpdateDrawerContent({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
-          <SheetTitle>编辑注册条目</SheetTitle>
+          <SheetTitle>编辑参数模型集</SheetTitle>
           <SheetDescription>
             {currentRow?.register_name || currentRow?.register_slug} (ID:
             {currentRow?.register_id})
@@ -223,24 +219,6 @@ function ParamModelRegisterUpdateDrawerContent({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name='enabled'
-              render={({ field }) => (
-                <FormItem className='flex items-center justify-between rounded-lg border p-3'>
-                  <div>
-                    <FormLabel className='text-sm'>启用</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
             {showEditors && (
               <>
                 <h4 className='text-sm font-bold'>说明</h4>
@@ -254,7 +232,7 @@ function ParamModelRegisterUpdateDrawerContent({
                         <Textarea
                           {...field}
                           value={field.value ?? ''}
-                          placeholder='注册条目说明'
+                          placeholder='参数模型集说明'
                           rows={4}
                         />
                       </FormControl>
@@ -271,7 +249,7 @@ function ParamModelRegisterUpdateDrawerContent({
             <Button variant='outline'>关闭</Button>
           </SheetClose>
           <Button form='pmr-update-form' type='submit'>
-            更新注册条目
+            更新参数模型集
           </Button>
         </SheetFooter>
       </SheetContent>

@@ -47,6 +47,7 @@ export const jobGroupsColumns: ColumnDef<JobGroupItemData>[] = [
       return (
         <JobGroupMiniItemCell
           group={group}
+          isPrimary={true}
           onClick={() => {
             setCurrentRow(group)
             setOpen('configInfo')
@@ -73,6 +74,7 @@ export const jobGroupsColumns: ColumnDef<JobGroupItemData>[] = [
       <EntityItemCountCell
         count={row.getValue('prejob_count')}
         to='/prejobs'
+        searchParams={{ jobgroup_id: row.original.jobgroup_id }}
         icon={ListTodo}
         className='bg-green-100 text-green-900 dark:bg-green-300/70'
       />

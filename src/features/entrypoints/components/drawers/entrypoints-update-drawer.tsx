@@ -235,7 +235,7 @@ export function EntrypointUpdateDrawer({
         <SheetHeader className='text-start'>
           <SheetTitle>更新入口点</SheetTitle>
           <SheetDescription>
-            更新入口点 (入口点ID:{currentRow?.entrypoint_id})
+            {currentRow?.entrypoint_name} (入口点ID:{currentRow?.entrypoint_id})
           </SheetDescription>
         </SheetHeader>
         {/* 将表单与react-hook-form实例连接 */}
@@ -245,13 +245,17 @@ export function EntrypointUpdateDrawer({
             onSubmit={form.handleSubmit(onSubmit)}
             className='flex-1 space-y-6 overflow-y-auto px-4'
           >
+            <h4 className='text-sm font-bold'>基础设置</h4>
+
             {/* 网站选择字段 - 用于关联入口点到特定网站 */}
             <FormField
               control={form.control}
               name='website_id'
               render={({ field }) => (
                 <FormItem className='flex flex-col'>
-                  <FormLabel>关联网站</FormLabel>
+                  <FormLabel>
+                    所属网站 <span className='text-destructive'>*</span>
+                  </FormLabel>
                   <FormControl>
                     <WebsiteCombobox
                       value={field.value}
@@ -276,7 +280,9 @@ export function EntrypointUpdateDrawer({
               name='industry_id'
               render={({ field }) => (
                 <FormItem className='flex flex-col'>
-                  <FormLabel>所在行业</FormLabel>
+                  <FormLabel>
+                    所在行业 <span className='text-destructive'>*</span>
+                  </FormLabel>
                   <FormControl>
                     <IndustryCombobox
                       value={field.value}
@@ -294,6 +300,129 @@ export function EntrypointUpdateDrawer({
                 </FormItem>
               )}
             />
+
+            {/* 入口点名称字段 - 必填，用于显示 */}
+            <FormField
+              control={form.control}
+              name='entrypoint_name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    入口点名称 <span className='text-destructive'>*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder='入口点名称(强调可读性)' />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* 入口点标识字段 - 必填，用于路由和API */}
+            <FormField
+              control={form.control}
+              name='entrypoint_slug'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    入口点标识 <span className='text-destructive'>*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder='入口点标识(字母、数字、连字符或下划线)'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 入口点URL字段 - 可选，实际访问地址 */}
+            <FormField
+              control={form.control}
+              name='entrypoint_url'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    URL <span className='text-destructive'>*</span>
+                  </FormLabel>
+                  <FormControl>
+                    {/* 处理null值与空字符串的显示问题 */}
+                    <Input
+                      {...field}
+                      value={field.value ?? ''}
+                      placeholder='入口点网址(https://www.example.com/)'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 两分栏 */}
+            <div className='grid grid-cols-2 gap-4'>
+              {/* 材料类型字段 - 可选，选择入口点的材料类型 */}
+              <FormField
+                control={form.control}
+                name='material_type'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>材料类型</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || 'unknown'}
+                    >
+                      <FormControl
+                        className={cn(
+                          'w-full justify-between',
+                          !field.value && 'text-muted-foreground'
+                        )}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder='选择材料类型' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {materialLabels.map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            <div className='flex items-center space-x-2'>
+                              <item.icon className='h-4 w-4' />
+                              <span className='font-semibold'>
+                                {item.label}
+                              </span>
+                              <span className='text-muted-foreground'>
+                                [ {item.value} ]
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* 网站内在线爬虫任务数量限制 */}
+              <FormField
+                control={form.control}
+                name='entrypoint_max_spider_task_count'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>入口点最大任务数</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type='number'
+                        placeholder='0表示无限制'
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* 入口点头像字段 - 可选，图片URL */}
             <FormField
@@ -314,115 +443,7 @@ export function EntrypointUpdateDrawer({
               )}
             />
 
-            {/* 材料类型字段 - 可选，选择入口点的材料类型 */}
-            <FormField
-              control={form.control}
-              name='material_type'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>材料类型</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value || 'unknown'}
-                  >
-                    <FormControl
-                      className={cn(
-                        'w-full justify-between',
-                        !field.value && 'text-muted-foreground'
-                      )}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder='选择材料类型' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {materialLabels.map((item) => (
-                        <SelectItem key={item.value} value={item.value}>
-                          <div className='flex items-center space-x-2'>
-                            <item.icon className='h-4 w-4' />
-                            <span className='font-semibold'>{item.label}</span>
-                            <span className='text-muted-foreground'>
-                              [ {item.value} ]
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* 入口点名称字段 - 必填，用于显示 */}
-            <FormField
-              control={form.control}
-              name='entrypoint_name'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>入口点名称</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder='入口点名称(强调可读性)' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* 入口点标识字段 - 必填，用于路由和API */}
-            <FormField
-              control={form.control}
-              name='entrypoint_slug'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>入口点标识</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder='入口点标识(字母、数字、连字符或下划线)'
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* 网站内在线爬虫任务数量限制 */}
-            <FormField
-              control={form.control}
-              name='entrypoint_max_spider_task_count'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>入口点最大任务数</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type='number'
-                      placeholder='0表示无限制'
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* 入口点URL字段 - 可选，实际访问地址 */}
-            <FormField
-              control={form.control}
-              name='entrypoint_url'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL</FormLabel>
-                  <FormControl>
-                    {/* 处理null值与空字符串的显示问题 */}
-                    <Input
-                      {...field}
-                      value={field.value ?? ''}
-                      placeholder='入口点网址(https://www.example.com/)'
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <h4 className='text-sm font-bold'>参数要素包</h4>
 
             {/* 入口点自用参数要素包标识 */}
             <FormField

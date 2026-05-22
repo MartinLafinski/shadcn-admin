@@ -10,6 +10,7 @@ export const Route = createFileRoute('/_authenticated/prejobs/')({
         industry_id: z.int().optional(),
         website_id: z.int().optional(),
         entrypoint_id: z.int().optional(),
+        jobgroup_id: z.int().optional(),
         prejob_keyword: z.string().optional(),
         prejob_level: z.enum(['low', 'medium', 'high']).optional(),
         prejob_enabled: z.boolean().optional(),

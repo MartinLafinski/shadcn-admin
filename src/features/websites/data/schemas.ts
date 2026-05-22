@@ -32,6 +32,7 @@ export const WebsiteItemSchema = z
     updated_by: z.string(),
     entrypoint_count: z.number().int().optional(),
     prejob_count: z.number().int().optional(),
+    spider_package_count: z.number().int().optional(),
     website_free_spider_task_capacity: z.number().int(),
     website_max_spider_task_count: z.number().int().optional(),
     website_name: z.string(),

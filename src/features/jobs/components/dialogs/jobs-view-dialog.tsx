@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog.tsx'
 // 滚动区域控件
-import { ScrollArea } from '@/components/ui/scroll-area.tsx'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area.tsx'
 import { taskStatusDetailDict } from '@/features/jobs/data/labels.tsx'
 import { type JobItemData } from '../../data/schemas.ts'
 
@@ -91,246 +91,245 @@ export function JobsViewDialog({
         </DialogHeader>
 
         {/* 可滚动的内容区域 */}
-        <div className='min-h-0 flex-1 overflow-hidden'>
-          <ScrollArea className='h-full w-full' type={'always'}>
-            <div className='space-y-6 px-6 pb-6'>
-              {/* 任务基础信息展示区域 */}
-              <div className='space-y-4'>
-                {/* 任务结果状态显示区域 */}
-                <div className='space-y-2'>
-                  <h4 className='text-sm font-medium'>任务状态</h4>
-                  <div
-                    className={cn(
-                      'flex items-center gap-2 rounded-md border p-3',
-                      statusDisplay.className
-                    )}
-                  >
-                    <statusDisplay.icon className='h-5 w-5' />
-                    <span className='font-medium'>{statusDisplay.label}</span>
-                  </div>
-                </div>
-
-                {/* 任务ID显示区域 */}
-                <div className='space-y-2'>
-                  <h4 className='text-sm font-medium'>任务ID</h4>
-                  <div className='rounded-md border bg-background p-2 break-all'>
-                    {job.task_id || '-'}
-                  </div>
-                </div>
-
-                {/* 准任务ID显示区域 */}
-                <div className='space-y-2'>
-                  <h4 className='text-sm font-medium'>准任务ID</h4>
-                  <div className='rounded-md border bg-background p-2 break-all'>
-                    {job.pre_task_id}
-                  </div>
-                </div>
-
-                {/* 任务名称显示区域 */}
-                {job.task_name && (
-                  <div className='space-y-2'>
-                    <h4 className='text-sm font-medium'>任务名称</h4>
-                    <div className='rounded-md border bg-background p-2 break-all'>
-                      {job.task_name}
-                    </div>
-                  </div>
-                )}
-
-                {/* 任务标识显示区域 */}
-                {job.task_slug && (
-                  <div className='space-y-2'>
-                    <h4 className='text-sm font-medium'>任务标识</h4>
-                    <div className='rounded-md border bg-background p-2 break-all'>
-                      {job.task_slug}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* 时间信息区域 */}
-              <div className='space-y-4'>
-                <h4 className='flex items-center gap-2 text-sm font-medium'>
-                  <Calendar className='h-4 w-4' />
-                  时间信息
-                </h4>
-
-                <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
-                  {/* 创建时间 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      创建时间
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {formatDateTime(job.create_at)}
-                    </div>
-                  </div>
-
-                  {/* 触发时间 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      触发时间
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {formatDateTime(job.triggered_at)}
-                    </div>
-                  </div>
-
-                  {/* 采集开始时间 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      采集开始时间
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {formatDateTime(job.begin_at)}
-                    </div>
-                  </div>
-
-                  {/* 采集结束时间 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      采集结束时间
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {formatDateTime(job.end_at)}
-                    </div>
-                  </div>
-
-                  {/* 关闭时间 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      关闭时间
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {formatDateTime(job.closed_at)}
-                    </div>
-                  </div>
-
-                  {/* 最小可用间隔 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      最小可用间隔
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {job.min_available_interval} 秒
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 节点和 Actor 信息区域 */}
-              <div className='space-y-4'>
-                <h4 className='flex items-center gap-2 text-sm font-medium'>
-                  <Server className='h-4 w-4' />
-                  节点信息
-                </h4>
-
-                <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
-                  {/* 节点ID */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      节点ID
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm break-all'>
-                      {job.node_id || '-'}
-                    </div>
-                  </div>
-
-                  {/* 节点地址 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      节点地址
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm break-all'>
-                      {job.node_address || '-'}
-                    </div>
-                  </div>
-
-                  {/* Actor ID */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      Actor ID
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm break-all'>
-                      {job.uid || '-'}
-                    </div>
-                  </div>
-
-                  {/* Actor 地址 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      Actor 地址
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm break-all'>
-                      {job.address || '-'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 关联信息区域 */}
-              <div className='space-y-4'>
-                <h4 className='flex items-center gap-2 text-sm font-medium'>
-                  <Globe className='h-4 w-4' />
-                  关联信息
-                </h4>
-
-                <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
-                  {/* 网站信息 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>网站</span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {job.website_slug}
-                    </div>
-                  </div>
-
-                  {/* 入口点信息 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      入口点
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {job.entrypoint_slug}
-                    </div>
-                  </div>
-
-                  {/* 网站任务ID */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      网站任务ID
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {job.website_task_id || '-'}
-                    </div>
-                  </div>
-
-                  {/* 入口点任务ID */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      入口点任务ID
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {job.entrypoint_task_id || '-'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 优先级信息 */}
+        <div className='min-h-0 flex-1'>
+          <div className='space-y-6 px-6 pb-6'>
+            {/* 任务基础信息展示区域 */}
+            <div className='space-y-4'>
+              {/* 任务结果状态显示区域 */}
               <div className='space-y-2'>
-                <h4 className='text-sm font-medium'>优先级</h4>
-                <div className='rounded-md border bg-background p-2 text-sm'>
-                  {job.priority}
+                <h4 className='text-sm font-medium'>任务状态</h4>
+                <div
+                  className={cn(
+                    'flex items-center gap-2 rounded-md border p-3',
+                    statusDisplay.className
+                  )}
+                >
+                  <statusDisplay.icon className='h-5 w-5' />
+                  <span className='font-medium'>{statusDisplay.label}</span>
                 </div>
               </div>
 
-              {/* 配置信息区域：展示 JSON 格式的配置数据 */}
+              {/* 任务ID显示区域 */}
               <div className='space-y-2'>
-                <h4 className='text-sm font-medium'>配置信息</h4>
-                <p className='text-xs text-muted-foreground'>
-                  配置以网站配置为基座，入口点配置会覆盖网站配置中的同名设置
-                </p>
-                {/* 使用 react-json-view 组件展示 JSON 数据 */}
-                <div className='rounded-md border bg-muted/50 p-4'>
+                <h4 className='text-sm font-medium'>任务ID</h4>
+                <div className='rounded-md border bg-background p-2 break-all'>
+                  {job.task_id || '-'}
+                </div>
+              </div>
+
+              {/* 准任务ID显示区域 */}
+              <div className='space-y-2'>
+                <h4 className='text-sm font-medium'>准任务ID</h4>
+                <div className='rounded-md border bg-background p-2 break-all'>
+                  {job.pre_task_id}
+                </div>
+              </div>
+
+              {/* 任务名称显示区域 */}
+              {job.task_name && (
+                <div className='space-y-2'>
+                  <h4 className='text-sm font-medium'>任务名称</h4>
+                  <div className='rounded-md border bg-background p-2 break-all'>
+                    {job.task_name}
+                  </div>
+                </div>
+              )}
+
+              {/* 任务标识显示区域 */}
+              {job.task_slug && (
+                <div className='space-y-2'>
+                  <h4 className='text-sm font-medium'>任务标识</h4>
+                  <div className='rounded-md border bg-background p-2 break-all'>
+                    {job.task_slug}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 时间信息区域 */}
+            <div className='space-y-4'>
+              <h4 className='flex items-center gap-2 text-sm font-medium'>
+                <Calendar className='h-4 w-4' />
+                时间信息
+              </h4>
+
+              <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
+                {/* 创建时间 */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>
+                    创建时间
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {formatDateTime(job.create_at)}
+                  </div>
+                </div>
+
+                {/* 触发时间 */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>
+                    触发时间
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {formatDateTime(job.triggered_at)}
+                  </div>
+                </div>
+
+                {/* 采集开始时间 */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>
+                    采集开始时间
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {formatDateTime(job.begin_at)}
+                  </div>
+                </div>
+
+                {/* 采集结束时间 */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>
+                    采集结束时间
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {formatDateTime(job.end_at)}
+                  </div>
+                </div>
+
+                {/* 关闭时间 */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>
+                    关闭时间
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {formatDateTime(job.closed_at)}
+                  </div>
+                </div>
+
+                {/* 最小可用间隔 */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>
+                    最小可用间隔
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {job.min_available_interval} 秒
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 节点和 Actor 信息区域 */}
+            <div className='space-y-4'>
+              <h4 className='flex items-center gap-2 text-sm font-medium'>
+                <Server className='h-4 w-4' />
+                节点信息
+              </h4>
+
+              <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
+                {/* 节点ID */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>节点ID</span>
+                  <div className='rounded-md border bg-background p-2 text-sm break-all'>
+                    {job.node_id || '-'}
+                  </div>
+                </div>
+
+                {/* 节点地址 */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>
+                    节点地址
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm break-all'>
+                    {job.node_address || '-'}
+                  </div>
+                </div>
+
+                {/* Actor ID */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>
+                    Actor ID
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm break-all'>
+                    {job.uid || '-'}
+                  </div>
+                </div>
+
+                {/* Actor 地址 */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>
+                    Actor 地址
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm break-all'>
+                    {job.address || '-'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 关联信息区域 */}
+            <div className='space-y-4'>
+              <h4 className='flex items-center gap-2 text-sm font-medium'>
+                <Globe className='h-4 w-4' />
+                关联信息
+              </h4>
+
+              <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
+                {/* 网站信息 */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>网站</span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {job.website_slug}
+                  </div>
+                </div>
+
+                {/* 入口点信息 */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>入口点</span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {job.entrypoint_slug}
+                  </div>
+                </div>
+
+                {/* 网站任务ID */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>
+                    网站任务ID
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {job.website_task_id || '-'}
+                  </div>
+                </div>
+
+                {/* 入口点任务ID */}
+                <div className='space-y-1'>
+                  <span className='text-xs text-muted-foreground'>
+                    入口点任务ID
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {job.entrypoint_task_id || '-'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 优先级信息 */}
+            <div className='space-y-2'>
+              <h4 className='text-sm font-medium'>优先级</h4>
+              <div className='rounded-md border bg-background p-2 text-sm'>
+                {job.priority}
+              </div>
+            </div>
+
+            {/* 配置信息区域：展示 JSON 格式的配置数据 */}
+            <div className='space-y-2'>
+              <h4 className='text-sm font-medium'>配置信息</h4>
+              <p className='text-xs text-muted-foreground'>
+                配置以网站配置为基座，入口点配置会覆盖网站配置中的同名设置
+              </p>
+              {/* 使用 react-json-view 组件展示 JSON 数据 */}
+              <div className='h-full overflow-hidden rounded-md border bg-muted/50 p-4'>
+                <ScrollArea
+                  className='h-[320px] w-full max-w-full'
+                  type='always'
+                >
                   <JsonView
                     value={mergedConfig}
                     displayDataTypes={false} // 不显示数据类型
@@ -346,10 +345,11 @@ export function JobsViewDialog({
                         : { ...githubDarkTheme, backgroundColor: 'transparent' }
                     }
                   />
-                </div>
+                  <ScrollBar orientation='horizontal' />
+                </ScrollArea>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

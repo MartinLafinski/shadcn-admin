@@ -49,8 +49,13 @@ const route = getRouteApi('/_authenticated/jobgroups/')
 const DEFAULT_PAGE_SIZE: number = Number(
   import.meta.env.VITE_JOBGROUP_PAGE_SIZE || 50
 )
-const pinnedLeft = ['select', 'jobgroup_id', 'jobgroup_name']
-const pinnedRight = ['jobgroup_enabled', 'actions']
+const pinnedLeft = [
+  'select',
+  'jobgroup_id',
+  'jobgroup_name',
+  'jobgroup_status_mini',
+]
+const pinnedRight = ['jobgroup_status', 'jobgroup_enabled', 'actions']
 
 export function JobGroupsTable({
   data = [],

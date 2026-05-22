@@ -114,7 +114,7 @@ export const PrejobCombobox = React.memo(
                             selected ? 'opacity-100' : 'opacity-0'
                           )}
                         />
-                        <PrejobMiniItemCell entity={pj} />
+                        <PrejobMiniItemCell prejob={pj} isPrimary={false} />
                       </CommandItem>
                     )
                   })}

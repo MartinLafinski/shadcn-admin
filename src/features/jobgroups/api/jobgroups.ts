@@ -435,10 +435,14 @@ export const useBatchDeleteJobGroupsMutation = () => {
 }
 
 export const useSyncJobGroupsMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (data: SyncJobGroupsData) => {
       const token = getAccessToken()
       return syncJobGroups(token, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jobgroups'] })
     },
   })
 }

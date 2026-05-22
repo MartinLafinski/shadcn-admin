@@ -131,7 +131,10 @@ export const WebsiteCombobox = React.memo(
                             : 'opacity-0'
                         )}
                       />
-                      <WebsiteMiniItemCell website={website} asLink={true} />
+                      <WebsiteMiniItemCell
+                        website={website}
+                        isPrimary={false}
+                      />
                       {/*<span className='font-semibold'>*/}
                       {/*  {website.website_name}*/}
                       {/*</span>*/}

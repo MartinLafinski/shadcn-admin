@@ -30,7 +30,13 @@ export const paramFormsColumns: ColumnDef<ParamFormItemData>[] = [
     id: 'param_form_name',
     accessorKey: 'param_form_name',
     header: '参数要素包',
-    cell: ({ row }) => <ParamFormMiniItemCell entity={row.original} />,
+    cell: ({ row }) => (
+      <ParamFormMiniItemCell
+        entity={row.original}
+        isPrimary={true}
+        asLink={true}
+      />
+    ),
     size: 220,
   },
   {

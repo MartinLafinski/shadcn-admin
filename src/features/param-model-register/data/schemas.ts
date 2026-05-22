@@ -59,7 +59,7 @@ export type ParamModelRegisterItemData = z.infer<
 export type ParamModelRegisterData = z.infer<typeof ParamModelRegisterSchema>
 
 export const ParamModelRegisterCreateSchema = z.object({
-  register_name: z.string().optional().nullable(),
+  register_name: z.string().min(1, '请输入注册名称'),
   spider_slug: z
     .string()
     .trim()
@@ -77,8 +77,6 @@ export const ParamModelRegisterCreateSchema = z.object({
     .min(2, '参数要素包标识长度不小于2')
     .max(64, '参数要素包标识长度不大于64'),
   shard_strategy: z.string().optional().nullable(),
-
-  enabled: z.boolean().optional(),
   description: z.string().optional().nullable(),
 })
 
@@ -89,8 +87,6 @@ export type ParamModelRegisterCreateData = z.infer<
 export const ParamModelRegisterUpdateSchema = z.object({
   register_name: z.string().optional().nullable(),
   shard_strategy: z.string().optional().nullable(),
-
-  enabled: z.boolean().optional(),
   description: z.string().optional().nullable(),
 })
 
@@ -107,6 +103,20 @@ export const RegisterShardSchema = z.object({
 })
 
 export type RegisterShardData = z.infer<typeof RegisterShardSchema>
+
+export const RegisterDataItemSchema = z.object({
+  key: z.string(),
+  data: z.record(z.string(), z.any()),
+})
+
+export type RegisterDataItem = z.infer<typeof RegisterDataItemSchema>
+
+export const WriteRegisterDataSchema = z.object({
+  key: z.string().min(1, '请输入数据键值'),
+  data: z.record(z.string(), z.any()),
+})
+
+export type WriteRegisterData = z.infer<typeof WriteRegisterDataSchema>
 
 export const ParamModelRegistersSchema = z.object({
   registers: z.array(ParamModelRegisterSchema),

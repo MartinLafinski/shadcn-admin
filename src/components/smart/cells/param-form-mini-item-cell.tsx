@@ -7,17 +7,20 @@ import type { ParamFormItemData } from '@/features/param-forms/data/schemas'
 
 interface ParamFormMiniItemCellProps {
   entity: ParamFormItemData | MiniParamFormData | null | undefined
+  isPrimary?: boolean
   asLink?: boolean
   className?: string
 }
 
 export const ParamFormMiniItemCell = React.memo(
-  ({ entity, asLink, className }: ParamFormMiniItemCellProps) => {
+  ({ entity, isPrimary, asLink, className }: ParamFormMiniItemCellProps) => {
     if (!entity) {
       return <span>-</span>
     }
 
-    const entityClassName = asLink || 'font-semibold'
+    const isSecondary: boolean = !isPrimary
+
+    const entityClassName = isPrimary && 'font-semibold'
 
     const content = (
       <div
@@ -29,7 +32,7 @@ export const ParamFormMiniItemCell = React.memo(
         <span
           className={cn(
             'text-sm',
-            asLink && 'underline decoration-dotted underline-offset-5',
+            isSecondary && 'underline decoration-dotted underline-offset-5',
             entity.param_form_enabled
               ? 'decoration-green-500'
               : 'decoration-red-500',

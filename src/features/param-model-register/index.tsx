@@ -40,7 +40,7 @@ function ParamModelRegisterContent() {
     return (
       <Main>
         <div className='flex h-64 items-center justify-center'>
-          <p className='text-lg text-red-500'>无法获取注册条目列表数据</p>
+          <p className='text-lg text-red-500'>无法获取参数模型集列表数据</p>
         </div>
       </Main>
     )

@@ -517,3 +517,31 @@ export const shardStrategyDictionary: Record<string, Record<string, any>> = {
   date: shardStrategyLabels[0],
   id_range: shardStrategyLabels[1],
 }
+
+export const onSuccessLabels = [
+  { value: 'continue' as const, label: '继续（周期性）' },
+  { value: 'break' as const, label: '停止（一次性）' },
+]
+
+export const onFailureLabels = [
+  { value: 'ignore' as const, label: '忽略' },
+  { value: 'continue' as const, label: '继续' },
+  { value: 'pause_website' as const, label: '暂停网站' },
+  { value: 'pause_entrypoint' as const, label: '暂停入口点' },
+  { value: 'pause_prejob' as const, label: '暂停预备作业' },
+  { value: 'pause_jobgroup' as const, label: '暂停作业分组' },
+]
+
+export const onSuccessDictionary: Record<string, string> = {
+  continue: '继续（周期性）',
+  break: '停止（一次性）',
+}
+
+export const onFailureDictionary: Record<string, string> = {
+  ignore: '忽略',
+  continue: '继续',
+  pause_website: '暂停网站',
+  pause_entrypoint: '暂停入口点',
+  pause_prejob: '暂停预备作业',
+  pause_jobgroup: '暂停作业分组',
+}

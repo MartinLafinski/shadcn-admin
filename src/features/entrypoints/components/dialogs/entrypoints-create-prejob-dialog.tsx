@@ -153,24 +153,6 @@ export function EntrypointsCreatePrejobDialog({
               )}
             />
 
-            {/* 预备作业标识后缀 */}
-            <FormField
-              control={form.control}
-              name='prelog_slug_suffix'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>预备作业标识后缀</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder='可选的标识后缀（例如：-v1, -backup）'
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* 预备作业名称后缀 */}
             <FormField
               control={form.control}
@@ -182,6 +164,24 @@ export function EntrypointsCreatePrejobDialog({
                     <Input
                       {...field}
                       placeholder='可选的名称后缀（例如：-版本1, -备份）'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 预备作业标识后缀 */}
+            <FormField
+              control={form.control}
+              name='prelog_slug_suffix'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>预备作业标识后缀</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder='可选的标识后缀（例如：-v1, -backup）'
                     />
                   </FormControl>
                   <FormMessage />

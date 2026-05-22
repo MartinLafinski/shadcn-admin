@@ -166,6 +166,7 @@ type ParamFormRendererProps = {
   paramFormData: ParamFormData
   formData: Record<string, unknown>
   onChange: (data: Record<string, unknown>) => void
+  disabled?: boolean
   className?: string
 }
 
@@ -173,6 +174,7 @@ export function ParamFormRenderer({
   paramFormData,
   formData,
   onChange,
+  disabled = false,
   className,
 }: ParamFormRendererProps) {
   const { param_json_schema, param_ui_schema } = paramFormData
@@ -229,6 +231,7 @@ export function ParamFormRenderer({
           uiSchema={mergedUiSchema}
           validator={validator}
           formData={formData}
+          disabled={disabled}
           // fields={}
           templates={{ FieldTemplate: FieldTemplate }}
           onChange={(e) => onChange(e.formData)}

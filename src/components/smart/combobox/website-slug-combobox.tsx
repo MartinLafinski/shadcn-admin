@@ -105,7 +105,7 @@ export const WebsiteSlugCombobox = React.memo(
                             selected ? 'opacity-100' : 'opacity-0'
                           )}
                         />
-                        <WebsiteMiniItemCell website={ws} />
+                        <WebsiteMiniItemCell website={ws} isPrimary={false} />
                       </CommandItem>
                     )
                   })}

@@ -127,7 +127,10 @@ export const IndustryCombobox = React.memo(
                             : 'opacity-0'
                         )}
                       />
-                      <IndustryMiniItemCell entity={industry} />
+                      <IndustryMiniItemCell
+                        industry={industry}
+                        isPrimary={false}
+                      />
                     </CommandItem>
                   ))}
                 </CommandGroup>

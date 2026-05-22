@@ -19,7 +19,7 @@ import {
   CheckSquare,
   Square,
 } from 'lucide-react'
-import { enableLabels, categoryTypeLabels } from '@/lib/labels'
+import { categoryTypeLabels } from '@/lib/labels'
 import { getPinningStyles } from '@/lib/ui-helper'
 import { cn } from '@/lib/utils'
 import { usePrevious } from '@/hooks/use-previous'
@@ -68,7 +68,7 @@ const ParamModelRegisterTableComponent = ({
     () => ['select', 'register_id', 'register_name'],
     []
   )
-  const pinnedRightIds = useMemo(() => ['enabled', 'actions'], [])
+  const pinnedRightIds = useMemo(() => ['actions'], [])
   const [columnPinning] = useState<ColumnPinningState>({
     left: pinnedLeftIds,
     right: pinnedRightIds,
@@ -198,11 +198,6 @@ const ParamModelRegisterTableComponent = ({
             columnId: 'category_type',
             title: '类别标识',
             options: categoryTypeLabels,
-          },
-          {
-            columnId: 'enabled',
-            title: '可用',
-            options: enableLabels,
           },
         ]}
         rightActions={

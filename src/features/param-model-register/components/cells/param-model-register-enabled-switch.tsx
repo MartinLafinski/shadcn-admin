@@ -10,12 +10,11 @@ export function ParamModelRegisterEnabledSwitch({
 }) {
   const updateMutation = useUpdateParamModelRegisterMutation()
 
-  const handleToggle = async (enabled: boolean) => {
+  const handleToggle = async (_enabled: boolean) => {
     await updateMutation
       .mutateAsync({
         registerId: register.register_id,
         data: {
-          enabled,
           register_name: register.register_name,
           shard_strategy: register.shard_strategy,
           description: register.description,
@@ -23,16 +22,16 @@ export function ParamModelRegisterEnabledSwitch({
       })
       .then((res) => {
         toast.success(
-          `注册条目 ${res.register_name || res.register_slug} 状态切换成功`
+          `参数模型集 ${res.register_name || res.register_slug} 状态切换成功`
         )
       })
       .catch((error) => {
         console.error(
-          `注册条目 ${register.register_name || register.register_slug} 状态切换失败:`,
+          `参数模型集 ${register.register_name || register.register_slug} 状态切换失败:`,
           error
         )
         toast.error(
-          `注册条目 ${register.register_name || register.register_slug} 状态切换失败`
+          `参数模型集 ${register.register_name || register.register_slug} 状态切换失败`
         )
       })
   }

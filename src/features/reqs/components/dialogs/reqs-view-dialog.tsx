@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog.tsx'
 // 滚动区域控件
-import { ScrollArea } from '@/components/ui/scroll-area.tsx'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area.tsx'
 import { type ReqData } from '../../data/schemas.ts'
 
 interface ReqsViewDialogProps {
@@ -98,182 +98,185 @@ export function ReqsViewDialog({
         </DialogHeader>
 
         {/* 可滚动的内容区域 */}
-        <div className='min-h-0 flex-1 overflow-hidden'>
-          <ScrollArea className='h-full w-full' type={'always'}>
-            <div className='space-y-6 px-6 pb-6'>
-              {/* 请求基础信息展示区域 */}
-              <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
-                {/* 请求ID */}
-                <div className='space-y-1'>
-                  <h4 className='text-sm font-medium'>请求ID</h4>
-                  <div className='rounded-md border bg-background p-2 text-sm break-all'>
-                    {req.req_id || '-'}
-                  </div>
-                </div>
-
-                {/* 任务ID */}
-                <div className='space-y-1'>
-                  <h4 className='text-sm font-medium'>任务ID</h4>
-                  <div className='rounded-md border bg-background p-2 text-sm break-all'>
-                    {req.task_id}
-                  </div>
-                </div>
-
-                {/* 请求结果状态 */}
-                <div className='space-y-1'>
-                  <h4 className='text-sm font-medium'>请求状态</h4>
-                  <div className='flex items-center gap-2 rounded-md border bg-background p-2 text-sm'>
-                    <StatusIcon className={`h-4 w-4 ${resultStatus.color}`} />
-                    <span className={resultStatus.color}>
-                      {resultStatus.label}
-                    </span>
-                  </div>
-                </div>
-
-                {/* HTTP方法 */}
-                <div className='space-y-1'>
-                  <h4 className='text-sm font-medium'>HTTP方法</h4>
-                  <div className='rounded-md border bg-background p-2 text-sm'>
-                    {req.method}
-                  </div>
+        <div className='min-h-0 flex-1'>
+          <div className='space-y-6 px-6 pb-6'>
+            {/* 请求基础信息展示区域 */}
+            <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
+              {/* 请求ID */}
+              <div className='space-y-1'>
+                <h4 className='text-sm font-medium'>请求ID</h4>
+                <div className='rounded-md border bg-background p-2 text-sm break-all'>
+                  {req.req_id || '-'}
                 </div>
               </div>
 
-              {/* 标题和URL */}
-              <div className='space-y-4'>
+              {/* 任务ID */}
+              <div className='space-y-1'>
+                <h4 className='text-sm font-medium'>任务ID</h4>
+                <div className='rounded-md border bg-background p-2 text-sm break-all'>
+                  {req.task_id}
+                </div>
+              </div>
+
+              {/* 请求结果状态 */}
+              <div className='space-y-1'>
+                <h4 className='text-sm font-medium'>请求状态</h4>
+                <div className='flex items-center gap-2 rounded-md border bg-background p-2 text-sm'>
+                  <StatusIcon className={`h-4 w-4 ${resultStatus.color}`} />
+                  <span className={resultStatus.color}>
+                    {resultStatus.label}
+                  </span>
+                </div>
+              </div>
+
+              {/* HTTP方法 */}
+              <div className='space-y-1'>
+                <h4 className='text-sm font-medium'>HTTP方法</h4>
+                <div className='rounded-md border bg-background p-2 text-sm'>
+                  {req.method}
+                </div>
+              </div>
+            </div>
+
+            {/* 标题和URL */}
+            <div className='space-y-4'>
+              <div className='space-y-1'>
+                <h4 className='text-sm font-medium'>标题</h4>
+                <div className='rounded-md border bg-background p-2 text-sm break-all'>
+                  {req.title || '-'}
+                </div>
+              </div>
+
+              <div className='space-y-1'>
+                <h4 className='text-sm font-medium'>URL</h4>
+                {req.url ? (
+                  <a
+                    href={req.url}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='block rounded-md border bg-background p-2 text-sm break-all text-blue-600 hover:text-blue-800 hover:underline'
+                  >
+                    {req.url}
+                  </a>
+                ) : (
+                  <div className='rounded-md border bg-background p-2 text-sm text-gray-400'>
+                    -
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 时间信息区域 */}
+            <div className='space-y-4'>
+              <h4 className='flex items-center gap-2 text-sm font-medium'>
+                <Calendar className='h-4 w-4' />
+                时间信息
+              </h4>
+
+              <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
+                {/* 发布日期 */}
                 <div className='space-y-1'>
-                  <h4 className='text-sm font-medium'>标题</h4>
-                  <div className='rounded-md border bg-background p-2 text-sm break-all'>
-                    {req.title || '-'}
+                  <span className='text-xs text-muted-foreground'>
+                    发布日期
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {formatDateTime(req.published_at)} [GMT+8]
                   </div>
                 </div>
 
+                {/* 发生时间 */}
                 <div className='space-y-1'>
-                  <h4 className='text-sm font-medium'>URL</h4>
-                  {req.url ? (
-                    <a
-                      href={req.url}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='block rounded-md border bg-background p-2 text-sm break-all text-blue-600 hover:text-blue-800 hover:underline'
-                    >
-                      {req.url}
-                    </a>
-                  ) : (
-                    <div className='rounded-md border bg-background p-2 text-sm text-gray-400'>
-                      -
+                  <span className='text-xs text-muted-foreground'>
+                    发生时间
+                  </span>
+                  <div className='rounded-md border bg-background p-2 text-sm'>
+                    {formatDateTime(req.occurred_at)} [GMT+8]
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 异常信息区域 */}
+            {(req.exp_type || req.exp_msg) && (
+              <div className='space-y-4'>
+                <h4 className='flex items-center gap-2 text-sm font-medium text-red-600 dark:text-red-400'>
+                  <XCircle className='h-4 w-4' />
+                  异常信息
+                </h4>
+
+                <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
+                  {/* 异常类型 */}
+                  {req.exp_type && (
+                    <div className='space-y-1'>
+                      <span className='text-xs text-muted-foreground'>
+                        异常类型
+                      </span>
+                      <div className='rounded-md border bg-background p-2 text-sm break-all'>
+                        {req.exp_type}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 异常消息 */}
+                  {req.exp_msg && (
+                    <div className='space-y-1'>
+                      <span className='text-xs text-muted-foreground'>
+                        异常消息
+                      </span>
+                      <div className='rounded-md border bg-background p-2 text-sm break-all'>
+                        {req.exp_msg}
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
+            )}
 
-              {/* 时间信息区域 */}
+            {/* 丢弃信息区域 */}
+            {(req.discard_type || req.discard_msg) && (
               <div className='space-y-4'>
-                <h4 className='flex items-center gap-2 text-sm font-medium'>
-                  <Calendar className='h-4 w-4' />
-                  时间信息
+                <h4 className='flex items-center gap-2 text-sm font-medium text-amber-600 dark:text-amber-400'>
+                  <AlertCircle className='h-4 w-4' />
+                  丢弃信息
                 </h4>
 
                 <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
-                  {/* 发布日期 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      发布日期
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {formatDateTime(req.published_at)} [GMT+8]
+                  {/* 丢弃类型 */}
+                  {req.discard_type && (
+                    <div className='space-y-1'>
+                      <span className='text-xs text-muted-foreground'>
+                        丢弃类型
+                      </span>
+                      <div className='rounded-md border bg-background p-2 text-sm break-all'>
+                        {req.discard_type}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  {/* 发生时间 */}
-                  <div className='space-y-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      发生时间
-                    </span>
-                    <div className='rounded-md border bg-background p-2 text-sm'>
-                      {formatDateTime(req.occurred_at)} [GMT+8]
+                  {/* 丢弃消息 */}
+                  {req.discard_msg && (
+                    <div className='space-y-1'>
+                      <span className='text-xs text-muted-foreground'>
+                        丢弃消息
+                      </span>
+                      <div className='rounded-md border bg-background p-2 text-sm break-all'>
+                        {req.discard_msg}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
+            )}
 
-              {/* 异常信息区域 */}
-              {(req.exp_type || req.exp_msg) && (
-                <div className='space-y-4'>
-                  <h4 className='flex items-center gap-2 text-sm font-medium text-red-600 dark:text-red-400'>
-                    <XCircle className='h-4 w-4' />
-                    异常信息
-                  </h4>
-
-                  <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
-                    {/* 异常类型 */}
-                    {req.exp_type && (
-                      <div className='space-y-1'>
-                        <span className='text-xs text-muted-foreground'>
-                          异常类型
-                        </span>
-                        <div className='rounded-md border bg-background p-2 text-sm break-all'>
-                          {req.exp_type}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 异常消息 */}
-                    {req.exp_msg && (
-                      <div className='space-y-1'>
-                        <span className='text-xs text-muted-foreground'>
-                          异常消息
-                        </span>
-                        <div className='rounded-md border bg-background p-2 text-sm break-all'>
-                          {req.exp_msg}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* 丢弃信息区域 */}
-              {(req.discard_type || req.discard_msg) && (
-                <div className='space-y-4'>
-                  <h4 className='flex items-center gap-2 text-sm font-medium text-amber-600 dark:text-amber-400'>
-                    <AlertCircle className='h-4 w-4' />
-                    丢弃信息
-                  </h4>
-
-                  <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
-                    {/* 丢弃类型 */}
-                    {req.discard_type && (
-                      <div className='space-y-1'>
-                        <span className='text-xs text-muted-foreground'>
-                          丢弃类型
-                        </span>
-                        <div className='rounded-md border bg-background p-2 text-sm break-all'>
-                          {req.discard_type}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 丢弃消息 */}
-                    {req.discard_msg && (
-                      <div className='space-y-1'>
-                        <span className='text-xs text-muted-foreground'>
-                          丢弃消息
-                        </span>
-                        <div className='rounded-md border bg-background p-2 text-sm break-all'>
-                          {req.discard_msg}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* 请求参数 */}
-              {req.params && Object.keys(req.params).length > 0 && (
-                <div className='space-y-4'>
-                  <h4 className='text-sm font-medium'>请求参数</h4>
-                  <div className='rounded-md border bg-muted/50 p-4'>
+            {/* 请求参数 */}
+            {req.params && Object.keys(req.params).length > 0 && (
+              <div className='space-y-4'>
+                <h4 className='text-sm font-medium'>请求参数</h4>
+                <div className='h-full overflow-hidden rounded-md border bg-muted/50 p-4'>
+                  <ScrollArea
+                    className='h-[320px] w-full max-w-full'
+                    type='always'
+                  >
                     <JsonView
                       value={req.params}
                       displayDataTypes={false}
@@ -292,14 +295,20 @@ export function ReqsViewDialog({
                             }
                       }
                     />
-                  </div>
+                    <ScrollBar orientation='horizontal' />
+                  </ScrollArea>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* 额外信息 */}
-              <div className='space-y-4'>
-                <h4 className='text-sm font-medium'>额外信息</h4>
-                <div className='rounded-md border bg-muted/50 p-4'>
+            {/* 额外信息 */}
+            <div className='space-y-4'>
+              <h4 className='text-sm font-medium'>额外信息</h4>
+              <div className='h-full overflow-hidden rounded-md border bg-muted/50 p-4'>
+                <ScrollArea
+                  className='h-[320px] w-full max-w-full'
+                  type='always'
+                >
                   <JsonView
                     value={req.extra_info || {}}
                     displayDataTypes={false}
@@ -315,10 +324,11 @@ export function ReqsViewDialog({
                         : { ...githubDarkTheme, backgroundColor: 'transparent' }
                     }
                   />
-                </div>
+                  <ScrollBar orientation='horizontal' />
+                </ScrollArea>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { WebsiteSchema } from '@/features/websites/data/schemas'
 
 // =====================================================================================================================
 // 参数模板 Schema（保留，其他模块可能引用）
@@ -93,6 +94,8 @@ export const SpiderPackageItemSchema = z.object({
     ),
   spider_package_version: z.string().default('latest'),
   spider_package_url: z.string(),
+  website_id: z.number().int().nullable(),
+  website: WebsiteSchema.nullable(),
   spider_package_config: z.record(z.string(), z.any()),
   spider_package_readme: z.string().optional().nullable(),
   releases: z.array(SpiderPackageReleaseSchema),
@@ -121,6 +124,7 @@ export const SpiderPackageCreateSchema = z.object({
     ),
   spider_package_version: z.string().default('latest'),
   spider_package_url: z.string().min(1, '请输入爬虫包下载地址'),
+  website_id: z.number().int().nullable(),
   spider_package_config: z.record(z.string(), z.any()).optional().default({}),
   spider_package_readme: z.string().optional(),
 })
@@ -147,6 +151,7 @@ export const SpiderPackageUpdateSchema = z.object({
     ),
   spider_package_version: z.string(),
   spider_package_url: z.string().min(1, '请输入爬虫包下载地址'),
+  website_id: z.number().int().nullable(),
 })
 
 export type SpiderPackageUpdateData = z.infer<typeof SpiderPackageUpdateSchema>

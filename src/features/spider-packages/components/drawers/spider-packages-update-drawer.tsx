@@ -21,6 +21,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet.tsx'
+import { WebsiteCombobox } from '@/components/smart/combobox/website-combobox'
 import { useUpdateSpiderPackageMutation } from '../../api/spider-packages.ts'
 import {
   SpiderPackageUpdateSchema,
@@ -44,6 +45,7 @@ export function SpiderPackageUpdateDrawer({
     spider_package_slug: currentRow.spider_package_slug,
     spider_package_version: currentRow.spider_package_version,
     spider_package_url: currentRow.spider_package_url,
+    website_id: currentRow.website_id ?? null,
   }
 
   const form = useForm<SpiderPackageUpdateData>({
@@ -82,6 +84,27 @@ export function SpiderPackageUpdateDrawer({
           >
             <div className='space-y-4'>
               <h4 className='text-sm font-bold'>基础设置</h4>
+              <FormField
+                control={form.control}
+                name='website_id'
+                render={({ field }) => (
+                  <FormItem className='flex flex-col'>
+                    <FormLabel>所属网站</FormLabel>
+                    <FormControl>
+                      <WebsiteCombobox
+                        value={field.value}
+                        onChange={(id) => {
+                          form.setValue('website_id', id ?? null, {
+                            shouldValidate: true,
+                          })
+                        }}
+                        placeholder='选择一个网站'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name='spider_package_name'

@@ -49,8 +49,8 @@ const route = getRouteApi('/_authenticated/prejobs/')
 const DEFAULT_PAGE_SIZE: number = Number(
   import.meta.env.VITE_PREJOB_PAGE_SIZE || 50
 )
-const pinnedLeft = ['select', 'prejob_id', 'prejob_name']
-const pinnedRight = ['prejob_enabled', 'actions']
+const pinnedLeft = ['select', 'prejob_id', 'prejob_name', 'prejob_status_mini']
+const pinnedRight = ['prejob_status', 'prejob_enabled', 'actions']
 
 export function PrejobsTable({
   data = [],

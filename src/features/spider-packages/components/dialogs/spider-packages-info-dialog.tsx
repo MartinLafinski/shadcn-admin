@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { useSpiderPackageQuery } from '../../api/spider-packages.ts'
 import type { SpiderPackageReleaseData } from '../../data/schemas'
 
@@ -139,114 +139,117 @@ export function SpiderPackagesInfoDialog({
           </div>
         </DialogHeader>
 
-        <div className='min-h-0 flex-1 overflow-hidden'>
-          <ScrollArea className='h-full' type='always'>
-            <div className='space-y-6 p-6'>
-              <div className='flex items-center gap-3 rounded-xl border bg-muted/30 p-4'>
-                <div>
-                  <p className='text-xs text-muted-foreground'>版本</p>
-                  <Badge
-                    variant='outline'
-                    className='bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                  >
-                    {pkg.spider_package_version}
-                  </Badge>
-                </div>
-                <div className='min-w-0 flex-1'>
-                  <p className='text-xs text-muted-foreground'>下载地址</p>
-                  <a
-                    href={pkg.spider_package_url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='inline-flex items-center gap-1 text-sm text-blue-600 hover:underline dark:text-blue-400'
-                  >
-                    <span className='truncate'>{pkg.spider_package_url}</span>
-                    <ExternalLinkIcon className='h-3 w-3 shrink-0' />
-                  </a>
-                </div>
+        <div className='min-h-0 flex-1'>
+          <div className='space-y-6 p-6'>
+            <div className='flex items-center gap-3 rounded-xl border bg-muted/30 p-4'>
+              <div>
+                <p className='text-xs text-muted-foreground'>版本</p>
+                <Badge
+                  variant='outline'
+                  className='bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                >
+                  {pkg.spider_package_version}
+                </Badge>
               </div>
+              <div className='min-w-0 flex-1'>
+                <p className='text-xs text-muted-foreground'>下载地址</p>
+                <a
+                  href={pkg.spider_package_url}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='inline-flex items-center gap-1 text-sm text-blue-600 hover:underline dark:text-blue-400'
+                >
+                  <span className='truncate'>{pkg.spider_package_url}</span>
+                  <ExternalLinkIcon className='h-3 w-3 shrink-0' />
+                </a>
+              </div>
+            </div>
 
-              {releaseCount > 0 && (
-                <details className='group' open>
-                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <BoxesIcon className='h-5 w-5 text-cyan-500' />
-                    发布版本
-                    <Badge variant='secondary' className='ml-auto'>
-                      {releaseCount}
-                    </Badge>
-                    <ChevronDown className='ml-2 h-4 w-4 transition-transform group-open:rotate-180' />
-                  </summary>
-                  <div className='mt-4 space-y-2'>
-                    {pkg.releases.map(
-                      (r: SpiderPackageReleaseData, idx: number) => (
-                        <a
-                          key={r.release_id}
-                          href={r.release_url}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='flex items-center justify-between rounded-lg border bg-card p-3 transition-colors hover:bg-accent/50'
-                        >
-                          <div className='flex items-center gap-2'>
+            {releaseCount > 0 && (
+              <details className='group' open>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <BoxesIcon className='h-5 w-5 text-cyan-500' />
+                  发布版本
+                  <Badge variant='secondary' className='ml-auto'>
+                    {releaseCount}
+                  </Badge>
+                  <ChevronDown className='ml-2 h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div className='mt-4 space-y-2'>
+                  {pkg.releases.map(
+                    (r: SpiderPackageReleaseData, idx: number) => (
+                      <a
+                        key={r.release_id}
+                        href={r.release_url}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='flex items-center justify-between rounded-lg border bg-card p-3 transition-colors hover:bg-accent/50'
+                      >
+                        <div className='flex items-center gap-2'>
+                          <Badge
+                            variant='outline'
+                            className='bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                          >
+                            {r.release_version}
+                          </Badge>
+                          {r.is_prerelease && (
                             <Badge
                               variant='outline'
-                              className='bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                              className='bg-amber-100 text-xs text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
                             >
-                              {r.release_version}
+                              预发布
                             </Badge>
-                            {r.is_prerelease && (
-                              <Badge
-                                variant='outline'
-                                className='bg-amber-100 text-xs text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
-                              >
-                                预发布
-                              </Badge>
-                            )}
-                            {r.is_draft && (
-                              <Badge
-                                variant='outline'
-                                className='bg-slate-100 text-xs text-slate-800 dark:bg-slate-900/30 dark:text-slate-300'
-                              >
-                                草稿
-                              </Badge>
-                            )}
-                          </div>
-                          <span className='text-xs text-muted-foreground'>
-                            {idx === 0 ? '最新' : `#${idx + 1}`}
-                          </span>
-                        </a>
-                      )
-                    )}
-                  </div>
-                </details>
-              )}
+                          )}
+                          {r.is_draft && (
+                            <Badge
+                              variant='outline'
+                              className='bg-slate-100 text-xs text-slate-800 dark:bg-slate-900/30 dark:text-slate-300'
+                            >
+                              草稿
+                            </Badge>
+                          )}
+                        </div>
+                        <span className='text-xs text-muted-foreground'>
+                          {idx === 0 ? '最新' : `#${idx + 1}`}
+                        </span>
+                      </a>
+                    )
+                  )}
+                </div>
+              </details>
+            )}
 
-              {pkg.spider_package_readme && (
-                <details className='group' open>
-                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <FileText className='h-5 w-5 text-sky-500' />
-                    说明文档
-                    <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                  </summary>
-                  <div
-                    className='mt-4 rounded-xl border bg-card p-4'
-                    data-color-mode={resolvedTheme}
+            {pkg.spider_package_readme && (
+              <details className='group' open>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <FileText className='h-5 w-5 text-sky-500' />
+                  说明文档
+                  <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div
+                  className='mt-4 rounded-xl border bg-card p-4'
+                  data-color-mode={resolvedTheme}
+                >
+                  <MDEditor.Markdown
+                    source={pkg.spider_package_readme}
+                    style={{ backgroundColor: 'transparent' }}
+                  />
+                </div>
+              </details>
+            )}
+
+            {hasConfig && (
+              <details className='group'>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <Braces className='h-5 w-5 text-fuchsia-500' />
+                  配置信息
+                  <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div className='mt-4 h-full overflow-hidden rounded-xl border bg-muted/30 p-4'>
+                  <ScrollArea
+                    className='h-[320px] w-full max-w-full'
+                    type='always'
                   >
-                    <MDEditor.Markdown
-                      source={pkg.spider_package_readme}
-                      style={{ backgroundColor: 'transparent' }}
-                    />
-                  </div>
-                </details>
-              )}
-
-              {hasConfig && (
-                <details className='group'>
-                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <Braces className='h-5 w-5 text-fuchsia-500' />
-                    配置信息
-                    <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                  </summary>
-                  <div className='mt-4 rounded-xl border bg-muted/30 p-4'>
                     <JsonView
                       value={pkg.spider_package_config}
                       displayDataTypes={false}
@@ -265,11 +268,12 @@ export function SpiderPackagesInfoDialog({
                             }
                       }
                     />
-                  </div>
-                </details>
-              )}
-            </div>
-          </ScrollArea>
+                    <ScrollBar orientation='horizontal' />
+                  </ScrollArea>
+                </div>
+              </details>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -117,7 +117,6 @@ function DictionaryCreateDrawerContent({ open, onOpenChange }: Props) {
             />
             {showEditors && (
               <>
-                <h4 className='text-sm font-bold'>属性集合</h4>
                 <FormField
                   control={form.control}
                   name='dict_collection'
@@ -155,7 +154,7 @@ function DictionaryCreateDrawerContent({ open, onOpenChange }: Props) {
                     </FormItem>
                   )}
                 />
-                <h4 className='text-sm font-bold'>说明文档</h4>
+
                 <FormField
                   control={form.control}
                   name='dictionary_readme'

@@ -101,7 +101,10 @@ export const IndustrySlugCombobox = React.memo(
                             selected ? 'opacity-100' : 'opacity-0'
                           )}
                         />
-                        <IndustryMiniItemCell entity={ind} />
+                        <IndustryMiniItemCell
+                          industry={ind}
+                          isPrimary={false}
+                        />
                       </CommandItem>
                     )
                   })}

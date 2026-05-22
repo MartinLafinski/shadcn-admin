@@ -211,14 +211,14 @@ export const sidebarData: SidebarData = {
           icon: ListStartIcon,
           items: [
             {
-              title: '预备作业',
-              url: '/prejobs',
-              icon: ListTodo,
-            },
-            {
               title: '作业分组',
               url: '/jobgroups',
               icon: ListOrderedIcon,
+            },
+            {
+              title: '预备作业',
+              url: '/prejobs',
+              icon: ListTodo,
             },
           ],
         },

@@ -39,6 +39,7 @@ export const fetchPrejobs = async (
   industry_id: number | undefined = undefined,
   website_id: number | undefined = undefined,
   entrypoint_id: number | undefined = undefined,
+  jobgroup_id: number | undefined = undefined,
   prejob_keyword: string | undefined = undefined,
   prejob_level: string | undefined = undefined,
   prejob_enabled: boolean | undefined = undefined,
@@ -65,6 +66,10 @@ export const fetchPrejobs = async (
 
   if (entrypoint_id) {
     url += `&entrypoint_id=${entrypoint_id}`
+  }
+
+  if (jobgroup_id) {
+    url += `&jobgroup_id=${jobgroup_id}`
   }
 
   if (prejob_keyword) {
@@ -391,6 +396,7 @@ export const usePrejobsQuery = (
   industry_id: number | undefined = undefined,
   website_id: number | undefined = undefined,
   entrypoint_id: number | undefined = undefined,
+  jobgroup_id: number | undefined = undefined,
   prejob_keyword: string | undefined = undefined,
   prejob_level: string | undefined = undefined,
   prejob_enabled: boolean | undefined = undefined,
@@ -407,6 +413,7 @@ export const usePrejobsQuery = (
       industry_id,
       website_id,
       entrypoint_id,
+      jobgroup_id,
       prejob_keyword,
       prejob_level,
       prejob_enabled,
@@ -423,6 +430,7 @@ export const usePrejobsQuery = (
         industry_id,
         website_id,
         entrypoint_id,
+        jobgroup_id,
         prejob_keyword,
         prejob_level,
         prejob_enabled,
@@ -565,10 +573,14 @@ export const useBatchSwitchPrejobsMutation = () => {
  * 同步预备作业数据的自定义 Mutation Hook
  */
 export const useSyncPrejobsMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (data: SyncPrejobsData) => {
       const token = getAccessToken()
       return syncPrejobs(token, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['prejobs'] })
     },
   })
 }

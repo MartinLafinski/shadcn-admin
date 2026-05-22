@@ -1,5 +1,7 @@
 import { z } from 'zod'
 import {
+  EntityStatusSchema,
+  EntitySpiderTasksCounterSchema,
   createEntityToggleWithDisabledSchema,
   createEntityLockAuditSchema,
   createEntityPauseAuditSchema,
@@ -50,25 +52,30 @@ export const SpiderSessionItemSchema = z
     rate_limits: z.array(SessionRateLimitSchema),
     session_config: z.record(z.string(), z.any()),
     session_readme: z.string().optional().nullable(),
-    total_spider_task_count: z.number().int().default(0),
-    working_spider_task_count: z.number().int().default(0),
-    completed_spider_task_count: z.number().int().default(0),
-    failed_spider_task_count: z.number().int().default(0),
-    interrupted_spider_task_count: z.number().int().default(0),
-    canceled_spider_task_count: z.number().int().default(0),
+
+    // total_spider_task_count: z.number().int().default(0),
+    // working_spider_task_count: z.number().int().default(0),
+    // completed_spider_task_count: z.number().int().default(0),
+    // failed_spider_task_count: z.number().int().default(0),
+    // interrupted_spider_task_count: z.number().int().default(0),
+    // canceled_spider_task_count: z.number().int().default(0),
+
     session_free_spider_task_capacity: z.number().int().default(0),
-    has_limited: z.boolean().default(false),
-    has_paused: z.boolean().default(false),
-    has_locked: z.boolean().default(false),
+    // has_limited: z.boolean().default(false),
+    // has_paused: z.boolean().default(false),
+    // has_locked: z.boolean().default(false),
+    // has_enabled: z.boolean().default(false),
+    // can_apply: z.boolean().default(false),
+
     has_expired: z.boolean().default(false),
-    has_enabled: z.boolean().default(false),
-    can_apply: z.boolean().default(false),
   })
   .extend({
     ...createEntityToggleWithDisabledSchema('session').shape,
     ...createEntityLockAuditSchema('session').shape,
     ...createEntityPauseAuditSchema('session').shape,
     ...createEntityDisabledAuditSchema('session').shape,
+    ...EntitySpiderTasksCounterSchema.shape,
+    ...EntityStatusSchema.shape,
   })
 
 export type SpiderSessionItemData = z.infer<typeof SpiderSessionItemSchema>
@@ -176,5 +183,6 @@ export const SyncSpiderSessionsSchema = z.object({
   clear_locked: z.boolean().default(false),
   clear_paused: z.boolean().default(false),
   clear_spider_tasks: z.boolean().default(false),
+  only_clear: z.boolean().default(false),
 })
 export type SyncSpiderSessionsData = z.infer<typeof SyncSpiderSessionsSchema>

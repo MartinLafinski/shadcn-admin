@@ -26,11 +26,11 @@ export function ParamModelRegisterSyncDialog({
     await syncMutation
       .mutateAsync()
       .then(() => {
-        toast.success('注册条目同步成功')
+        toast.success('参数模型集同步成功')
       })
       .catch((error) => {
-        console.error('注册条目同步失败:', error)
-        toast.error('注册条目同步失败')
+        console.error('参数模型集同步失败:', error)
+        toast.error('参数模型集同步失败')
       })
     onOpenChange(false)
   }
@@ -39,9 +39,9 @@ export function ParamModelRegisterSyncDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>同步注册条目</DialogTitle>
+          <DialogTitle>同步参数模型集</DialogTitle>
           <DialogDescription>
-            确定要同步所有注册条目数据吗？此操作将从数据源重新获取注册条目配置。
+            确定要同步所有参数模型集数据吗？此操作将从数据源重新获取参数模型集配置。
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className='gap-2'>

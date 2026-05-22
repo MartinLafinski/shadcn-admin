@@ -7,15 +7,21 @@ import { type SpiderSessionItemData } from '@/features/spider-sessions/data/sche
 interface SpiderSessionMiniItemCellProps {
   session: SpiderSessionItemData | null
   className?: string
+  isPrimary?: boolean
   onClick?: () => void
 }
 
 export const SpiderSessionMiniItemCell = React.memo(
-  ({ session, className, onClick }: SpiderSessionMiniItemCellProps) => {
+  ({
+    session,
+    className,
+    isPrimary,
+    onClick,
+  }: SpiderSessionMiniItemCellProps) => {
     if (!session) {
       return <span>-</span>
     }
-
+    const isSecondary: boolean = !isPrimary
     const enabled = session.has_enabled
     const locked = session.has_locked
     const paused = session.has_paused
@@ -71,7 +77,14 @@ export const SpiderSessionMiniItemCell = React.memo(
               }
             />
           </div>
-          <span className={cn('text-sm font-semibold', sessionClassName)}>
+          <span
+            className={cn(
+              'text-sm',
+              'font-semibold',
+              isSecondary ? '' : 'font-semibold',
+              sessionClassName
+            )}
+          >
             {session.session_name}
             {expired && (
               <span className='ml-1 text-xs font-normal text-muted-foreground'>

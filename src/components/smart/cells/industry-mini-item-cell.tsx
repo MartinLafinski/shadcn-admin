@@ -4,19 +4,21 @@ import { Button } from '@/components/ui/button.tsx'
 import { type IndustryItemData } from '@/features/industries/data/schemas'
 
 interface IndustryMiniItemCellProps {
-  entity: IndustryItemData | null | undefined
-  asButton?: boolean
+  industry: IndustryItemData | null | undefined
+  isPrimary?: boolean
   className?: string
   onClick?: () => void
 }
 
 export const IndustryMiniItemCell = React.memo(
-  ({ entity, asButton, className, onClick }: IndustryMiniItemCellProps) => {
-    if (!entity) {
+  ({ industry, isPrimary, className, onClick }: IndustryMiniItemCellProps) => {
+    if (!industry) {
       return <span>-</span>
     }
 
-    const entityClassName = asButton || 'font-semibold'
+    const isSecondary: boolean = !isPrimary
+
+    const entityClassName = isSecondary || 'font-semibold'
 
     const content = (
       <div
@@ -26,17 +28,13 @@ export const IndustryMiniItemCell = React.memo(
         )}
       >
         <span className={cn('text-sm', entityClassName)}>
-          {entity.industry_name}
+          {industry.industry_name}
         </span>
         <code className='text-xs text-muted-foreground'>
-          [{entity.industry_slug}]
+          [{industry.industry_slug}]
         </code>
       </div>
     )
-
-    // if (!asButton) {
-    //   return content
-    // }
 
     return (
       <Button

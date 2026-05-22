@@ -278,86 +278,6 @@ export function SpiderSessionUpdateDrawer({
               />
             </div>
 
-            <div className='space-y-4 border-t pt-4'>
-              <h4 className='text-sm font-bold'>请求定制</h4>
-              {/* Headers */}
-              <FormField
-                control={form.control}
-                name='session_headers'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Headers (JSON)</FormLabel>
-                    <FormControl>
-                      <JsonEditor
-                        data={field.value || {}}
-                        setData={field.onChange}
-                        rootFontSize={12}
-                        theme={
-                          resolvedTheme === 'light'
-                            ? githubLightTheme
-                            : githubDarkTheme
-                        }
-                        minWidth='100%'
-                        maxWidth='100%'
-                        TextEditor={(props) => (
-                          <CodeMirror
-                            {...props}
-                            theme={
-                              resolvedTheme === 'light'
-                                ? githubLight
-                                : githubDark
-                            }
-                            extensions={[json(), EditorView.lineWrapping]}
-                            height='auto'
-                            minHeight='100px'
-                          />
-                        )}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {/* Cookies */}
-              <FormField
-                control={form.control}
-                name='session_cookies'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cookies (JSON)</FormLabel>
-                    <FormControl>
-                      <JsonEditor
-                        data={field.value || []}
-                        setData={field.onChange}
-                        rootFontSize={12}
-                        theme={
-                          resolvedTheme === 'light'
-                            ? githubLightTheme
-                            : githubDarkTheme
-                        }
-                        minWidth='100%'
-                        maxWidth='100%'
-                        TextEditor={(props) => (
-                          <CodeMirror
-                            {...props}
-                            theme={
-                              resolvedTheme === 'light'
-                                ? githubLight
-                                : githubDark
-                            }
-                            extensions={[json(), EditorView.lineWrapping]}
-                            height='auto'
-                            minHeight='100px'
-                          />
-                        )}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             <div className='space-y-3 border-t pt-4'>
               <div className='flex items-center justify-between'>
                 <h4 className='text-sm font-bold'>限流规则</h4>
@@ -454,6 +374,86 @@ export function SpiderSessionUpdateDrawer({
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className='space-y-4 border-t pt-4'>
+              <h4 className='text-sm font-bold'>请求定制</h4>
+              {/* Headers */}
+              <FormField
+                control={form.control}
+                name='session_headers'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Headers (JSON)</FormLabel>
+                    <FormControl>
+                      <JsonEditor
+                        data={field.value || {}}
+                        setData={field.onChange}
+                        rootFontSize={12}
+                        theme={
+                          resolvedTheme === 'light'
+                            ? githubLightTheme
+                            : githubDarkTheme
+                        }
+                        minWidth='100%'
+                        maxWidth='100%'
+                        TextEditor={(props) => (
+                          <CodeMirror
+                            {...props}
+                            theme={
+                              resolvedTheme === 'light'
+                                ? githubLight
+                                : githubDark
+                            }
+                            extensions={[json(), EditorView.lineWrapping]}
+                            height='auto'
+                            minHeight='100px'
+                          />
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* Cookies */}
+              <FormField
+                control={form.control}
+                name='session_cookies'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cookies (JSON)</FormLabel>
+                    <FormControl>
+                      <JsonEditor
+                        data={field.value || []}
+                        setData={field.onChange}
+                        rootFontSize={12}
+                        theme={
+                          resolvedTheme === 'light'
+                            ? githubLightTheme
+                            : githubDarkTheme
+                        }
+                        minWidth='100%'
+                        maxWidth='100%'
+                        TextEditor={(props) => (
+                          <CodeMirror
+                            {...props}
+                            theme={
+                              resolvedTheme === 'light'
+                                ? githubLight
+                                : githubDark
+                            }
+                            extensions={[json(), EditorView.lineWrapping]}
+                            height='auto'
+                            minHeight='100px'
+                          />
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </form>
         </Form>

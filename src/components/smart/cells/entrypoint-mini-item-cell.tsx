@@ -3,22 +3,39 @@ import { SquareCheckBigIcon, SquareXIcon } from 'lucide-react'
 // 样式
 import { cn } from '@/lib/utils.ts'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx'
+import { Button } from '@/components/ui/button.tsx'
 import { type EntrypointItemData } from '@/features/entrypoints/data/schemas.ts'
 
 interface EntrypointMiniItemCellProps {
   entrypoint: EntrypointItemData
-  asLink?: boolean
+  isPrimary?: boolean
+  className?: string
+  onClick?: () => void
 }
 
 export const EntrypointMiniItemCell = React.memo(
-  ({ entrypoint, asLink }: EntrypointMiniItemCellProps) => {
-    const isLink = asLink ?? false
-    const enabled = isLink
+  ({
+    entrypoint,
+    isPrimary,
+    className,
+    onClick,
+  }: EntrypointMiniItemCellProps) => {
+    if (!entrypoint) {
+      return <span>-</span>
+    }
+
+    const isSecondary: boolean = !isPrimary
+
+    const enabled = isSecondary
       ? entrypoint.entrypoint_enabled
       : entrypoint.has_enabled
-    const locked = isLink ? entrypoint.entrypoint_locked : entrypoint.has_locked
-    const paused = isLink ? entrypoint.entrypoint_paused : entrypoint.has_paused
-    const limited = isLink
+    const locked = isSecondary
+      ? entrypoint.entrypoint_locked
+      : entrypoint.has_locked
+    const paused = isSecondary
+      ? entrypoint.entrypoint_paused
+      : entrypoint.has_paused
+    const limited = isSecondary
       ? entrypoint.entrypoint_limited
       : entrypoint.has_limited
     const canApply = !!entrypoint.can_apply
@@ -36,7 +53,7 @@ export const EntrypointMiniItemCell = React.memo(
       entrypointClassName = 'text-muted-foreground'
     }
 
-    return (
+    const content = (
       <div className='flex items-center gap-3'>
         <Avatar className='h-10 w-10'>
           <AvatarImage
@@ -82,8 +99,9 @@ export const EntrypointMiniItemCell = React.memo(
             <span
               className={cn(
                 'text-sm',
-                isLink ? '' : 'font-semibold',
-                isLink ? entrypointClassName : 'text-foreground'
+                isSecondary ? '' : 'font-semibold',
+                entrypointClassName
+                // isSecondary ? entrypointClassName : 'text-foreground'
               )}
             >
               {entrypoint.entrypoint_name}
@@ -101,6 +119,19 @@ export const EntrypointMiniItemCell = React.memo(
           </div>
         </div>
       </div>
+    )
+
+    return (
+      <Button
+        variant='ghost'
+        onClick={onClick}
+        className={cn(
+          'mx-0 flex flex-col items-start gap-0.5 bg-transparent px-0 font-normal hover:bg-transparent',
+          className
+        )}
+      >
+        {content}
+      </Button>
     )
   }
 )

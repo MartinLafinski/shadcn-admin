@@ -159,7 +159,6 @@ function DictionaryUpdateDrawerContent({
             />
             {showEditors && (
               <>
-                <h4 className='text-sm font-bold'>属性集合</h4>
                 <FormField
                   control={form.control}
                   name='dict_collection'
@@ -197,7 +196,7 @@ function DictionaryUpdateDrawerContent({
                     </FormItem>
                   )}
                 />
-                <h4 className='text-sm font-bold'>说明文档</h4>
+
                 <FormField
                   control={form.control}
                   name='dictionary_readme'

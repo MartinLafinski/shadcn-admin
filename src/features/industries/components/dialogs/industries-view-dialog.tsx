@@ -38,7 +38,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { useIndustryQuery } from '../../api/industries.ts'
 import type { IndustryItemData } from '../../data/schemas'
 
@@ -315,177 +315,180 @@ export function IndustriesViewDialog({
         </DialogHeader>
 
         {/* ===== Body ===== */}
-        <div className='min-h-0 flex-1 overflow-hidden'>
-          <ScrollArea className='h-full' type='always'>
-            <div className='space-y-6 p-6'>
-              {/* ------ Stats Row ------ */}
-              <div className='grid grid-cols-2 gap-4'>
-                <StatCard
-                  icon={DoorOpen}
-                  count={industry.entrypoint_count ?? 0}
-                  label='入口点'
-                  colorClass='text-violet-600'
-                  bgClass='bg-violet-500/10'
-                />
-                <StatCard
-                  icon={Wrench}
-                  count={industry.prejob_count ?? 0}
-                  label='预备作业'
-                  colorClass='text-orange-600'
-                  bgClass='bg-orange-500/10'
-                />
-                <StatCard
-                  icon={Bug}
-                  count={totalSpider}
-                  label='爬虫任务'
-                  colorClass='text-blue-600'
-                  bgClass='bg-blue-500/10'
-                />
-                <StatCard
-                  icon={Package}
-                  count={totalMaterial}
-                  label='采料总数'
-                  colorClass='text-emerald-600'
-                  bgClass='bg-emerald-500/10'
-                />
-              </div>
+        <div className='min-h-0 flex-1'>
+          <div className='space-y-6 p-6'>
+            {/* ------ Stats Row ------ */}
+            <div className='grid grid-cols-2 gap-4'>
+              <StatCard
+                icon={DoorOpen}
+                count={industry.entrypoint_count ?? 0}
+                label='入口点'
+                colorClass='text-violet-600'
+                bgClass='bg-violet-500/10'
+              />
+              <StatCard
+                icon={Wrench}
+                count={industry.prejob_count ?? 0}
+                label='预备作业'
+                colorClass='text-orange-600'
+                bgClass='bg-orange-500/10'
+              />
+              <StatCard
+                icon={Bug}
+                count={totalSpider}
+                label='爬虫任务'
+                colorClass='text-blue-600'
+                bgClass='bg-blue-500/10'
+              />
+              <StatCard
+                icon={Package}
+                count={totalMaterial}
+                label='采料总数'
+                colorClass='text-emerald-600'
+                bgClass='bg-emerald-500/10'
+              />
+            </div>
 
-              {/* ------ Spider Tasks + Materials (side-by-side) ------ */}
-              {totalSpider > 0 && (
-                <Card>
-                  <CardHeader className='pb-3'>
-                    <CardTitle className='flex items-center gap-2 text-base'>
-                      <Bug className='h-5 w-5 text-blue-500' />
-                      爬虫任务分布
-                      <Badge variant='secondary' className='ml-auto'>
-                        {totalSpider}
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <SpiderTaskBar
-                      counts={{
-                        working_spider_task_count:
-                          industry.working_spider_task_count,
-                        completed_spider_task_count:
-                          industry.completed_spider_task_count,
-                        failed_spider_task_count:
-                          industry.failed_spider_task_count,
-                        interrupted_spider_task_count:
-                          industry.interrupted_spider_task_count,
-                        canceled_spider_task_count:
-                          industry.canceled_spider_task_count,
-                      }}
-                    />
-                  </CardContent>
-                </Card>
-              )}
+            {/* ------ Spider Tasks + Materials (side-by-side) ------ */}
+            {totalSpider > 0 && (
+              <Card>
+                <CardHeader className='pb-3'>
+                  <CardTitle className='flex items-center gap-2 text-base'>
+                    <Bug className='h-5 w-5 text-blue-500' />
+                    爬虫任务分布
+                    <Badge variant='secondary' className='ml-auto'>
+                      {totalSpider}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SpiderTaskBar
+                    counts={{
+                      working_spider_task_count:
+                        industry.working_spider_task_count,
+                      completed_spider_task_count:
+                        industry.completed_spider_task_count,
+                      failed_spider_task_count:
+                        industry.failed_spider_task_count,
+                      interrupted_spider_task_count:
+                        industry.interrupted_spider_task_count,
+                      canceled_spider_task_count:
+                        industry.canceled_spider_task_count,
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
 
-              {/* ------ Material Types ------ */}
-              {totalMaterial > 0 && (
-                <Card>
-                  <CardHeader className='pb-3'>
-                    <CardTitle className='flex items-center gap-2 text-base'>
-                      <Package className='h-5 w-5 text-emerald-500' />
-                      采料类型分布
-                      <Badge variant='secondary' className='ml-auto'>
-                        {totalMaterial}
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <MaterialGrid industry={industry} />
-                  </CardContent>
-                </Card>
-              )}
+            {/* ------ Material Types ------ */}
+            {totalMaterial > 0 && (
+              <Card>
+                <CardHeader className='pb-3'>
+                  <CardTitle className='flex items-center gap-2 text-base'>
+                    <Package className='h-5 w-5 text-emerald-500' />
+                    采料类型分布
+                    <Badge variant='secondary' className='ml-auto'>
+                      {totalMaterial}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <MaterialGrid industry={industry} />
+                </CardContent>
+              </Card>
+            )}
 
-              {/* ------ Param Forms ------ */}
-              {hasParamForms && (
-                <Card className='gap-0 space-y-0'>
-                  <CardHeader className='pb-3'>
-                    <CardTitle className='flex items-center gap-2 text-base'>
-                      <Settings className='h-5 w-5 text-amber-500' />
-                      关联参数要素包
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className=''>
-                    <div className='flex flex-col gap-3'>
-                      {[
-                        { data: industry.param_form_self, label: '行业自用' },
-                        {
-                          data: industry.param_form_entrypoint,
-                          label: '入口点指定',
-                        },
-                        {
-                          data: industry.param_form_prejob,
-                          label: '预备作业指定',
-                        },
-                      ].map(
-                        (pf) =>
-                          pf.data && (
-                            <div
-                              key={pf.label}
-                              className='rounded-lg border bg-muted/30 p-3'
-                            >
-                              <div className='flex items-center justify-between'>
-                                <span className='text-xs text-muted-foreground'>
-                                  {pf.label}
-                                </span>
-                                <Badge
-                                  variant={
-                                    pf.data.param_form_enabled
-                                      ? 'success'
-                                      : 'destructive'
-                                  }
-                                  className='h-5 px-1.5 text-xs'
-                                >
-                                  {pf.data.param_form_enabled ? '启用' : '停用'}
-                                </Badge>
-                              </div>
-                              <p className='mt-1.5 text-sm font-semibold'>
-                                {pf.data.param_form_name}
-                              </p>
-                              <p className='font-mono text-xs text-muted-foreground'>
-                                {pf.data.param_form_slug}
-                              </p>
+            {/* ------ Param Forms ------ */}
+            {hasParamForms && (
+              <Card className='gap-0 space-y-0'>
+                <CardHeader className='pb-3'>
+                  <CardTitle className='flex items-center gap-2 text-base'>
+                    <Settings className='h-5 w-5 text-amber-500' />
+                    关联参数要素包
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className=''>
+                  <div className='flex flex-col gap-3'>
+                    {[
+                      { data: industry.param_form_self, label: '行业自用' },
+                      {
+                        data: industry.param_form_entrypoint,
+                        label: '入口点指定',
+                      },
+                      {
+                        data: industry.param_form_prejob,
+                        label: '预备作业指定',
+                      },
+                    ].map(
+                      (pf) =>
+                        pf.data && (
+                          <div
+                            key={pf.label}
+                            className='rounded-lg border bg-muted/30 p-3'
+                          >
+                            <div className='flex items-center justify-between'>
+                              <span className='text-xs text-muted-foreground'>
+                                {pf.label}
+                              </span>
+                              <Badge
+                                variant={
+                                  pf.data.param_form_enabled
+                                    ? 'success'
+                                    : 'destructive'
+                                }
+                                className='h-5 px-1.5 text-xs'
+                              >
+                                {pf.data.param_form_enabled ? '启用' : '停用'}
+                              </Badge>
                             </div>
-                          )
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+                            <p className='mt-1.5 text-sm font-semibold'>
+                              {pf.data.param_form_name}
+                            </p>
+                            <p className='font-mono text-xs text-muted-foreground'>
+                              {pf.data.param_form_slug}
+                            </p>
+                          </div>
+                        )
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-              {/* ------ Readme ------ */}
-              {industry.industry_readme && (
-                <details className='group' open>
+            {/* ------ Readme ------ */}
+            {industry.industry_readme && (
+              <details className='group' open>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <FileText className='h-5 w-5 text-sky-500' />
+                  说明文档
+                  <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div
+                  className='mt-4 rounded-xl border bg-card p-4'
+                  data-color-mode={resolvedTheme}
+                >
+                  <MDEditor.Markdown
+                    source={industry.industry_readme}
+                    style={{ backgroundColor: 'transparent' }}
+                  />
+                </div>
+              </details>
+            )}
+
+            {/* ------ Config ------ */}
+            {industry.industry_config &&
+              Object.keys(industry.industry_config).length > 0 && (
+                <details className='group'>
                   <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <FileText className='h-5 w-5 text-sky-500' />
-                    说明文档
+                    <Braces className='h-5 w-5 text-fuchsia-500' />
+                    配置信息
                     <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
                   </summary>
-                  <div
-                    className='mt-4 rounded-xl border bg-card p-4'
-                    data-color-mode={resolvedTheme}
-                  >
-                    <MDEditor.Markdown
-                      source={industry.industry_readme}
-                      style={{ backgroundColor: 'transparent' }}
-                    />
-                  </div>
-                </details>
-              )}
-
-              {/* ------ Config ------ */}
-              {industry.industry_config &&
-                Object.keys(industry.industry_config).length > 0 && (
-                  <details className='group'>
-                    <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                      <Braces className='h-5 w-5 text-fuchsia-500' />
-                      配置信息
-                      <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                    </summary>
-                    <div className='mt-4 rounded-xl border bg-muted/30 p-4'>
+                  <div className='mt-4 h-full overflow-hidden rounded-xl border bg-muted/30 p-4'>
+                    <ScrollArea
+                      className='h-[320px] w-full max-w-full'
+                      type='always'
+                    >
                       <JsonView
                         value={industry.industry_config}
                         displayDataTypes={false}
@@ -504,11 +507,12 @@ export function IndustriesViewDialog({
                               }
                         }
                       />
-                    </div>
-                  </details>
-                )}
-            </div>
-          </ScrollArea>
+                      <ScrollBar orientation='horizontal' />
+                    </ScrollArea>
+                  </div>
+                </details>
+              )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

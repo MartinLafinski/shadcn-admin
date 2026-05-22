@@ -37,6 +37,7 @@ export const termsColumns: ColumnDef<TermData>[] = [
       return (
         <TermMiniItemCell
           entity={row.original}
+          isPrimary={true}
           onClick={() => {
             setCurrentRow(row.original)
             setOpen('view')

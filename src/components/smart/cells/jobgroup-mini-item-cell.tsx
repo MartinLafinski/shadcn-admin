@@ -6,12 +6,13 @@ import { type JobGroupItemData } from '@/features/jobgroups/data/schemas'
 
 interface JobGroupMiniItemCellProps {
   group: JobGroupItemData | null
+  isPrimary?: boolean
   className?: string
   onClick?: () => void
 }
 
 export const JobGroupMiniItemCell = React.memo(
-  ({ group, className, onClick }: JobGroupMiniItemCellProps) => {
+  ({ group, isPrimary, className, onClick }: JobGroupMiniItemCellProps) => {
     if (!group) {
       return <span>-</span>
     }
@@ -68,7 +69,13 @@ export const JobGroupMiniItemCell = React.memo(
               }
             />
           </div>
-          <span className={cn('text-sm font-semibold', groupClassName)}>
+          <span
+            className={cn(
+              'text-sm',
+              groupClassName,
+              isPrimary ? 'font-semibold' : ''
+            )}
+          >
             {group.jobgroup_name}
           </span>
         </div>

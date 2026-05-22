@@ -38,6 +38,7 @@ export function SpiderSessionsSyncDialog({
       clear_locked: false,
       clear_paused: false,
       clear_spider_tasks: false,
+      only_clear: false,
     },
   })
 
@@ -127,9 +128,33 @@ export function SpiderSessionsSyncDialog({
                 </FormItem>
               )}
             />
+            {/* 仅清理缓存，不回写数据选项 */}
+            <FormField
+              control={form.control}
+              name='only_clear'
+              render={({ field }) => (
+                <FormItem className='flex flex-row items-start space-y-0 space-x-3'>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className='space-y-1 leading-none'>
+                    <FormLabel className='flex flex-col items-start gap-1'>
+                      仅清理缓存，不回写爬虫会话数据
+                      <span className='text-sm font-normal text-muted-foreground'>
+                        同步时仅清理缓存中的爬虫会话数据，不回写数据，相当于清空缓存
+                      </span>
+                    </FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
             <div className='rounded-md border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/20'>
               <p className='text-sm text-amber-900 dark:text-amber-200'>
-                <strong>注意：</strong>同步操作可能会修改现有数据，请谨慎操作。
+                <strong>注意：</strong>
+                同步操作仅影响缓存中数据，不会影响持久化数据。
               </p>
             </div>
           </form>

@@ -454,10 +454,14 @@ export const useBatchDeleteSpiderSessionsMutation = () => {
 }
 
 export const useSyncSpiderSessionsMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (d: SyncSpiderSessionsData) => {
       const t = getAccessToken()
       return syncSpiderSessions(t, d)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['spider-sessions'] })
     },
   })
 }

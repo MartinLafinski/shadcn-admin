@@ -9,6 +9,30 @@ import { PrejobCreateDrawer } from './drawers/prejobs-create-drawer.tsx'
 import { PrejobUpdateDrawer } from './drawers/prejobs-update-drawer.tsx'
 import { usePrejobs } from './prejobs-provider'
 
+const WebsitesViewDialog = lazy(() =>
+  import('@/features/websites/components/dialogs/websites-view-dialog').then(
+    (m) => ({ default: m.WebsitesViewDialog })
+  )
+)
+
+const EntrypointsViewDialog = lazy(() =>
+  import('@/features/entrypoints/components/dialogs/entrypoints-view-dialog').then(
+    (m) => ({ default: m.EntrypointsViewDialog })
+  )
+)
+
+const IndustriesViewDialog = lazy(() =>
+  import('@/features/industries/components/dialogs/industries-view-dialog').then(
+    (m) => ({ default: m.IndustriesViewDialog })
+  )
+)
+
+const JobGroupsInfoDialog = lazy(() =>
+  import('@/features/jobgroups/components/dialogs/jobgroups-info-dialog').then(
+    (m) => ({ default: m.JobGroupsInfoDialog })
+  )
+)
+
 // 懒加载重型组件
 const PrejobsSyncDialog = lazy(() =>
   import('./dialogs/prejobs-sync-dialog.tsx').then((m) => ({
@@ -56,6 +80,46 @@ export function PrejobsDialogs() {
 
       {currentRow && (
         <>
+          <WebsitesViewDialog
+            key='website-view-info'
+            open={open === 'viewWebsite'}
+            websiteId={currentRow.entrypoint?.website_id ?? 0}
+            onOpenChange={() => {
+              setOpen(null)
+              setCurrentRow(null)
+            }}
+          />
+
+          <EntrypointsViewDialog
+            key='entrypoint-view-info'
+            open={open === 'viewEntrypoint'}
+            entrypointId={currentRow.entrypoint_id ?? 0}
+            onOpenChange={() => {
+              setOpen(null)
+              setCurrentRow(null)
+            }}
+          />
+
+          <IndustriesViewDialog
+            key='industry-view-info'
+            open={open === 'viewIndustry'}
+            industryId={currentRow.entrypoint?.industry_id ?? 0}
+            onOpenChange={() => {
+              setOpen(null)
+              setCurrentRow(null)
+            }}
+          />
+
+          <JobGroupsInfoDialog
+            key='jobgroup-view-info'
+            open={open === 'viewJobGroup'}
+            jobgroupId={currentRow.jobgroup?.jobgroup_id ?? 0}
+            onOpenChange={() => {
+              setOpen(null)
+              setCurrentRow(null)
+            }}
+          />
+
           <PrejobUpdateDrawer
             key={`prejob-update-${currentRow.prejob_id}`}
             open={open === 'update'}

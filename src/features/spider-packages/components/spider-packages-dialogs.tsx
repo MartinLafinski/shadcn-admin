@@ -7,6 +7,12 @@ import {
   useSpiderPackagesActions,
 } from './spider-packages-provider'
 
+const WebsitesViewDialog = lazy(() =>
+  import('@/features/websites/components/dialogs/websites-view-dialog').then(
+    (m) => ({ default: m.WebsitesViewDialog })
+  )
+)
+
 const SpiderPackageCreateDrawer = lazy(() =>
   import('./drawers/spider-packages-create-drawer.tsx').then((m) => ({
     default: m.SpiderPackageCreateDrawer,
@@ -66,6 +72,18 @@ export function SpiderPackagesDialogs() {
 
       {currentRow && (
         <>
+          {open === 'viewWebsite' && (
+            <WebsitesViewDialog
+              key='website-view-info'
+              open
+              websiteId={currentRow.website_id ?? 0}
+              onOpenChange={() => {
+                setOpen(null)
+                setCurrentRow(null)
+              }}
+            />
+          )}
+
           {open === 'update' && (
             <SpiderPackageUpdateDrawer
               open={open === 'update'}

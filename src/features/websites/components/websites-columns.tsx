@@ -1,7 +1,7 @@
 // 表格列
 import { type ColumnDef } from '@tanstack/react-table'
 // 图标
-import { MapPinIcon, ListTodo } from 'lucide-react'
+import { MapPinIcon, ListTodo, Package } from 'lucide-react'
 // 采料类型字典
 import { materialDictionary } from '@/lib/labels.tsx'
 // 自定义时间控件
@@ -99,6 +99,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
       return (
         <WebsiteMiniItemCell
           website={website}
+          isPrimary={true}
           onClick={() => {
             setCurrentRow(website) // 设置当前选中的行数据
             setOpen('view') // 打开查看网站信息对话框
@@ -133,6 +134,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
       <EntityItemCountCell
         count={row.getValue('entrypoint_count')}
         to='/entrypoints'
+        searchParams={{ website_id: row.original.website_id }}
         icon={MapPinIcon}
         className='bg-lime-100 text-lime-900 dark:bg-lime-300/70'
       />
@@ -151,7 +153,8 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <EntityItemCountCell
         count={row.getValue('prejob_count')}
-        to='/entrypoints'
+        to='/prejobs'
+        searchParams={{ website_id: row.original.website_id }}
         icon={ListTodo}
         className='bg-green-100 text-green-900 dark:bg-green-300/70'
       />
@@ -692,6 +695,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <ParamFormMiniItemCell
         entity={row.original.param_form_self}
+        isPrimary={false}
         asLink={true}
       />
     ),
@@ -707,6 +711,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <ParamFormMiniItemCell
         entity={row.original.param_form_entrypoint}
+        isPrimary={false}
         asLink={true}
       />
     ),
@@ -722,6 +727,7 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     cell: ({ row }) => (
       <ParamFormMiniItemCell
         entity={row.original.param_form_prejob}
+        isPrimary={false}
         asLink={true}
       />
     ),
@@ -739,9 +745,26 @@ export const websitesColumns: ColumnDef<WebsiteData>[] = [
     header: '创建时间',
     cell: ({ row }) => <DatetimeCell value={row.getValue('created_at')} />,
     meta: {
-      className: 'text-center',
+      className: 'border-r-1',
     },
   },
+
+  {
+    id: 'spider_package_count',
+    accessorKey: 'spider_package_count',
+    header: '爬虫包',
+    cell: ({ row }) => (
+      <EntityItemCountCell
+        count={row.getValue('spider_package_count')}
+        to='/spider-packages'
+        searchParams={{ website_id: row.original.website_id }}
+        icon={Package}
+        className='bg-amber-100 text-amber-900 dark:bg-amber-300/70'
+      />
+    ),
+    size: 60,
+  },
+
   /**
    * 更新时间列
    */

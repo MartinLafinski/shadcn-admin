@@ -44,6 +44,7 @@ export const SpiderPackageCombobox = React.memo(
     const { data, isLoading } = useSpiderPackagesQuery(
       keyword || undefined,
       undefined,
+      undefined,
       1,
       SEARCH_SIZE
     )
@@ -108,7 +109,10 @@ export const SpiderPackageCombobox = React.memo(
                             selected ? 'opacity-100' : 'opacity-0'
                           )}
                         />
-                        <SpiderPackageMiniItemCell entity={sp} />
+                        <SpiderPackageMiniItemCell
+                          entity={sp}
+                          isPrimary={false}
+                        />
                       </CommandItem>
                     )
                   })}

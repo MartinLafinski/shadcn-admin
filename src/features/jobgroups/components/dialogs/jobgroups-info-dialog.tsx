@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { StatCard } from '@/components/smart/view-cards'
 import { useJobGroupQuery } from '../../api/jobgroups.ts'
 
@@ -130,53 +130,56 @@ export function JobGroupsInfoDialog({
           </div>
         </DialogHeader>
 
-        <div className='min-h-0 flex-1 overflow-hidden'>
-          <ScrollArea className='h-full' type='always'>
-            <div className='space-y-6 p-6'>
-              <div className='grid grid-cols-2 gap-4'>
-                <StatCard
-                  icon={Bug}
-                  count={group.jobgroup_max_spider_task_count ?? 128}
-                  label='最大任务数'
-                  colorClass='text-teal-600'
-                  bgClass='bg-teal-500/10'
-                />
-                <StatCard
-                  icon={Bug}
-                  count={totalSpider}
-                  label='爬虫任务总数'
-                  colorClass='text-blue-600'
-                  bgClass='bg-blue-500/10'
-                />
-              </div>
+        <div className='min-h-0 flex-1'>
+          <div className='space-y-6 p-6'>
+            <div className='grid grid-cols-2 gap-4'>
+              <StatCard
+                icon={Bug}
+                count={group.jobgroup_max_spider_task_count ?? 128}
+                label='最大任务数'
+                colorClass='text-teal-600'
+                bgClass='bg-teal-500/10'
+              />
+              <StatCard
+                icon={Bug}
+                count={totalSpider}
+                label='爬虫任务总数'
+                colorClass='text-blue-600'
+                bgClass='bg-blue-500/10'
+              />
+            </div>
 
-              {group.jobgroup_readme && (
-                <details className='group' open>
-                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <FileText className='h-5 w-5 text-sky-500' />
-                    说明文档
-                    <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                  </summary>
-                  <div
-                    className='mt-4 rounded-xl border bg-card p-4'
-                    data-color-mode={resolvedTheme}
+            {group.jobgroup_readme && (
+              <details className='group' open>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <FileText className='h-5 w-5 text-sky-500' />
+                  说明文档
+                  <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div
+                  className='mt-4 rounded-xl border bg-card p-4'
+                  data-color-mode={resolvedTheme}
+                >
+                  <MDEditor.Markdown
+                    source={group.jobgroup_readme}
+                    style={{ backgroundColor: 'transparent' }}
+                  />
+                </div>
+              </details>
+            )}
+
+            {hasConfig && (
+              <details className='group'>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <Braces className='h-5 w-5 text-fuchsia-500' />
+                  配置信息
+                  <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div className='mt-4 h-full overflow-hidden rounded-xl border bg-muted/30 p-4'>
+                  <ScrollArea
+                    className='h-[320px] w-full max-w-full'
+                    type='always'
                   >
-                    <MDEditor.Markdown
-                      source={group.jobgroup_readme}
-                      style={{ backgroundColor: 'transparent' }}
-                    />
-                  </div>
-                </details>
-              )}
-
-              {hasConfig && (
-                <details className='group'>
-                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <Braces className='h-5 w-5 text-fuchsia-500' />
-                    配置信息
-                    <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                  </summary>
-                  <div className='mt-4 rounded-xl border bg-muted/30 p-4'>
                     <JsonView
                       value={group.jobgroup_config}
                       displayDataTypes={false}
@@ -195,11 +198,12 @@ export function JobGroupsInfoDialog({
                             }
                       }
                     />
-                  </div>
-                </details>
-              )}
-            </div>
-          </ScrollArea>
+                    <ScrollBar orientation='horizontal' />
+                  </ScrollArea>
+                </div>
+              </details>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

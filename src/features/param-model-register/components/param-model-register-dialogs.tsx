@@ -40,16 +40,16 @@ export function ParamModelRegisterDialogs() {
       })
       .then(() => {
         toast.success(
-          `注册条目 ${currentRow?.register_name || currentRow?.register_slug} 删除成功`
+          `参数模型集 ${currentRow?.register_name || currentRow?.register_slug} 删除成功`
         )
       })
       .catch((error) => {
         console.error(
-          `注册条目 ${currentRow?.register_name || currentRow?.register_slug} 删除失败:`,
+          `参数模型集 ${currentRow?.register_name || currentRow?.register_slug} 删除失败:`,
           error
         )
         toast.error(
-          `注册条目 ${currentRow?.register_name || currentRow?.register_slug} 删除失败`
+          `参数模型集 ${currentRow?.register_name || currentRow?.register_slug} 删除失败`
         )
       })
       .finally(() => {
@@ -121,10 +121,10 @@ export function ParamModelRegisterDialogs() {
                   }, 500)
                 }
               }}
-              title='删除注册条目'
+              title='删除参数模型集'
               desc={
                 <>
-                  确定要删除注册条目{' '}
+                  确定要删除参数模型集{' '}
                   <strong>
                     {currentRow.register_name || currentRow.register_slug}
                   </strong>{' '}

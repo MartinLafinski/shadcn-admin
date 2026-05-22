@@ -24,6 +24,7 @@ function PrejobsContent() {
   const industry_id = search.industry_id
   const website_id = search.website_id
   const entrypoint_id = search.entrypoint_id
+  const jobgroup_id = search.jobgroup_id
   const prejob_keyword = search.prejob_keyword
   const prejob_enabled = search.prejob_enabled
   const prejob_locked = search.prejob_locked
@@ -38,6 +39,7 @@ function PrejobsContent() {
     industry_id,
     website_id,
     entrypoint_id,
+    jobgroup_id,
     prejob_keyword,
     prejob_level,
     prejob_enabled,

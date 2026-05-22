@@ -1,4 +1,6 @@
+import { Link } from '@tanstack/react-router'
 import { type ColumnDef } from '@tanstack/react-table'
+import { Database } from 'lucide-react'
 import { CategoryMiniItemCell } from '@/components/smart/cells/category-mini-item-cell'
 import { DatetimeCell } from '@/components/smart/cells/datetime-cell'
 import { EntityIdCell } from '@/components/smart/cells/entity-id-cell'
@@ -15,9 +17,9 @@ import { WebsiteMiniItemCell } from '@/components/smart/cells/website-mini-item-
 import type { EntrypointItemData } from '@/features/entrypoints/data/schemas'
 import type { IndustryItemData } from '@/features/industries/data/schemas'
 import { type ParamModelRegisterData } from '@/features/param-model-register/data/schemas'
+import type { PrejobItemData } from '@/features/prejobs/data/schemas'
 import type { WebsiteData } from '@/features/websites/data/schemas'
 import { ParamModelRegisterRowActions } from './actions/param-model-register-row-actions'
-import { ParamModelRegisterEnabledSwitch } from './cells/param-model-register-enabled-switch'
 import { useParamModelRegistersActions } from './param-model-register-provider'
 
 export const paramModelRegisterColumns: ColumnDef<ParamModelRegisterData>[] = [
@@ -68,7 +70,9 @@ export const paramModelRegisterColumns: ColumnDef<ParamModelRegisterData>[] = [
     cell: ({ row }) => {
       const sp = row.original.spider_package
       if (sp) {
-        return <SpiderPackageMiniItemCell entity={sp} asButton={true} />
+        return (
+          <SpiderPackageMiniItemCell entity={sp as any} isPrimary={false} />
+        )
       }
       return (
         <span className='font-mono text-sm'>
@@ -121,31 +125,29 @@ export const paramModelRegisterColumns: ColumnDef<ParamModelRegisterData>[] = [
         case 'industry':
           return (
             <IndustryMiniItemCell
-              entity={cat as unknown as IndustryItemData}
-              asButton={true}
+              industry={cat as unknown as IndustryItemData}
+              isPrimary={false}
             />
           )
         case 'website':
           return (
             <WebsiteMiniItemCell
               website={cat as unknown as WebsiteData}
-              asLink={true}
+              isPrimary={false}
             />
           )
         case 'entrypoint':
           return (
             <EntrypointMiniItemCell
               entrypoint={cat as unknown as EntrypointItemData}
-              asLink={true}
+              isPrimary={false}
             />
           )
         case 'prejob':
           return (
             <PrejobMiniItemCell
-              entity={
-                cat as unknown as { prejob_name: string; prejob_slug: string }
-              }
-              asButton={true}
+              prejob={cat as unknown as PrejobItemData}
+              isPrimary={false}
             />
           )
         default:
@@ -160,7 +162,10 @@ export const paramModelRegisterColumns: ColumnDef<ParamModelRegisterData>[] = [
     header: '参数要素包',
     cell: ({ row }) => {
       const pf = row.original.param_form
-      if (pf) return <ParamFormMiniItemCell entity={pf} asLink={true} />
+      if (pf)
+        return (
+          <ParamFormMiniItemCell entity={pf} isPrimary={false} asLink={true} />
+        )
       return (
         <span className='font-mono text-sm'>
           {row.original.param_form_slug}
@@ -227,19 +232,6 @@ export const paramModelRegisterColumns: ColumnDef<ParamModelRegisterData>[] = [
     size: 240,
   },
   {
-    id: 'enabled',
-    accessorKey: 'enabled',
-    header: '开关',
-    cell: ({ row }) => (
-      <ParamModelRegisterEnabledSwitch register={row.original} />
-    ),
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
-    enableHiding: false,
-    size: 60,
-  },
-  {
     id: 'created_at',
     accessorKey: 'created_at',
     header: '创建时间',
@@ -250,6 +242,21 @@ export const paramModelRegisterColumns: ColumnDef<ParamModelRegisterData>[] = [
     accessorKey: 'updated_at',
     header: '更新时间',
     cell: ({ row }) => <DatetimeCell value={row.getValue('updated_at')} />,
+  },
+  {
+    id: 'data',
+    header: '数据',
+    cell: ({ row }) => (
+      <Link
+        to='/param-model-register/$registerId'
+        params={{ registerId: String(row.original.register_id) }}
+        className='inline-flex items-center gap-1 text-primary hover:underline'
+      >
+        <Database className='h-4 w-4' />
+        管理
+      </Link>
+    ),
+    size: 74,
   },
   {
     id: 'actions',

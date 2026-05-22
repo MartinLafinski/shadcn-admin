@@ -105,6 +105,9 @@ export function EntrypointsSyncDialog({
   const { data: websitesData, isLoading: websitesLoading } = useWebsitesQuery(
     websiteKeyword,
     undefined,
+    undefined,
+    undefined,
+    undefined,
     1,
     WEBSITE_SEARCH_SIZE
   )
@@ -539,7 +542,7 @@ export function EntrypointsSyncDialog({
               <div className='rounded-md border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/20'>
                 <p className='text-sm text-amber-900 dark:text-amber-200'>
                   <strong>注意：</strong>
-                  同步操作可能会修改现有数据，请谨慎操作。建议在执行前备份重要数据。
+                  同步操作仅影响缓存中数据，不会影响持久化数据。
                 </p>
               </div>
             </form>

@@ -23,12 +23,14 @@ function SpiderPackagesContent() {
 
   const spider_package_keyword = search.spider_package_keyword
   const spider_package_enabled = search.spider_package_enabled
+  const website_id = search.website_id
   const page = search.page
   const size = search.size
 
   const { data, isLoading, isFetching, isError } = useSpiderPackagesQuery(
     spider_package_keyword,
     spider_package_enabled,
+    website_id,
     page,
     size
   )

@@ -29,7 +29,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { EntrypointCombobox } from '@/components/smart/combobox/entrypoint-combobox'
 import { IndustrySlugCombobox } from '@/components/smart/combobox/industry-slug-combobox'
@@ -73,7 +72,6 @@ function ParamModelRegisterCreateDrawerContent({
       category_slug: '',
       param_form_slug: '',
       shard_strategy: null,
-      enabled: true,
       description: '',
     },
   })
@@ -85,12 +83,12 @@ function ParamModelRegisterCreateDrawerContent({
       .mutateAsync(data)
       .then((res) => {
         toast.success(
-          `注册条目 ${res.register_name || res.register_slug} 创建成功`
+          `参数模型集 ${res.register_name || res.register_slug} 创建成功`
         )
       })
       .catch((error) => {
-        console.error('注册条目创建失败:', error)
-        toast.error('注册条目创建失败')
+        console.error('参数模型集创建失败:', error)
+        toast.error('参数模型集创建失败')
       })
     onOpenChange(false)
   }
@@ -99,8 +97,8 @@ function ParamModelRegisterCreateDrawerContent({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='flex min-w-1/3 flex-col'>
         <SheetHeader className='text-start'>
-          <SheetTitle>创建注册条目</SheetTitle>
-          <SheetDescription>创建新的参数模型注册条目</SheetDescription>
+          <SheetTitle>创建参数模型集</SheetTitle>
+          <SheetDescription>创建新的参数模型参数模型集</SheetDescription>
         </SheetHeader>
         <Form {...form}>
           <form
@@ -114,7 +112,9 @@ function ParamModelRegisterCreateDrawerContent({
               name='register_name'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>注册名称</FormLabel>
+                  <FormLabel>
+                    注册名称 <span className='text-destructive'>*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -126,24 +126,7 @@ function ParamModelRegisterCreateDrawerContent({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name='spider_slug'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    爬虫包 <span className='text-destructive'>*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <SpiderPackageCombobox
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <FormField
               control={form.control}
               name='category_type'
@@ -225,6 +208,24 @@ function ParamModelRegisterCreateDrawerContent({
             />
             <FormField
               control={form.control}
+              name='spider_slug'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    爬虫包 <span className='text-destructive'>*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <SpiderPackageCombobox
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name='param_form_slug'
               render={({ field }) => (
                 <FormItem>
@@ -236,6 +237,7 @@ function ParamModelRegisterCreateDrawerContent({
                       value={field.value}
                       onChange={field.onChange}
                       valueKey='param_form_slug'
+                      paramType='spider_package:self'
                     />
                   </FormControl>
                   <FormMessage />
@@ -272,24 +274,6 @@ function ParamModelRegisterCreateDrawerContent({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name='enabled'
-              render={({ field }) => (
-                <FormItem className='flex items-center justify-between rounded-lg border p-3'>
-                  <div>
-                    <FormLabel className='text-sm'>启用</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
             {showEditors && (
               <>
                 <h4 className='text-sm font-bold'>说明</h4>
@@ -303,7 +287,7 @@ function ParamModelRegisterCreateDrawerContent({
                         <Textarea
                           {...field}
                           value={field.value ?? ''}
-                          placeholder='注册条目说明'
+                          placeholder='参数模型集说明'
                           rows={4}
                         />
                       </FormControl>
@@ -320,7 +304,7 @@ function ParamModelRegisterCreateDrawerContent({
             <Button variant='outline'>关闭</Button>
           </SheetClose>
           <Button form='pmr-create-form' type='submit'>
-            创建注册条目
+            创建参数模型集
           </Button>
         </SheetFooter>
       </SheetContent>

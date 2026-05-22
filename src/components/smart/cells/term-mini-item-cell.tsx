@@ -6,18 +6,18 @@ import { type TermData } from '@/features/terms/data/schemas'
 
 interface TermMiniItemCellProps {
   entity: TermData | null | undefined
-  asButton?: boolean
+  isPrimary?: boolean
   className?: string
   onClick?: () => void
 }
 
 export const TermMiniItemCell = React.memo(
-  ({ entity, asButton, className, onClick }: TermMiniItemCellProps) => {
+  ({ entity, isPrimary, className, onClick }: TermMiniItemCellProps) => {
     if (!entity) {
       return <span>-</span>
     }
 
-    const entityClassName = asButton || 'font-semibold'
+    const entityClassName = isPrimary && 'font-semibold'
 
     const content = (
       <div
@@ -27,18 +27,20 @@ export const TermMiniItemCell = React.memo(
         )}
       >
         <p className='flex flex-row items-center gap-1'>
+          <span className={cn('text-sm', entityClassName)}>
+            {entity.term_name}
+          </span>
+        </p>
+        <p className='flex flex-row items-center gap-1'>
           {entity.term_enabled ? (
             <SquareCheckBigIcon className='h-3.5 w-3.5 text-green-400 dark:text-green-700' />
           ) : (
             <SquareXIcon className='h-3.5 w-3.5 text-red-400 dark:text-red-800' />
           )}
-          <span className={cn('text-sm', entityClassName)}>
-            {entity.term_name}
-          </span>
+          <code className='text-xs text-muted-foreground'>
+            [{entity.term_slug}]
+          </code>
         </p>
-        <code className='text-xs text-muted-foreground'>
-          [{entity.term_slug}]
-        </code>
       </div>
     )
 

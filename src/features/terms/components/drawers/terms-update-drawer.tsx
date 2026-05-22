@@ -171,7 +171,6 @@ function TermUpdateDrawerContent({
 
             {showEditors && (
               <>
-                <h4 className='text-sm font-bold'>术语集合</h4>
                 <FormField
                   control={form.control}
                   name='term_collection'
@@ -227,7 +226,6 @@ function TermUpdateDrawerContent({
                   )}
                 />
 
-                <h4 className='text-sm font-bold'>说明文档</h4>
                 <FormField
                   control={form.control}
                   name='term_readme'

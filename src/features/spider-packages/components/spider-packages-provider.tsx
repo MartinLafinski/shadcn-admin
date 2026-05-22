@@ -10,10 +10,12 @@ type SpiderPackagesDialogType =
   | 'config'
   | 'configInfo'
   | 'releases'
+  | 'viewWebsite'
 
 type SpiderPackageSearchParams = {
   spider_package_keyword?: string
   spider_package_enabled?: boolean
+  website_id?: number
   page?: number
   size?: number
 }
@@ -63,12 +65,14 @@ export function SpiderPackagesProvider({
     setSearchParams({
       spider_package_keyword: search.spider_package_keyword,
       spider_package_enabled: search.spider_package_enabled,
+      website_id: search.website_id,
       page: search.page,
       size: search.size,
     })
   }, [
     search.spider_package_keyword,
     search.spider_package_enabled,
+    search.website_id,
     search.page,
     search.size,
   ])

@@ -51,6 +51,7 @@ export const spiderSessionsColumns: ColumnDef<SpiderSessionItemData>[] = [
       return (
         <SpiderSessionMiniItemCell
           session={session}
+          isPrimary={true}
           onClick={() => {
             setCurrentRow(session)
             setOpen('configInfo')
@@ -80,7 +81,7 @@ export const spiderSessionsColumns: ColumnDef<SpiderSessionItemData>[] = [
       return (
         <WebsiteMiniItemCell
           website={row.original.website}
-          asLink={true}
+          isPrimary={false}
           onClick={() => {
             setCurrentRow(spiderSession) // 设置当前选中的行数据
             setOpen('viewWebsite') // 打开查看网站信息对话框

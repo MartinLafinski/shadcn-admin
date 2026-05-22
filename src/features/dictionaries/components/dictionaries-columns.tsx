@@ -43,6 +43,7 @@ export const dictionariesColumns: ColumnDef<DictionaryData>[] = [
               dictionary_enabled: boolean
             }
           }
+          isPrimary={true}
           onClick={() => {
             setCurrentRow(row.original)
             setOpen('view')

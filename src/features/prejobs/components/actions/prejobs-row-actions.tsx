@@ -1,6 +1,11 @@
 import { useCallback } from 'react'
 import { type Row } from '@tanstack/react-table'
-import { Trash2, SquarePenIcon, EllipsisIcon } from 'lucide-react'
+import {
+  Trash2,
+  SquarePenIcon,
+  EllipsisIcon,
+  Settings2Icon,
+} from 'lucide-react'
 import { handleToggle } from '@/lib/ui-helper'
 import { renderToggleSubMenu } from '@/lib/ui-tools'
 import { Button } from '@/components/ui/button'
@@ -61,6 +66,18 @@ export function PrejobsRowActions({ row }: PrejobsRowActionsProps) {
           编辑
           <DropdownMenuShortcut>
             <SquarePenIcon size={16} />
+          </DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={() => {
+            setCurrentRow(row.original)
+            setOpen('config')
+          }}
+        >
+          配置
+          <DropdownMenuShortcut>
+            <Settings2Icon size={16} />
           </DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

@@ -22,7 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { useParamFormQuery } from '../../api/param-forms'
 
 interface Props {
@@ -125,41 +125,44 @@ export function ParamFormsViewDialog({
             </div>
           </div>
         </DialogHeader>
-        <div className='min-h-0 flex-1 overflow-hidden'>
-          <ScrollArea className='h-full' type='always'>
-            <div className='space-y-6 p-6'>
-              {(() => {
-                const typeLabel = paramFormTypeLabels.find(
-                  (l) => l.value === pf.param_type
+        <div className='min-h-0 flex-1'>
+          <div className='space-y-6 p-6'>
+            {(() => {
+              const typeLabel = paramFormTypeLabels.find(
+                (l) => l.value === pf.param_type
+              )
+              if (typeLabel) {
+                const TypeIcon = typeLabel.icon
+                return (
+                  <div
+                    className={cn(
+                      'flex items-center gap-2 rounded-xl border bg-muted/30 p-4',
+                      typeLabel.className
+                    )}
+                  >
+                    <TypeIcon className='h-5 w-5' />
+                    <span className='rounded px-2 py-0.5 text-base'>
+                      {typeLabel.label}
+                    </span>
+                    <code className='text-xs text-muted-foreground'>
+                      [{pf.param_type}]
+                    </code>
+                  </div>
                 )
-                if (typeLabel) {
-                  const TypeIcon = typeLabel.icon
-                  return (
-                    <div
-                      className={cn(
-                        'flex items-center gap-2 rounded-xl border bg-muted/30 p-4',
-                        typeLabel.className
-                      )}
-                    >
-                      <TypeIcon className='h-5 w-5' />
-                      <span className='rounded px-2 py-0.5 text-base'>
-                        {typeLabel.label}
-                      </span>
-                      <code className='text-xs text-muted-foreground'>
-                        [{pf.param_type}]
-                      </code>
-                    </div>
-                  )
-                }
-                return null
-              })()}
-              <details className='group' open>
-                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                  <Braces className='h-5 w-5 text-amber-500' />
-                  JSON Schema
-                  <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                </summary>
-                <div className='mt-4 rounded-xl border bg-muted/30 p-4'>
+              }
+              return null
+            })()}
+            <details className='group' open>
+              <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                <Braces className='h-5 w-5 text-amber-500' />
+                JSON Schema
+                <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+              </summary>
+              <div className='mt-4 h-full overflow-hidden rounded-xl border bg-muted/30 p-4'>
+                <ScrollArea
+                  className='h-[320px] w-full max-w-full'
+                  type='always'
+                >
                   <JsonView
                     value={pf.param_json_schema}
                     displayDataTypes={false}
@@ -178,17 +181,23 @@ export function ParamFormsViewDialog({
                           }
                     }
                   />
-                </div>
-              </details>
-              {pf.param_ui_schema &&
-                Object.keys(pf.param_ui_schema).length > 0 && (
-                  <details className='group' open>
-                    <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                      <FileCodeIcon className='h-5 w-5 text-blue-500' />
-                      UI Schema
-                      <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                    </summary>
-                    <div className='mt-4 rounded-xl border bg-muted/30 p-4'>
+                  <ScrollBar orientation='horizontal' />
+                </ScrollArea>
+              </div>
+            </details>
+            {pf.param_ui_schema &&
+              Object.keys(pf.param_ui_schema).length > 0 && (
+                <details className='group' open>
+                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                    <FileCodeIcon className='h-5 w-5 text-blue-500' />
+                    UI Schema
+                    <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                  </summary>
+                  <div className='mt-4 h-full overflow-hidden rounded-xl border bg-muted/30 p-4'>
+                    <ScrollArea
+                      className='h-[320px] w-full max-w-full'
+                      type='always'
+                    >
                       <JsonView
                         value={pf.param_ui_schema}
                         displayDataTypes={false}
@@ -207,29 +216,30 @@ export function ParamFormsViewDialog({
                               }
                         }
                       />
-                    </div>
-                  </details>
-                )}
-              {pf.param_readme && (
-                <details className='group' open>
-                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <FileText className='h-5 w-5 text-sky-500' />
-                    说明文档
-                    <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                  </summary>
-                  <div
-                    className='mt-4 rounded-xl border bg-card p-4'
-                    data-color-mode={resolvedTheme}
-                  >
-                    <MDEditor.Markdown
-                      source={pf.param_readme}
-                      style={{ backgroundColor: 'transparent' }}
-                    />
+                      <ScrollBar orientation='horizontal' />
+                    </ScrollArea>
                   </div>
                 </details>
               )}
-            </div>
-          </ScrollArea>
+            {pf.param_readme && (
+              <details className='group' open>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <FileText className='h-5 w-5 text-sky-500' />
+                  说明文档
+                  <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div
+                  className='mt-4 rounded-xl border bg-card p-4'
+                  data-color-mode={resolvedTheme}
+                >
+                  <MDEditor.Markdown
+                    source={pf.param_readme}
+                    style={{ backgroundColor: 'transparent' }}
+                  />
+                </div>
+              </details>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

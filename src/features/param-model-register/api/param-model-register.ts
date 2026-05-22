@@ -7,6 +7,8 @@ import {
   type ParamModelRegistersData,
   type ParamModelRegisterUpdateData,
   type RegisterShardData,
+  type RegisterDataItem,
+  type WriteRegisterData,
 } from '../data/schemas'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8888'
@@ -168,6 +170,79 @@ export const nextShard = async (
   await handleResponse(response)
 }
 
+// ==================================================================================================
+// 数据管理 API
+// ==================================================================================================
+
+export const fetchRegisterData = async (
+  registerId: number,
+  page: number = 1,
+  size: number = PAGE_SIZE,
+  token: string | null
+): Promise<{
+  items: RegisterDataItem[]
+  total: number
+  page: number
+  size: number
+}> => {
+  const url = `${API_BASE_URL}/param-model-register/${registerId}/data/?page=${page}&size=${size}`
+  const response = await fetch(url, {
+    headers: { ...(token && { Authorization: `Bearer ${token}` }) },
+  })
+  await handleResponse(response)
+  return response.json()
+}
+
+export const writeRegisterData = async (
+  registerId: number,
+  data: WriteRegisterData,
+  token: string | null
+): Promise<RegisterDataItem> => {
+  const response = await fetch(
+    `${API_BASE_URL}/param-model-register/${registerId}/data/`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: JSON.stringify(data),
+    }
+  )
+  await handleResponse(response)
+  return response.json()
+}
+
+export const readRegisterData = async (
+  registerId: number,
+  key: string,
+  token: string | null
+): Promise<RegisterDataItem> => {
+  const response = await fetch(
+    `${API_BASE_URL}/param-model-register/${registerId}/data/${encodeURIComponent(key)}/`,
+    {
+      headers: { ...(token && { Authorization: `Bearer ${token}` }) },
+    }
+  )
+  await handleResponse(response)
+  return response.json()
+}
+
+export const deleteRegisterData = async (
+  registerId: number,
+  key: string,
+  token: string | null
+): Promise<Response> => {
+  const response = await fetch(
+    `${API_BASE_URL}/param-model-register/${registerId}/data/${encodeURIComponent(key)}/`,
+    {
+      method: 'DELETE',
+      headers: { ...(token && { Authorization: `Bearer ${token}` }) },
+    }
+  )
+  return await handleResponse(response)
+}
+
 // =============================================================================
 // TanStack Query Hooks
 // =============================================================================
@@ -270,10 +345,14 @@ export const useDeleteParamModelRegisterMutation = () => {
 }
 
 export const useSyncParamModelRegistersMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async () => {
       const token = getAccessToken()
       return syncParamModelRegisters(token)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['param-model-register'] })
     },
   })
 }
@@ -306,6 +385,54 @@ export const useNextShardMutation = () => {
     mutationFn: async (registerId: number) => {
       const token = getAccessToken()
       return nextShard(registerId, token)
+    },
+  })
+}
+
+export const useRegisterDataQuery = (
+  registerId: number,
+  page: number = 1,
+  size: number = PAGE_SIZE
+) => {
+  return useQuery({
+    queryKey: ['param-model-register', registerId, 'data', page, size],
+    queryFn: async () => {
+      const token = getAccessToken()
+      return fetchRegisterData(registerId, page, size, token)
+    },
+    enabled: !!registerId,
+  })
+}
+
+export const useWriteRegisterDataMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (variables: {
+      registerId: number
+      data: WriteRegisterData
+    }) => {
+      const token = getAccessToken()
+      return writeRegisterData(variables.registerId, variables.data, token)
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['param-model-register', variables.registerId, 'data'],
+      })
+    },
+  })
+}
+
+export const useDeleteRegisterDataMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (variables: { registerId: number; key: string }) => {
+      const token = getAccessToken()
+      return deleteRegisterData(variables.registerId, variables.key, token)
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['param-model-register', variables.registerId, 'data'],
+      })
     },
   })
 }

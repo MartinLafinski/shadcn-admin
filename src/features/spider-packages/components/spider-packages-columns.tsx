@@ -1,6 +1,5 @@
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { BoxesIcon } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { CounterCell } from '@/components/smart/cells/counter-cell'
 import { DatetimeCell } from '@/components/smart/cells/datetime-cell'
 import { EntityIdCell } from '@/components/smart/cells/entity-id-cell'
@@ -9,6 +8,7 @@ import { EntitySelectHeader } from '@/components/smart/cells/entity-select-heade
 import { SpiderPackageMiniItemCell } from '@/components/smart/cells/spider-package-mini-item-cell'
 // URL单元格
 import { UrlCell } from '@/components/smart/cells/url-cell'
+import { WebsiteMiniItemCell } from '@/components/smart/cells/website-mini-item-cell'
 import type { SpiderPackageItemData } from '../data/schemas'
 import { SpiderPackagesRowActions } from './actions/spider-packages-row-actions'
 import { SpiderPackageEnabledSwitch } from './cells/spider-package-enabled-switch'
@@ -42,6 +42,7 @@ export const spiderPackagesColumns: ColumnDef<SpiderPackageItemData>[] = [
       return (
         <SpiderPackageMiniItemCell
           entity={row.original}
+          isPrimary={true}
           onClick={() => {
             setCurrentRow(row.original)
             setOpen('configInfo')
@@ -51,6 +52,30 @@ export const spiderPackagesColumns: ColumnDef<SpiderPackageItemData>[] = [
     },
     enableHiding: false,
     size: 200,
+  },
+  {
+    id: 'website',
+    accessorKey: 'website',
+    header: '网站',
+    cell: ({ row }) => {
+      const { setOpen, setCurrentRow } = useSpiderPackagesActions()
+      const website = row.original.website
+      return (
+        <WebsiteMiniItemCell
+          website={website ?? null}
+          isPrimary={false}
+          onClick={
+            website
+              ? () => {
+                  setCurrentRow(row.original)
+                  setOpen('viewWebsite')
+                }
+              : undefined
+          }
+        />
+      )
+    },
+    size: 120,
   },
   {
     id: 'releases_count',
@@ -75,6 +100,9 @@ export const spiderPackagesColumns: ColumnDef<SpiderPackageItemData>[] = [
       )
     },
     size: 60,
+    meta: {
+      className: 'border-r-1',
+    },
   },
   {
     id: 'spider_package_version',

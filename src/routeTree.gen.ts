@@ -59,6 +59,7 @@ import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedParamModelRegisterRegisterIdRouteImport } from './routes/_authenticated/param-model-register/$registerId'
 import { Route as AuthenticatedParamFormsEditRouteImport } from './routes/_authenticated/param-forms/edit'
 import { Route as AuthenticatedParamFormsCreateRouteImport } from './routes/_authenticated/param-forms/create'
 import { Route as AuthenticatedMaterialVideoRouteImport } from './routes/_authenticated/material/video'
@@ -364,6 +365,12 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedParamModelRegisterRegisterIdRoute =
+  AuthenticatedParamModelRegisterRegisterIdRouteImport.update({
+    id: '/param-model-register/$registerId',
+    path: '/param-model-register/$registerId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedParamFormsEditRoute =
   AuthenticatedParamFormsEditRouteImport.update({
     id: '/param-forms/edit',
@@ -535,6 +542,7 @@ export interface FileRoutesByFullPath {
   '/material/video': typeof AuthenticatedMaterialVideoRoute
   '/param-forms/create': typeof AuthenticatedParamFormsCreateRoute
   '/param-forms/edit': typeof AuthenticatedParamFormsEditRoute
+  '/param-model-register/$registerId': typeof AuthenticatedParamModelRegisterRegisterIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -607,6 +615,7 @@ export interface FileRoutesByTo {
   '/material/video': typeof AuthenticatedMaterialVideoRoute
   '/param-forms/create': typeof AuthenticatedParamFormsCreateRoute
   '/param-forms/edit': typeof AuthenticatedParamFormsEditRoute
+  '/param-model-register/$registerId': typeof AuthenticatedParamModelRegisterRegisterIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -683,6 +692,7 @@ export interface FileRoutesById {
   '/_authenticated/material/video': typeof AuthenticatedMaterialVideoRoute
   '/_authenticated/param-forms/create': typeof AuthenticatedParamFormsCreateRoute
   '/_authenticated/param-forms/edit': typeof AuthenticatedParamFormsEditRoute
+  '/_authenticated/param-model-register/$registerId': typeof AuthenticatedParamModelRegisterRegisterIdRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -758,6 +768,7 @@ export interface FileRouteTypes {
     | '/material/video'
     | '/param-forms/create'
     | '/param-forms/edit'
+    | '/param-model-register/$registerId'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -830,6 +841,7 @@ export interface FileRouteTypes {
     | '/material/video'
     | '/param-forms/create'
     | '/param-forms/edit'
+    | '/param-model-register/$registerId'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -905,6 +917,7 @@ export interface FileRouteTypes {
     | '/_authenticated/material/video'
     | '/_authenticated/param-forms/create'
     | '/_authenticated/param-forms/edit'
+    | '/_authenticated/param-model-register/$registerId'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
@@ -1308,6 +1321,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/param-model-register/$registerId': {
+      id: '/_authenticated/param-model-register/$registerId'
+      path: '/param-model-register/$registerId'
+      fullPath: '/param-model-register/$registerId'
+      preLoaderRoute: typeof AuthenticatedParamModelRegisterRegisterIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/param-forms/edit': {
       id: '/_authenticated/param-forms/edit'
       path: '/param-forms/edit'
@@ -1535,6 +1555,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMaterialVideoRoute: typeof AuthenticatedMaterialVideoRoute
   AuthenticatedParamFormsCreateRoute: typeof AuthenticatedParamFormsCreateRoute
   AuthenticatedParamFormsEditRoute: typeof AuthenticatedParamFormsEditRoute
+  AuthenticatedParamModelRegisterRegisterIdRoute: typeof AuthenticatedParamModelRegisterRegisterIdRoute
   AuthenticatedAccountsIndexRoute: typeof AuthenticatedAccountsIndexRoute
   AuthenticatedActorsIndexRoute: typeof AuthenticatedActorsIndexRoute
   AuthenticatedAiTasksIndexRoute: typeof AuthenticatedAiTasksIndexRoute
@@ -1597,6 +1618,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMaterialVideoRoute: AuthenticatedMaterialVideoRoute,
   AuthenticatedParamFormsCreateRoute: AuthenticatedParamFormsCreateRoute,
   AuthenticatedParamFormsEditRoute: AuthenticatedParamFormsEditRoute,
+  AuthenticatedParamModelRegisterRegisterIdRoute:
+    AuthenticatedParamModelRegisterRegisterIdRoute,
   AuthenticatedAccountsIndexRoute: AuthenticatedAccountsIndexRoute,
   AuthenticatedActorsIndexRoute: AuthenticatedActorsIndexRoute,
   AuthenticatedAiTasksIndexRoute: AuthenticatedAiTasksIndexRoute,

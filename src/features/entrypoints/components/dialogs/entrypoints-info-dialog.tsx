@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog.tsx'
-import { ScrollArea } from '@/components/ui/scroll-area.tsx'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area.tsx'
 
 /**
  * 入口点信息对话框组件的属性接口
@@ -86,30 +86,33 @@ export function EntrypointsInfoDialog({
         </DialogHeader>
 
         {/* 可滚动的内容区域：包含说明文档和配置信息两部分 */}
-        <div className='min-h-0 flex-1 overflow-hidden'>
-          <ScrollArea className='h-full w-full' type={'always'}>
-            <div className='space-y-6 px-6 pb-6'>
-              {/* 说明文档区域：展示 Markdown 格式的说明文档 */}
-              <div className='space-y-2'>
-                <h4 className='text-sm font-medium'>说明文档</h4>
-                {/* 使用 MDEditor.Markdown 渲染 Markdown 内容 */}
-                {/* data-color-mode 属性使 Markdown 渲染适配当前主题 */}
-                <div
-                  className='rounded-md border bg-background p-4'
-                  data-color-mode={resolvedTheme}
-                >
-                  <MDEditor.Markdown
-                    source={readme}
-                    style={{ backgroundColor: 'transparent' }}
-                  />
-                </div>
+        <div className='min-h-0 flex-1'>
+          <div className='space-y-6 px-6 pb-6'>
+            {/* 说明文档区域：展示 Markdown 格式的说明文档 */}
+            <div className='space-y-2'>
+              <h4 className='text-sm font-medium'>说明文档</h4>
+              {/* 使用 MDEditor.Markdown 渲染 Markdown 内容 */}
+              {/* data-color-mode 属性使 Markdown 渲染适配当前主题 */}
+              <div
+                className='rounded-md border bg-background p-4'
+                data-color-mode={resolvedTheme}
+              >
+                <MDEditor.Markdown
+                  source={readme}
+                  style={{ backgroundColor: 'transparent' }}
+                />
               </div>
+            </div>
 
-              {/* 配置信息区域：展示 JSON 格式的配置数据 */}
-              <div className='space-y-2'>
-                <h4 className='text-sm font-medium'>配置信息</h4>
-                {/* 使用 react-json-view 组件展示 JSON 数据 */}
-                <div className='rounded-md border bg-muted/50 p-4'>
+            {/* 配置信息区域：展示 JSON 格式的配置数据 */}
+            <div className='space-y-2'>
+              <h4 className='text-sm font-medium'>配置信息</h4>
+              {/* 使用 react-json-view 组件展示 JSON 数据 */}
+              <div className='h-full overflow-hidden rounded-md border bg-muted/50 p-4'>
+                <ScrollArea
+                  className='h-[320px] w-full max-w-full'
+                  type='always'
+                >
                   <JsonView
                     value={config}
                     displayDataTypes={false} // 不显示数据类型
@@ -125,10 +128,11 @@ export function EntrypointsInfoDialog({
                         : { ...githubDarkTheme, backgroundColor: 'transparent' }
                     }
                   />
-                </div>
+                  <ScrollBar orientation='horizontal' />
+                </ScrollArea>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

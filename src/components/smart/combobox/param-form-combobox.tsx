@@ -127,7 +127,11 @@ export const ParamFormCombobox = React.memo(
                             selected ? 'opacity-100' : 'opacity-0'
                           )}
                         />
-                        <ParamFormMiniItemCell entity={item} />
+                        <ParamFormMiniItemCell
+                          entity={item}
+                          isPrimary={false}
+                          asLink={false}
+                        />
                       </CommandItem>
                     )
                   })}

@@ -36,6 +36,7 @@ const handleResponse = async (response: Response) => {
 export const fetchSpiderPackages = async (
   spider_package_keyword: string | undefined = undefined,
   spider_package_enabled: boolean | undefined = undefined,
+  website_id: number | undefined = undefined,
   page: number = 1,
   size: number = PAGE_SIZE,
   token: string | null
@@ -51,6 +52,10 @@ export const fetchSpiderPackages = async (
 
   if (spider_package_enabled !== undefined) {
     url += `&spider_package_enabled=${spider_package_enabled}`
+  }
+
+  if (website_id) {
+    url += `&website_id=${website_id}`
   }
 
   const response = await fetch(url, {
@@ -291,6 +296,7 @@ export const batchExportSpiderPackages = async (
 export const useSpiderPackagesQuery = (
   spider_package_keyword: string | undefined = undefined,
   spider_package_enabled: boolean | undefined = undefined,
+  website_id: number | undefined = undefined,
   page: number = 1,
   size: number = PAGE_SIZE
 ) => {
@@ -299,6 +305,7 @@ export const useSpiderPackagesQuery = (
       'spider-packages',
       spider_package_keyword,
       spider_package_enabled,
+      website_id,
       page,
       size,
     ],
@@ -307,6 +314,7 @@ export const useSpiderPackagesQuery = (
       return fetchSpiderPackages(
         spider_package_keyword,
         spider_package_enabled,
+        website_id,
         page,
         size,
         token
@@ -467,10 +475,14 @@ export const useBatchDeleteSpiderPackagesMutation = () => {
 }
 
 export const useSyncSpiderPackagesMutation = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async () => {
       const token = getAccessToken()
       return syncSpiderPackages(token)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['spider-packages'] })
     },
   })
 }

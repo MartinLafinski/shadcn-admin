@@ -30,7 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { StatCard, CategoryCard } from '@/components/smart/view-cards'
 import { useSpiderSessionQuery } from '../../api/spider-sessions.ts'
 import type { SpiderSessionItemData } from '../../data/schemas'
@@ -213,137 +213,140 @@ export function SpiderSessionsInfoDialog({
           </div>
         </DialogHeader>
 
-        <div className='min-h-0 flex-1 overflow-hidden'>
-          <ScrollArea className='h-full' type='always'>
-            <div className='space-y-6 p-6'>
-              <div className='grid grid-cols-2 gap-4'>
-                {website && (
-                  <CategoryCard
-                    icon={Globe}
-                    ctype='网站'
-                    name={website.website_name}
-                    slug={website.website_slug}
-                    colorClass='text-sky-600'
-                    bgClass='bg-sky-500/10'
-                  />
-                )}
-                {session.session_pool_id != null && (
-                  <StatCard
-                    icon={Hash}
-                    count={session.session_pool_id}
-                    label='会话池'
-                    colorClass='text-violet-600'
-                    bgClass='bg-violet-500/10'
-                  />
-                )}
-                <StatCard
-                  icon={Gauge}
-                  count={session.session_weight ?? 0}
-                  label='权重'
-                  colorClass='text-orange-600'
-                  bgClass='bg-orange-500/10'
+        <div className='min-h-0 flex-1'>
+          <div className='space-y-6 p-6'>
+            <div className='grid grid-cols-2 gap-4'>
+              {website && (
+                <CategoryCard
+                  icon={Globe}
+                  ctype='网站'
+                  name={website.website_name}
+                  slug={website.website_slug}
+                  colorClass='text-sky-600'
+                  bgClass='bg-sky-500/10'
                 />
+              )}
+              {session.session_pool_id != null && (
                 <StatCard
-                  icon={HardDrive}
-                  count={session.session_max_spider_task_count ?? 128}
-                  label='最大任务数'
-                  colorClass='text-teal-600'
-                  bgClass='bg-teal-500/10'
+                  icon={Hash}
+                  count={session.session_pool_id}
+                  label='会话池'
+                  colorClass='text-violet-600'
+                  bgClass='bg-violet-500/10'
                 />
+              )}
+              <StatCard
+                icon={Gauge}
+                count={session.session_weight ?? 0}
+                label='权重'
+                colorClass='text-orange-600'
+                bgClass='bg-orange-500/10'
+              />
+              <StatCard
+                icon={HardDrive}
+                count={session.session_max_spider_task_count ?? 128}
+                label='最大任务数'
+                colorClass='text-teal-600'
+                bgClass='bg-teal-500/10'
+              />
+            </div>
+
+            {session.session_locked && (
+              <div className='flex items-center gap-2 rounded-lg border bg-yellow-50 p-3 dark:bg-yellow-900/20'>
+                <Shield className='h-4 w-4 text-yellow-600' />
+                <span className='text-sm text-yellow-800 dark:text-yellow-300'>
+                  此会话已被锁定
+                </span>
               </div>
+            )}
+            {session.session_paused && (
+              <div className='flex items-center gap-2 rounded-lg border bg-violet-50 p-3 dark:bg-violet-900/20'>
+                <ShieldAlert className='h-4 w-4 text-violet-600' />
+                <span className='text-sm text-violet-800 dark:text-violet-300'>
+                  此会话已暂停
+                </span>
+              </div>
+            )}
 
-              {session.session_locked && (
-                <div className='flex items-center gap-2 rounded-lg border bg-yellow-50 p-3 dark:bg-yellow-900/20'>
-                  <Shield className='h-4 w-4 text-yellow-600' />
-                  <span className='text-sm text-yellow-800 dark:text-yellow-300'>
-                    此会话已被锁定
-                  </span>
-                </div>
-              )}
-              {session.session_paused && (
-                <div className='flex items-center gap-2 rounded-lg border bg-violet-50 p-3 dark:bg-violet-900/20'>
-                  <ShieldAlert className='h-4 w-4 text-violet-600' />
-                  <span className='text-sm text-violet-800 dark:text-violet-300'>
-                    此会话已暂停
-                  </span>
-                </div>
-              )}
-
-              {totalSpider > 0 && (
-                <Card>
-                  <CardHeader className='pb-3'>
-                    <CardTitle className='flex items-center gap-2 text-base'>
-                      <Bug className='h-5 w-5 text-blue-500' />
-                      爬虫任务分布
-                      <Badge variant='secondary' className='ml-auto'>
-                        {totalSpider}
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <TaskBar session={session} />
-                  </CardContent>
-                </Card>
-              )}
-
-              {session.rate_limits && session.rate_limits.length > 0 && (
-                <details className='group' open>
-                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <Gauge className='h-5 w-5 text-orange-500' />
-                    限流规则
+            {totalSpider > 0 && (
+              <Card>
+                <CardHeader className='pb-3'>
+                  <CardTitle className='flex items-center gap-2 text-base'>
+                    <Bug className='h-5 w-5 text-blue-500' />
+                    爬虫任务分布
                     <Badge variant='secondary' className='ml-auto'>
-                      {session.rate_limits.length}
+                      {totalSpider}
                     </Badge>
-                    <ChevronDown className='ml-2 h-4 w-4 transition-transform group-open:rotate-180' />
-                  </summary>
-                  <div className='mt-4 space-y-2'>
-                    {session.rate_limits.map((rl, idx) => (
-                      <div
-                        key={idx}
-                        className='flex items-center justify-between rounded-lg border bg-card p-3'
-                      >
-                        <div className='flex items-center gap-4'>
-                          <div>
-                            <span className='text-xs text-muted-foreground'>
-                              最大次数
-                            </span>
-                            <p className='text-sm font-semibold tabular-nums'>
-                              {rl.max_uses}
-                            </p>
-                          </div>
-                          <div>
-                            <span className='text-xs text-muted-foreground'>
-                              时间窗口
-                            </span>
-                            <p className='text-sm font-semibold'>
-                              {rl.within_minutes} 分钟
-                            </p>
-                          </div>
-                        </div>
-                        <Badge
-                          variant='outline'
-                          className={
-                            rl.consider_ip
-                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                              : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500'
-                          }
-                        >
-                          {rl.consider_ip ? '按IP' : '不限IP'}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </details>
-              )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TaskBar session={session} />
+                </CardContent>
+              </Card>
+            )}
 
-              {hasHeaders && (
-                <details className='group'>
-                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <FileText className='h-5 w-5 text-indigo-500' />
-                    Headers
-                    <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                  </summary>
-                  <div className='mt-4 rounded-xl border bg-muted/30 p-4'>
+            {session.rate_limits && session.rate_limits.length > 0 && (
+              <details className='group' open>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <Gauge className='h-5 w-5 text-orange-500' />
+                  限流规则
+                  <Badge variant='secondary' className='ml-auto'>
+                    {session.rate_limits.length}
+                  </Badge>
+                  <ChevronDown className='ml-2 h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div className='mt-4 space-y-2'>
+                  {session.rate_limits.map((rl, idx) => (
+                    <div
+                      key={idx}
+                      className='flex items-center justify-between rounded-lg border bg-card p-3'
+                    >
+                      <div className='flex items-center gap-4'>
+                        <div>
+                          <span className='text-xs text-muted-foreground'>
+                            最大次数
+                          </span>
+                          <p className='text-sm font-semibold tabular-nums'>
+                            {rl.max_uses}
+                          </p>
+                        </div>
+                        <div>
+                          <span className='text-xs text-muted-foreground'>
+                            时间窗口
+                          </span>
+                          <p className='text-sm font-semibold'>
+                            {rl.within_minutes} 分钟
+                          </p>
+                        </div>
+                      </div>
+                      <Badge
+                        variant='outline'
+                        className={
+                          rl.consider_ip
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                            : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500'
+                        }
+                      >
+                        {rl.consider_ip ? '按IP' : '不限IP'}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
+
+            {hasHeaders && (
+              <details className='group'>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <FileText className='h-5 w-5 text-indigo-500' />
+                  Headers
+                  <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div className='mt-4 h-full overflow-hidden rounded-xl border bg-muted/30 p-4'>
+                  <ScrollArea
+                    className='h-[320px] w-full max-w-full'
+                    type='always'
+                  >
                     <JsonView
                       value={session.session_headers}
                       displayDataTypes={false}
@@ -362,18 +365,24 @@ export function SpiderSessionsInfoDialog({
                             }
                       }
                     />
-                  </div>
-                </details>
-              )}
+                    <ScrollBar orientation='horizontal' />
+                  </ScrollArea>
+                </div>
+              </details>
+            )}
 
-              {hasCookies && (
-                <details className='group'>
-                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <FileText className='h-5 w-5 text-amber-500' />
-                    Cookies
-                    <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                  </summary>
-                  <div className='mt-4 rounded-xl border bg-muted/30 p-4'>
+            {hasCookies && (
+              <details className='group'>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <FileText className='h-5 w-5 text-amber-500' />
+                  Cookies
+                  <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div className='mt-4 h-full overflow-hidden rounded-xl border bg-muted/30 p-4'>
+                  <ScrollArea
+                    className='h-[320px] w-full max-w-full'
+                    type='always'
+                  >
                     <JsonView
                       value={session.session_cookies}
                       displayDataTypes={false}
@@ -392,37 +401,43 @@ export function SpiderSessionsInfoDialog({
                             }
                       }
                     />
-                  </div>
-                </details>
-              )}
+                    <ScrollBar orientation='horizontal' />
+                  </ScrollArea>
+                </div>
+              </details>
+            )}
 
-              {session.session_readme && (
-                <details className='group' open>
-                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <FileText className='h-5 w-5 text-sky-500' />
-                    说明文档
-                    <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                  </summary>
-                  <div
-                    className='mt-4 rounded-xl border bg-card p-4'
-                    data-color-mode={resolvedTheme}
+            {session.session_readme && (
+              <details className='group' open>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <FileText className='h-5 w-5 text-sky-500' />
+                  说明文档
+                  <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div
+                  className='mt-4 rounded-xl border bg-card p-4'
+                  data-color-mode={resolvedTheme}
+                >
+                  <MDEditor.Markdown
+                    source={session.session_readme}
+                    style={{ backgroundColor: 'transparent' }}
+                  />
+                </div>
+              </details>
+            )}
+
+            {hasConfig && (
+              <details className='group'>
+                <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
+                  <Braces className='h-5 w-5 text-fuchsia-500' />
+                  配置信息
+                  <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
+                </summary>
+                <div className='mt-4 h-full overflow-hidden rounded-xl border bg-muted/30 p-4'>
+                  <ScrollArea
+                    className='h-[320px] w-full max-w-full'
+                    type='always'
                   >
-                    <MDEditor.Markdown
-                      source={session.session_readme}
-                      style={{ backgroundColor: 'transparent' }}
-                    />
-                  </div>
-                </details>
-              )}
-
-              {hasConfig && (
-                <details className='group'>
-                  <summary className='flex cursor-pointer items-center gap-2 text-base font-semibold transition-colors hover:text-primary'>
-                    <Braces className='h-5 w-5 text-fuchsia-500' />
-                    配置信息
-                    <ChevronDown className='ml-auto h-4 w-4 transition-transform group-open:rotate-180' />
-                  </summary>
-                  <div className='mt-4 rounded-xl border bg-muted/30 p-4'>
                     <JsonView
                       value={session.session_config}
                       displayDataTypes={false}
@@ -441,11 +456,12 @@ export function SpiderSessionsInfoDialog({
                             }
                       }
                     />
-                  </div>
-                </details>
-              )}
-            </div>
-          </ScrollArea>
+                    <ScrollBar orientation='horizontal' />
+                  </ScrollArea>
+                </div>
+              </details>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

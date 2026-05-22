@@ -17,7 +17,9 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from '@/components/ui/input-group.tsx'
+import { EntrypointCombobox } from '@/components/smart/combobox/entrypoint-combobox'
 import { IndustryCombobox } from '@/components/smart/combobox/industry-combobox'
+import { JobGroupCombobox } from '@/components/smart/combobox/jobgroup-combobox'
 import { WebsiteCombobox } from '@/components/smart/combobox/website-combobox'
 import { FilterDropdown } from '@/components/smart/filter-dropdown'
 import {
@@ -49,6 +51,10 @@ export function Search({ className = '' }: { className?: string }) {
   const [deeplySearch, setDeeplySearch] = useState<boolean>(false)
   const [websiteId, setWebsiteId] = useState<number | undefined>(undefined)
   const [industryId, setIndustryId] = useState<number | undefined>(undefined)
+  const [jobgroupId, setJobgroupId] = useState<number | undefined>(undefined)
+  const [entrypointId, setEntrypointId] = useState<number | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     setKeyword(searchParams?.prejob_keyword ?? '')
@@ -60,6 +66,8 @@ export function Search({ className = '' }: { className?: string }) {
     setDeeplySearch(searchParams?.deeply_search ?? false)
     setWebsiteId(searchParams?.website_id)
     setIndustryId(searchParams?.industry_id)
+    setJobgroupId(searchParams?.jobgroup_id)
+    setEntrypointId(searchParams?.entrypoint_id)
   }, [
     searchParams.prejob_keyword,
     searchParams.prejob_level,
@@ -69,6 +77,8 @@ export function Search({ className = '' }: { className?: string }) {
     searchParams.prejob_limited,
     searchParams.website_id,
     searchParams.industry_id,
+    searchParams.jobgroup_id,
+    searchParams.entrypoint_id,
     searchParams.deeply_search,
   ])
 
@@ -107,6 +117,8 @@ export function Search({ className = '' }: { className?: string }) {
       deeply_search: deeplySearch,
       website_id: websiteId,
       industry_id: industryId,
+      jobgroup_id: jobgroupId,
+      entrypoint_id: entrypointId,
       page: 1,
       size: searchParams.size,
     }
@@ -125,6 +137,8 @@ export function Search({ className = '' }: { className?: string }) {
     setDeeplySearch(false)
     setWebsiteId(undefined)
     setIndustryId(undefined)
+    setJobgroupId(undefined)
+    setEntrypointId(undefined)
     const p = {
       prejob_keyword: undefined,
       prejob_level: undefined,
@@ -135,6 +149,8 @@ export function Search({ className = '' }: { className?: string }) {
       deeply_search: false,
       website_id: undefined,
       industry_id: undefined,
+      jobgroup_id: undefined,
+      entrypoint_id: undefined,
       page: 1,
       size: searchParams.size,
     }
@@ -143,7 +159,7 @@ export function Search({ className = '' }: { className?: string }) {
   }
 
   return (
-    <div className={cn('flex w-full max-w-2/3 gap-4', className)}>
+    <div className={cn('flex w-full max-w-4/5 gap-4', className)}>
       <ButtonGroup>
         <InputGroup className='[--radius:1rem]'>
           <InputGroupAddon align='inline-start'>
@@ -153,11 +169,11 @@ export function Search({ className = '' }: { className?: string }) {
           </InputGroupAddon>
 
           <InputGroupAddon align='inline-start'>
-            <WebsiteCombobox
-              value={websiteId}
-              onChange={(id) => setWebsiteId(id ?? undefined)}
+            <JobGroupCombobox
+              value={jobgroupId}
+              onChange={(id) => setJobgroupId(id ?? undefined)}
               variant='inline'
-              placeholder='选择网站'
+              placeholder='分组?'
             />
           </InputGroupAddon>
 
@@ -166,7 +182,30 @@ export function Search({ className = '' }: { className?: string }) {
               value={industryId}
               onChange={(id) => setIndustryId(id ?? undefined)}
               variant='inline'
-              placeholder='选择行业'
+              placeholder='行业?'
+            />
+          </InputGroupAddon>
+
+          <InputGroupAddon align='inline-start'>
+            <WebsiteCombobox
+              value={websiteId}
+              onChange={(id) => setWebsiteId(id ?? undefined)}
+              variant='inline'
+              placeholder='网站?'
+            />
+          </InputGroupAddon>
+
+          <InputGroupAddon align='inline-start'>
+            <EntrypointCombobox
+              mode='id'
+              value={entrypointId}
+              onChange={(id) =>
+                setEntrypointId((id ?? undefined) as number | undefined)
+              }
+              variant='inline'
+              websiteId={websiteId}
+              industryId={industryId}
+              placeholder='入口?'
             />
           </InputGroupAddon>
 
@@ -174,32 +213,32 @@ export function Search({ className = '' }: { className?: string }) {
             options={levelLabels}
             value={level}
             onChange={setLevel}
-            placeholder='优先级'
+            placeholder='优先级?'
           />
 
           <FilterDropdown
             options={enableLabels}
             value={enabled}
             onChange={setEnabled}
-            placeholder='可用选项'
+            placeholder='可用?'
           />
           <FilterDropdown
             options={lockedLabels}
             value={locked}
             onChange={setLocked}
-            placeholder='锁定选项'
+            placeholder='锁定?'
           />
           <FilterDropdown
             options={pausedLabels}
             value={paused}
             onChange={setPaused}
-            placeholder='运转选项'
+            placeholder='运转?'
           />
           <FilterDropdown
             options={limitedLabels}
             value={limited}
             onChange={setLimited}
-            placeholder='受限选项'
+            placeholder='受限?'
           />
 
           <InputGroupInput

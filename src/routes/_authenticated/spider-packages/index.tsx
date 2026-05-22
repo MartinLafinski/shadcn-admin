@@ -9,6 +9,7 @@ export const Route = createFileRoute('/_authenticated/spider-packages/')({
       .object({
         spider_package_keyword: z.string().optional(),
         spider_package_enabled: z.boolean().optional(),
+        website_id: z.int().optional(),
         page: z.number().optional(),
         size: z.number().optional(),
       })

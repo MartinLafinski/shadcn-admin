@@ -11,6 +11,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from '@/components/ui/input-group.tsx'
+import { WebsiteCombobox } from '@/components/smart/combobox/website-combobox'
 import { FilterDropdown } from '@/components/smart/filter-dropdown'
 import { enableLabels } from '../../data/labels.tsx'
 import { useSpiderPackages } from '../spider-packages-provider.tsx'
@@ -35,15 +36,22 @@ export function Search({ className = '' }: SearchProps) {
   const [enabledValue, setEnabledValue] = useState<boolean | undefined>(
     undefined
   )
+  const [websiteId, setWebsiteId] = useState<number | undefined>(undefined)
 
   useEffect(() => {
     setKeyword(searchParams?.spider_package_keyword ?? '')
     setEnabledValue(searchParams?.spider_package_enabled ?? undefined)
-  }, [searchParams.spider_package_keyword, searchParams.spider_package_enabled])
+    setWebsiteId(searchParams?.website_id)
+  }, [
+    searchParams.spider_package_keyword,
+    searchParams.spider_package_enabled,
+    searchParams.website_id,
+  ])
 
   const updateUrlParams = (params: {
     spider_package_keyword?: string
     spider_package_enabled?: boolean
+    website_id?: number
     page?: number
     size?: number
   }) => {
@@ -53,6 +61,7 @@ export function Search({ className = '' }: SearchProps) {
           ...(prev as Record<string, unknown>),
           spider_package_keyword: params.spider_package_keyword || undefined,
           spider_package_enabled: params.spider_package_enabled,
+          website_id: params.website_id,
           page: params.page && params.page > 1 ? params.page : undefined,
           size:
             params.size && params.size !== DEFAULT_PAGE_SIZE
@@ -75,12 +84,14 @@ export function Search({ className = '' }: SearchProps) {
     setSearchParams({
       spider_package_keyword: keyword || undefined,
       spider_package_enabled: enabledValue,
+      website_id: websiteId,
       page: 1,
       size: searchParams.size,
     })
     updateUrlParams({
       spider_package_keyword: keyword || undefined,
       spider_package_enabled: enabledValue,
+      website_id: websiteId,
       page: 1,
       size: searchParams.size,
     })
@@ -90,10 +101,12 @@ export function Search({ className = '' }: SearchProps) {
   const handleReset = () => {
     setKeyword('')
     setEnabledValue(undefined)
+    setWebsiteId(undefined)
 
     const resetParams = {
       spider_package_keyword: undefined,
       spider_package_enabled: undefined,
+      website_id: undefined,
       page: 1,
       size: searchParams.size,
     }
@@ -109,6 +122,15 @@ export function Search({ className = '' }: SearchProps) {
             <InputGroupButton size='icon-xs' onClick={handleReset}>
               <XIcon />
             </InputGroupButton>
+          </InputGroupAddon>
+
+          <InputGroupAddon align='inline-start'>
+            <WebsiteCombobox
+              value={websiteId}
+              onChange={(id) => setWebsiteId(id ?? undefined)}
+              variant='inline'
+              placeholder='选择网站'
+            />
           </InputGroupAddon>
 
           <FilterDropdown

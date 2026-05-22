@@ -24,6 +24,7 @@ import { PrejobMiniItemCell } from '@/components/smart/cells/prejob-mini-item-ce
 import { WebsiteMiniItemCell } from '@/components/smart/cells/website-mini-item-cell'
 import type { EntrypointItemData } from '@/features/entrypoints/data/schemas'
 import type { IndustryItemData } from '@/features/industries/data/schemas'
+import type { PrejobItemData } from '@/features/prejobs/data/schemas'
 import type { WebsiteData } from '@/features/websites/data/schemas'
 import { useParamModelRegisterQuery } from '../../api/param-model-register'
 
@@ -50,11 +51,11 @@ export function ParamModelRegisterViewDialog({
         <DialogContent className='min-h-[30vh] max-w-3xl'>
           <DialogTitle className='sr-only'>加载中...</DialogTitle>
           <DialogDescription className='sr-only'>
-            正在获取注册条目数据
+            正在获取参数模型集数据
           </DialogDescription>
           <div className='flex h-64 items-center justify-center gap-2'>
             <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
-            <span className='text-muted-foreground'>加载注册条目数据...</span>
+            <span className='text-muted-foreground'>加载参数模型集数据...</span>
           </div>
         </DialogContent>
       </Dialog>
@@ -67,10 +68,10 @@ export function ParamModelRegisterViewDialog({
         <DialogContent className='min-h-[30vh] max-w-md'>
           <DialogTitle className='sr-only'>加载失败</DialogTitle>
           <DialogDescription className='sr-only'>
-            无法加载注册条目数据，请稍后重试
+            无法加载参数模型集数据，请稍后重试
           </DialogDescription>
           <div className='flex h-32 items-center justify-center'>
-            <p className='text-muted-foreground'>无法加载注册条目数据</p>
+            <p className='text-muted-foreground'>无法加载参数模型集数据</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -218,7 +219,9 @@ export function ParamModelRegisterViewDialog({
                               case 'industry':
                                 return (
                                   <IndustryMiniItemCell
-                                    entity={cat as unknown as IndustryItemData}
+                                    industry={
+                                      cat as unknown as IndustryItemData
+                                    }
                                   />
                                 )
                               case 'website':
@@ -238,12 +241,7 @@ export function ParamModelRegisterViewDialog({
                               case 'prejob':
                                 return (
                                   <PrejobMiniItemCell
-                                    entity={
-                                      cat as unknown as {
-                                        prejob_name: string
-                                        prejob_slug: string
-                                      }
-                                    }
+                                    prejob={cat as unknown as PrejobItemData}
                                   />
                                 )
                               default:

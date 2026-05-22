@@ -82,7 +82,8 @@ export const industriesColumns: ColumnDef<IndustryData>[] = [
       const { setOpen, setCurrentRow } = useIndustries() // 使用行业上下文状态
       return (
         <IndustryMiniItemCell
-          entity={row.original}
+          industry={row.original}
+          isPrimary={true}
           onClick={() => {
             setCurrentRow(industry) // 设置当前选中的行数据
             setOpen('view') // 打开查看行业信息对话框
@@ -598,6 +599,7 @@ export const industriesColumns: ColumnDef<IndustryData>[] = [
     cell: ({ row }) => (
       <ParamFormMiniItemCell
         entity={row.original.param_form_self}
+        isPrimary={false}
         asLink={true}
       />
     ),
@@ -613,6 +615,7 @@ export const industriesColumns: ColumnDef<IndustryData>[] = [
     cell: ({ row }) => (
       <ParamFormMiniItemCell
         entity={row.original.param_form_entrypoint}
+        isPrimary={false}
         asLink={true}
       />
     ),
@@ -628,6 +631,7 @@ export const industriesColumns: ColumnDef<IndustryData>[] = [
     cell: ({ row }) => (
       <ParamFormMiniItemCell
         entity={row.original.param_form_prejob}
+        isPrimary={false}
         asLink={true}
       />
     ),

@@ -1,10 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { ComingSoon } from '@/components/coming-soon'
+import { Actors } from '@/features/actors'
 
 export const Route = createFileRoute('/_authenticated/actors/')({
-  component: ComingSoon,
+  component: Actors,
 })
-
-// function RouteComponent() {
-//   return <div>Hello "/_authenticated/actors/"!</div>
-// }

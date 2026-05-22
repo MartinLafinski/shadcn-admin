@@ -35,7 +35,7 @@ import { EntitySpiderTasksPieCell } from '@/components/smart/cells/entity-spider
 // 入口点迷你信息单元格
 import { EntrypointMiniItemCell } from '@/components/smart/cells/entrypoint-mini-item-cell'
 // 行业单元格
-import { IndustryCell } from '@/components/smart/cells/industry-cell.tsx'
+import { IndustryMiniItemCell } from '@/components/smart/cells/industry-mini-item-cell'
 // 材料类型单元格
 import { MaterialCell } from '@/components/smart/cells/material-cell.tsx'
 // 参数要素单元格
@@ -105,15 +105,14 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => {
       const { setOpen, setCurrentRow } = useEntrypointsActions()
       return (
-        <div
+        <EntrypointMiniItemCell
+          entrypoint={row.original}
+          isPrimary={true}
           onClick={() => {
             setCurrentRow(row.original)
             setOpen('viewEntrypoint')
           }}
-          className='cursor-pointer'
-        >
-          <EntrypointMiniItemCell entrypoint={row.original} />
-        </div>
+        />
       )
     },
     size: 200,
@@ -142,7 +141,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
       return (
         <WebsiteMiniItemCell
           website={row.original.website}
-          asLink={true}
+          isPrimary={false}
           onClick={() => {
             setCurrentRow(entrypoint) // 设置当前选中的行数据
             setOpen('viewWebsite') // 打开查看网站信息对话框
@@ -164,8 +163,9 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
       const entrypoint = row.original
       const { setOpen, setCurrentRow } = useEntrypointsActions()
       return (
-        <IndustryCell
+        <IndustryMiniItemCell
           industry={industry}
+          isPrimary={false}
           onClick={() => {
             setCurrentRow(entrypoint)
             setOpen('viewIndustry')
@@ -200,7 +200,8 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <EntityItemCountCell
         count={row.getValue('prejob_count')}
-        to='/entrypoints'
+        to='/prejobs'
+        searchParams={{ entrypoint_id: row.original.entrypoint_id }}
         icon={ListTodoIcon}
         className='bg-green-100 dark:bg-green-800'
       />
@@ -714,6 +715,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <ParamFormMiniItemCell
         entity={row.original.param_form_website_entrypoint}
+        isPrimary={false}
         asLink={true}
       />
     ),
@@ -730,6 +732,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <ParamFormMiniItemCell
         entity={row.original.param_form_industry_entrypoint}
+        isPrimary={false}
         asLink={true}
       />
     ),
@@ -746,6 +749,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <ParamFormMiniItemCell
         entity={row.original.param_form_self}
+        isPrimary={false}
         asLink={true}
       />
     ),
@@ -761,6 +765,7 @@ export const entrypointsColumns: ColumnDef<EntrypointItemData>[] = [
     cell: ({ row }) => (
       <ParamFormMiniItemCell
         entity={row.original.param_form_prejob}
+        isPrimary={false}
         asLink={true}
       />
     ),

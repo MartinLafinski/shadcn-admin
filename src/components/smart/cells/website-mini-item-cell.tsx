@@ -8,21 +8,21 @@ import { type WebsiteData } from '@/features/websites/data/schemas.ts'
 
 interface WebsiteMiniItemCellProps {
   website: WebsiteData | null
-  asLink?: boolean
+  isPrimary?: boolean
   className?: string
   onClick?: () => void
 }
 
 export const WebsiteMiniItemCell = React.memo(
-  ({ website, asLink, className, onClick }: WebsiteMiniItemCellProps) => {
+  ({ website, isPrimary, className, onClick }: WebsiteMiniItemCellProps) => {
     if (!website) {
       return <span>-</span>
     }
-    const isLink = asLink ?? false
-    const enabled = isLink ? website.website_enabled : website.has_enabled
-    const locked = isLink ? website.website_locked : website.has_locked
-    const paused = isLink ? website.website_paused : website.has_paused
-    const limited = isLink ? website.website_limited : website.has_limited
+    const isSecondary: boolean = !isPrimary
+    const enabled = isSecondary ? website.website_enabled : website.has_enabled
+    const locked = isSecondary ? website.website_locked : website.has_locked
+    const paused = isSecondary ? website.website_paused : website.has_paused
+    const limited = isSecondary ? website.website_limited : website.has_limited
     const canApply = !!website.can_apply
     // const limited = true
     // const canApply = false
@@ -84,8 +84,8 @@ export const WebsiteMiniItemCell = React.memo(
             <span
               className={cn(
                 'text-sm',
-                isLink ? '' : 'font-semibold',
-                isLink ? websiteClassName : 'text-foreground'
+                isSecondary ? '' : 'font-semibold',
+                websiteClassName
               )}
             >
               {website.website_name}

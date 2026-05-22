@@ -14,6 +14,10 @@ type PrejobsDialogType =
   | 'configInfo'
   | 'config'
   | 'view'
+  | 'viewWebsite'
+  | 'viewEntrypoint'
+  | 'viewIndustry'
+  | 'viewJobGroup'
   | 'sync'
 
 /**
@@ -23,6 +27,7 @@ type PrejobSearchParams = {
   industry_id?: number
   website_id?: number
   entrypoint_id?: number
+  jobgroup_id?: number
   prejob_keyword?: string
   prejob_level?: string
   prejob_enabled?: boolean
@@ -83,6 +88,7 @@ export function PrejobsProvider({
       industry_id: search.industry_id,
       website_id: search.website_id,
       entrypoint_id: search.entrypoint_id,
+      jobgroup_id: search.jobgroup_id,
       prejob_keyword: search.prejob_keyword,
       prejob_level: search.prejob_level,
       prejob_enabled: search.prejob_enabled,
@@ -97,6 +103,7 @@ export function PrejobsProvider({
     search.industry_id,
     search.website_id,
     search.entrypoint_id,
+    search.jobgroup_id,
     search.prejob_keyword,
     search.prejob_level,
     search.prejob_enabled,
