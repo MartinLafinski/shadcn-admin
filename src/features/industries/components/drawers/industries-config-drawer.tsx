@@ -48,8 +48,12 @@ function IndustryConfigDrawerContent({
     currentRow?.industry_self_param_slug ?? undefined
   )
 
-  const hasCommonTab = commonParamFormQuery.data !== undefined
-  const hasSelfTab = selfParamFormQuery.data !== undefined
+  const hasCommonTab =
+    commonParamFormQuery.data !== undefined &&
+    commonParamFormQuery.data.param_form_enabled
+  const hasSelfTab =
+    selfParamFormQuery.data !== undefined &&
+    selfParamFormQuery.data.param_form_enabled
 
   const form = useForm<IndustryConfigData>({
     resolver: zodResolver(IndustryConfigSchema),

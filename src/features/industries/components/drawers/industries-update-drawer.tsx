@@ -111,18 +111,33 @@ export const IndustryUpdateDrawer = React.memo(function IndustryUpdateDrawer({
   const form = useForm<any>({
     resolver: zodResolver(IndustryUpdateSchema),
     // 如果有currentRow则使用其值作为默认值，否则使用空值
-    defaultValues: currentRow ?? {
-      // 行业显示名称 - 用于界面展示的可读名称
-      industry_name: '',
-      // 行业URL标识符 - 用于路由和API请求的唯一标识符
-      industry_slug: '',
-      // 行业自用参数要素包标识
-      industry_self_param_slug: '',
-      // 行业入口点参数要素包标识
-      industry_entrypoint_param_slug: '',
-      // 行业预备作业参数要素包标识
-      industry_prejob_param_slug: '',
-    },
+    defaultValues: currentRow
+      ? {
+          // 行业显示名称 - 用于界面展示的可读名称
+          industry_name: currentRow.industry_name,
+          // 行业URL标识符 - 用于路由和API请求的唯一标识符
+          industry_slug: currentRow.industry_slug,
+          // 行业自用参数要素包标识（null视为空字符串）
+          industry_self_param_slug: currentRow.industry_self_param_slug ?? '',
+          // 行业入口点参数要素包标识（null视为空字符串）
+          industry_entrypoint_param_slug:
+            currentRow.industry_entrypoint_param_slug ?? '',
+          // 行业预备作业参数要素包标识（null视为空字符串）
+          industry_prejob_param_slug:
+            currentRow.industry_prejob_param_slug ?? '',
+        }
+      : {
+          // 行业显示名称 - 用于界面展示的可读名称
+          industry_name: '',
+          // 行业URL标识符 - 用于路由和API请求的唯一标识符
+          industry_slug: '',
+          // 行业自用参数要素包标识
+          industry_self_param_slug: '',
+          // 行业入口点参数要素包标识
+          industry_entrypoint_param_slug: '',
+          // 行业预备作业参数要素包标识
+          industry_prejob_param_slug: '',
+        },
   })
 
   /**

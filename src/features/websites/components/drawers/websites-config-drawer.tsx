@@ -45,8 +45,12 @@ function WebsiteConfigDrawerContent({
     currentRow?.website_self_param_slug ?? undefined
   )
 
-  const hasCommonTab = commonParamFormQuery.data !== undefined
-  const hasSelfTab = selfParamFormQuery.data !== undefined
+  const hasCommonTab =
+    commonParamFormQuery.data !== undefined &&
+    commonParamFormQuery.data.param_form_enabled
+  const hasSelfTab =
+    selfParamFormQuery.data !== undefined &&
+    selfParamFormQuery.data.param_form_enabled
 
   const form = useForm<WebsiteConfigData>({
     resolver: zodResolver(WebsiteConfigSchema),

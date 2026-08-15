@@ -48,8 +48,12 @@ function EntrypointConfigDrawerContent({
     currentRow?.entrypoint_self_param_slug ?? undefined
   )
 
-  const hasCommonTab = commonParamFormQuery.data !== undefined
-  const hasSelfTab = selfParamFormQuery.data !== undefined
+  const hasCommonTab =
+    commonParamFormQuery.data !== undefined &&
+    commonParamFormQuery.data.param_form_enabled
+  const hasSelfTab =
+    selfParamFormQuery.data !== undefined &&
+    selfParamFormQuery.data.param_form_enabled
 
   const webEntrypointParamFormQuery = useParamFormBySlugQuery(
     currentRow?.param_form_website_entrypoint?.param_form_slug ?? undefined
@@ -58,8 +62,12 @@ function EntrypointConfigDrawerContent({
     currentRow?.param_form_industry_entrypoint?.param_form_slug ?? undefined
   )
 
-  const hasWebEntrypointTab = webEntrypointParamFormQuery.data !== undefined
-  const hasIndEntrypointTab = indEntrypointParamFormQuery.data !== undefined
+  const hasWebEntrypointTab =
+    webEntrypointParamFormQuery.data !== undefined &&
+    webEntrypointParamFormQuery.data.param_form_enabled
+  const hasIndEntrypointTab =
+    indEntrypointParamFormQuery.data !== undefined &&
+    indEntrypointParamFormQuery.data.param_form_enabled
 
   const form = useForm<EntrypointConfigData>({
     resolver: zodResolver(EntrypointConfigSchema),

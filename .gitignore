@@ -26,3 +26,4 @@ dist-ssr
 *.sw?
 /旧代码/
 /old/
+core
